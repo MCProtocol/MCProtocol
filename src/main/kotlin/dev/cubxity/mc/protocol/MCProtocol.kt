@@ -5,6 +5,16 @@ package dev.cubxity.mc.protocol
  * @author Cubxity
  * @since 7/20/2019
  */
-class MCProtocol {
+class MCProtocol(val side: Side) {
+    /**
+     * Applies all default settings
+     */
+    fun applyDefaults() {
 
+    }
+
+    enum class Side {
+        CLIENT,
+        SERVER
+    }
 }
