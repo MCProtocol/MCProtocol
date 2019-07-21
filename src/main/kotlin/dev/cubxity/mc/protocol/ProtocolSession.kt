@@ -5,6 +5,10 @@ import dev.cubxity.mc.protocol.net.pipeline.TcpPacketCompression
 import dev.cubxity.mc.protocol.packets.Packet
 import dev.cubxity.mc.protocol.packets.PassthroughPacket
 import dev.cubxity.mc.protocol.packets.handshake.client.HandshakePacket
+import dev.cubxity.mc.protocol.packets.status.client.StatusPingPacket
+import dev.cubxity.mc.protocol.packets.status.client.StatusQueryPacket
+import dev.cubxity.mc.protocol.packets.status.server.StatusPongPacket
+import dev.cubxity.mc.protocol.packets.status.server.StatusResponsePacket
 import io.netty.channel.Channel
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.SimpleChannelInboundHandler
@@ -113,18 +117,23 @@ class ProtocolSession @JvmOverloads constructor(
             incomingPackets.clear()
             outgoingPackets.clear()
         }
+        // from client
+        val client = when (side) {
+            Side.CLIENT -> outgoingPackets
+            Side.SERVER -> incomingPackets
+        }
+        // from server
+        val server = when (side) {
+            Side.CLIENT -> incomingPackets
+            Side.SERVER -> outgoingPackets
+        }
         when (subProtocol) {
-            SubProtocol.HANDSHAKE -> when (side) {
-                Side.CLIENT -> outgoingPackets[0] = HandshakePacket::class.java
-                Side.SERVER -> incomingPackets[0] = HandshakePacket::class.java
-            }
-            SubProtocol.STATUS -> when (side) {
-                Side.CLIENT -> {
-
-                }
-                Side.SERVER -> {
-                    incomingPackets
-                }
+            SubProtocol.HANDSHAKE -> client[0x00] = HandshakePacket::class.java
+            SubProtocol.STATUS -> {
+                server[0x00] = StatusResponsePacket::class.java
+                server[0x01] = StatusPongPacket::class.java
+                client[0x00] = StatusQueryPacket::class.java
+                client[0x01] = StatusPingPacket::class.java
             }
             SubProtocol.LOGIN -> when (side) {
                 Side.CLIENT -> {
@@ -151,13 +160,13 @@ class ProtocolSession @JvmOverloads constructor(
 
     fun createOutgoingPacketById(id: Int): Packet {
         val p = outgoingPackets[id] ?: return PassthroughPacket(id)
-        val c = packetConstructors.computeIfAbsent(p) { p.getConstructor() }
+        val c = packetConstructors.computeIfAbsent(p) { p.getConstructor().apply { isAccessible = true } }
         return c.newInstance()
     }
 
     fun createIncomingPacketById(id: Int): Packet {
         val p = incomingPackets[id] ?: return PassthroughPacket(id)
-        val c = packetConstructors.computeIfAbsent(p) { p.getConstructor() }
+        val c = packetConstructors.computeIfAbsent(p) { p.getConstructor().apply { isAccessible = true } }
         return c.newInstance()
     }
 
