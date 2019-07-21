@@ -5,8 +5,6 @@ import dev.cubxity.mc.protocol.net.pipeline.TcpPacketCodec
 import dev.cubxity.mc.protocol.net.pipeline.TcpPacketEncryptor
 import dev.cubxity.mc.protocol.net.pipeline.TcpPacketSizer
 import io.netty.channel.Channel
-import io.netty.channel.ChannelInitializer
-import io.netty.channel.ChannelOption
 import reactor.netty.tcp.TcpClient
 
 /**
@@ -20,22 +18,17 @@ class MCClient @JvmOverloads constructor(
     val client = TcpClient.create()
         .host(host)
         .port(port)
-        .doOnConnect {
-            it.handler(object : ChannelInitializer<Channel>() {
-                override fun initChannel(channel: Channel) {
-                    val protocol = sessionFactory(channel)
-                    with(channel.config()) {
-                        setOption(ChannelOption.IP_TOS, 0x18)
-                        setOption(ChannelOption.TCP_NODELAY, false)
-                    }
-                    with(channel.pipeline()) {
-                        addLast("encryption", TcpPacketEncryptor(protocol))
-                        addLast("sizer", TcpPacketSizer())
-                        addLast("codec", TcpPacketCodec(protocol))
-                        addLast("manager", protocol)
-                    }
-                }
-            })
+        .doOnConnected {
+            val channel = it.channel()
+            val protocol = sessionFactory(channel)
+            with(channel.config()) {
+                setOption(io.netty.channel.ChannelOption.IP_TOS, 0x18)
+                setOption(io.netty.channel.ChannelOption.TCP_NODELAY, false)
+            }
+            it.addHandlerLast("encryption", TcpPacketEncryptor(protocol))
+            it.addHandlerLast("sizer", TcpPacketSizer())
+            it.addHandlerLast("codec", TcpPacketCodec(protocol))
+            it.addHandlerLast("manager", protocol)
         }
 
     /**

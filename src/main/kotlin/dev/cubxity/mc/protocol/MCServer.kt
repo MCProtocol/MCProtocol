@@ -25,7 +25,7 @@ class MCServer @JvmOverloads constructor(
     val server = TcpServer.create()
 //        .wiretap("*")
         .bootstrap {
-            it.childHandler(object: ChannelInitializer<Channel>() {
+            it.childHandler(object : ChannelInitializer<Channel>() {
                 override fun initChannel(ch: Channel?) {
                     println("init")
                 }
@@ -41,12 +41,10 @@ class MCServer @JvmOverloads constructor(
                 setOption(ChannelOption.IP_TOS, 0x18)
                 setOption(ChannelOption.TCP_NODELAY, false)
             }
-            with(channel.pipeline()) {
-                addLast("encryption", TcpPacketEncryptor(protocol))
-                addLast("sizer", TcpPacketSizer())
-                addLast("codec", TcpPacketCodec(protocol))
-                addLast("manager", protocol)
-            }
+            it.addHandlerLast("encryption", TcpPacketEncryptor(protocol))
+            it.addHandlerLast("sizer", TcpPacketSizer())
+            it.addHandlerLast("codec", TcpPacketCodec(protocol))
+            it.addHandlerLast("manager", protocol)
         }
 
     /**
