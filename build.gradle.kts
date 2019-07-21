@@ -10,6 +10,7 @@ version = "1.0"
 
 repositories {
     mavenCentral()
+    maven { url = uri("https://repo.spring.io/milestone") }
 }
 
 dependencyManagement {
@@ -20,7 +21,8 @@ dependencyManagement {
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
-    implementation("io.reactivex.rxjava2:rxkotlin:2.4.0-RC3")
+    compile("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.3.0-RC")
+    compile("io.projectreactor.kotlin:reactor-kotlin-extensions:1.0.0.M1")
     compile("io.projectreactor.netty:reactor-netty")
     compile("ch.qos.logback:logback-classic:1.3.0-alpha4")
 }

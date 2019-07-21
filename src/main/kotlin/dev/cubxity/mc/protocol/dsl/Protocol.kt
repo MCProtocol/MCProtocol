@@ -32,7 +32,7 @@ fun client(
  * DSL Function to build [MCServer]
  */
 fun server(
-    host: String,
+    host: String = "127.0.0.1",
     port: Int = 25565,
     sessionFactory: (Channel) -> ProtocolSession = { defaultProtocol(SERVER, it) },
     block: MCServer.() -> Unit = {}

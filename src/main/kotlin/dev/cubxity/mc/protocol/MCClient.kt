@@ -15,7 +15,7 @@ import reactor.netty.tcp.TcpClient
  */
 class MCClient @JvmOverloads constructor(
     val host: String, val port: Int = 25565,
-    val sessionFactory: (Channel) -> ProtocolSession = { defaultProtocol(ProtocolSession.Side.CLIENT, it) }
+    var sessionFactory: (Channel) -> ProtocolSession = { defaultProtocol(ProtocolSession.Side.CLIENT, it) }
 ) {
     val client = TcpClient.create()
         .host(host)
@@ -32,20 +32,29 @@ class MCClient @JvmOverloads constructor(
                         addLast("encryption", TcpPacketEncryptor(protocol))
                         addLast("sizer", TcpPacketSizer())
                         addLast("codec", TcpPacketCodec(protocol))
+                        addLast("manager", protocol)
                     }
                 }
             })
         }
 
     /**
+     * Builder function for session factory
+     */
+    fun sessionFactory(factory: (Channel) -> ProtocolSession): MCClient {
+        sessionFactory = factory
+        return this
+    }
+
+    /**
      * Start connecting
      * @return [reactor.core.publisher.Mono]
      */
-    fun bind() = client.connect()
+    fun connect() = client.connect()
 
     /**
      * Start connecting (sync)
      * @return [reactor.netty.Connection]
      */
-    fun bindNow() = client.connectNow()
+    fun connectNow() = client.connectNow()
 }

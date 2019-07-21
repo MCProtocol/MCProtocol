@@ -5,7 +5,6 @@ import dev.cubxity.mc.protocol.net.pipeline.TcpPacketCodec
 import dev.cubxity.mc.protocol.net.pipeline.TcpPacketEncryptor
 import dev.cubxity.mc.protocol.net.pipeline.TcpPacketSizer
 import io.netty.channel.Channel
-import io.netty.channel.ChannelInitializer
 import io.netty.channel.ChannelOption
 import reactor.netty.tcp.TcpServer
 
@@ -18,29 +17,36 @@ import reactor.netty.tcp.TcpServer
  * @since 7/20/2019
  */
 class MCServer @JvmOverloads constructor(
-    val host: String,
+    val host: String = "127.0.0.1",
     val port: Int = 25565,
-    val sessionFactory: (Channel) -> ProtocolSession = { defaultProtocol(ProtocolSession.Side.SERVER) }
+    var sessionFactory: (Channel) -> ProtocolSession = { defaultProtocol(ProtocolSession.Side.SERVER, it) }
 ) {
     val server = TcpServer.create()
         .host(host)
         .port(port)
-        .doOnBind {
-            it.childHandler(object : ChannelInitializer<Channel>() {
-                override fun initChannel(channel: Channel) {
-                    val protocol = sessionFactory(channel)
-                    with(channel.config()) {
-                        setOption(ChannelOption.IP_TOS, 0x18)
-                        setOption(ChannelOption.TCP_NODELAY, false)
-                    }
-                    with(channel.pipeline()) {
-                        addLast("encryption", TcpPacketEncryptor(protocol))
-                        addLast("sizer", TcpPacketSizer())
-                        addLast("codec", TcpPacketCodec(protocol))
-                    }
-                }
-            })
+        .handle { i, o -> i.receive().then() }
+        .doOnConnection {
+            val channel = it.channel()
+            val protocol = sessionFactory(channel)
+            with(channel.config()) {
+                setOption(ChannelOption.IP_TOS, 0x18)
+                setOption(ChannelOption.TCP_NODELAY, false)
+            }
+            with(channel.pipeline()) {
+                addLast("encryption", TcpPacketEncryptor(protocol))
+                addLast("sizer", TcpPacketSizer())
+                addLast("codec", TcpPacketCodec(protocol))
+                addLast("manager", protocol)
+            }
         }
+
+    /**
+     * Builder function for session factory
+     */
+    fun sessionFactory(factory: (Channel) -> ProtocolSession): MCServer {
+        sessionFactory = factory
+        return this
+    }
 
     /**
      * Start binding the server
