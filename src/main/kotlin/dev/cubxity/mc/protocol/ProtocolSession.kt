@@ -5,6 +5,10 @@ import dev.cubxity.mc.protocol.net.pipeline.TcpPacketCompression
 import dev.cubxity.mc.protocol.packets.Packet
 import dev.cubxity.mc.protocol.packets.PassthroughPacket
 import dev.cubxity.mc.protocol.packets.handshake.client.HandshakePacket
+import dev.cubxity.mc.protocol.packets.login.client.EncryptionResponsePacket
+import dev.cubxity.mc.protocol.packets.login.client.LoginPluginResponsePacket
+import dev.cubxity.mc.protocol.packets.login.client.LoginStartPacket
+import dev.cubxity.mc.protocol.packets.login.server.*
 import dev.cubxity.mc.protocol.packets.status.client.StatusPingPacket
 import dev.cubxity.mc.protocol.packets.status.client.StatusQueryPacket
 import dev.cubxity.mc.protocol.packets.status.server.StatusPongPacket
@@ -144,11 +148,20 @@ class ProtocolSession @JvmOverloads constructor(
             SubProtocol.STATUS -> {
                 server[0x00] = StatusResponsePacket::class.java
                 server[0x01] = StatusPongPacket::class.java
+
                 client[0x00] = StatusQueryPacket::class.java
                 client[0x01] = StatusPingPacket::class.java
             }
             SubProtocol.LOGIN -> {
+                server[0x00] = LoginDisconnectPacket::class.java
+                server[0x01] = EncryptionRequestPacket::class.java
+                server[0x02] = LoginSuccessPacket::class.java
+                server[0x03] = SetCompressionPacket::class.java
+                server[0x04] = LoginPluginRequestPacket::class.java
 
+                client[0x00] = LoginStartPacket::class.java
+                client[0x01] = EncryptionResponsePacket::class.java
+                client[0x02] = LoginPluginResponsePacket::class.java
             }
             SubProtocol.GAME -> {
             }
