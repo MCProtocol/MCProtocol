@@ -1,6 +1,7 @@
 package dev.cubxity.mc.protocol
 
 import dev.cubxity.mc.protocol.net.PacketEncryption
+import dev.cubxity.mc.protocol.net.pipeline.TcpPacketCompression
 import dev.cubxity.mc.protocol.packets.Packet
 import dev.cubxity.mc.protocol.packets.PassthroughPacket
 import io.netty.channel.Channel
@@ -18,6 +19,16 @@ class ProtocolSession(val side: Side, val channel: Channel) {
 
     var encryption: PacketEncryption? = null
     var compressionThreshold: Int? = null
+        set(value) {
+            with(channel.pipeline()) {
+                if (value != null) {
+                    if (get("compression") == null)
+                        addBefore("codec", "compression", TcpPacketCompression(this))
+                } else if (get("compression") != null)
+                    remove("compression")
+            }
+            field = value
+        }
     val incomingPackets = mutableMapOf<Int, Class<out Packet>>()
     val outgoingPackets = mutableMapOf<Int, Class<out Packet>>()
     var subProtocol = SubProtocol.HANDSHAKE
