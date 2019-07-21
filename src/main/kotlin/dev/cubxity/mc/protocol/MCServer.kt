@@ -23,14 +23,6 @@ class MCServer @JvmOverloads constructor(
     var sessionFactory: (Channel) -> ProtocolSession = { defaultProtocol(ProtocolSession.Side.SERVER, it) }
 ) {
     val server = TcpServer.create()
-//        .wiretap("*")
-        .bootstrap {
-            it.childHandler(object : ChannelInitializer<Channel>() {
-                override fun initChannel(ch: Channel?) {
-                    println("init")
-                }
-            })
-        }
         .host(host)
         .port(port)
         .handle { i, o -> i.receive().then() }

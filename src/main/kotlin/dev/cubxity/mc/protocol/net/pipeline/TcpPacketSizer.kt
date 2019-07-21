@@ -18,7 +18,7 @@ class TcpPacketSizer : ByteToMessageCodec<ByteBuf>() {
 
     override fun encode(ctx: ChannelHandlerContext, msg: ByteBuf, out: ByteBuf) {
         val length = msg.readableBytes()
-        out.ensureWritable(getLengthSize(length)+ length)
+        out.ensureWritable(getLengthSize(length) + length)
         NetOutput(out).writeVarInt(length)
         out.writeBytes(msg)
     }

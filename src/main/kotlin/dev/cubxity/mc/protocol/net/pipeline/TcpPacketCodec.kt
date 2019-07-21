@@ -25,7 +25,7 @@ class TcpPacketCodec(val session: ProtocolSession) : ByteToMessageCodec<Packet>(
             return
         }
         out.writeVarInt(id)
-        packet.write(out)
+        packet.write(out, session.outgoingVersion)
     }
 
     override fun decode(ctx: ChannelHandlerContext, buf: ByteBuf, out: MutableList<Any>) {
@@ -40,7 +40,7 @@ class TcpPacketCodec(val session: ProtocolSession) : ByteToMessageCodec<Packet>(
         val packet = session.createIncomingPacketById(id)
 
         try {
-            packet.read(buf)
+            packet.read(buf, session.incomingVersion)
         } catch (e: Exception) {
             logger.error("An error occurred whilst reading packet ${packet.javaClass.simpleName}", e)
             return

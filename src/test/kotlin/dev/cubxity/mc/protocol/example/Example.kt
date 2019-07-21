@@ -1,9 +1,10 @@
 package dev.cubxity.mc.protocol.example
 
-import dev.cubxity.mc.protocol.ProtocolSession.Side.CLIENT
+import dev.cubxity.mc.protocol.ProtocolSession.Side.SERVER
 import dev.cubxity.mc.protocol.dsl.buildProtocol
 import dev.cubxity.mc.protocol.dsl.server
 import dev.cubxity.mc.protocol.packets.PassthroughPacket
+import dev.cubxity.mc.protocol.packets.handshake.client.HandshakePacket
 
 
 /**
@@ -14,8 +15,10 @@ fun main() {
     server()
         .sessionFactory { ch ->
             println("New session: ${ch.remoteAddress()}")
-            buildProtocol(CLIENT, ch) {
+            buildProtocol(SERVER, ch) {
                 applyDefaults()
+                onPacket<HandshakePacket>()
+                    .subscribe { println("Handshake: ${it.intent}") }
                 onPacket<PassthroughPacket>()
                     .subscribe { println("Packet being passthrough: ${it.id}") }
             }

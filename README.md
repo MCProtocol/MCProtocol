@@ -8,15 +8,27 @@ MCProtocolLib license can be found [here](https://github.com/Steveice10/MCProtoc
 
 **Kotlin:**
 ```kotlin
-client("mc.hypixel.net") {
-    // TODO: Authentication
-    bind().subscribe { println("Connected to Hypixel!") }
-}
+    server()
+        .sessionFactory { ch ->
+            println("New session: ${ch.remoteAddress()}")
+            buildProtocol(SERVER, ch) {
+                applyDefaults()
+                onPacket<HandshakePacket>()
+                    .subscribe { println("Handshake: ${it.intent}") }
+                onPacket<PassthroughPacket>()
+                    .subscribe { println("Packet being passthrough: ${it.id}") }
+            }
+        }
+        .bind()
+        .doOnSuccess {
+            println("Bound to: ${it.host()}:${it.port()}")
+        }
+        .block()!!
+        .onDispose()
+        .block()
 ```
 
 **Java:**
 ```java
-Client client = new Client("mc.hypixel.net")
-client.bind()
-    .subscribe((c) -> System.out.println("Connected to Hypixel!"))
+// TODO
 ```

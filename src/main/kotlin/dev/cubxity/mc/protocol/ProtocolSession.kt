@@ -4,12 +4,13 @@ import dev.cubxity.mc.protocol.net.PacketEncryption
 import dev.cubxity.mc.protocol.net.pipeline.TcpPacketCompression
 import dev.cubxity.mc.protocol.packets.Packet
 import dev.cubxity.mc.protocol.packets.PassthroughPacket
+import dev.cubxity.mc.protocol.packets.handshake.client.HandshakePacket
 import io.netty.channel.Channel
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.SimpleChannelInboundHandler
-import kotlinx.coroutines.channels.ConflatedBroadcastChannel
-import kotlinx.coroutines.reactor.asFlux
-import reactor.core.publisher.Flux
+import reactor.core.publisher.EmitterProcessor
+import reactor.core.publisher.FluxSink
+import reactor.core.scheduler.Schedulers
 import java.lang.reflect.Constructor
 
 /**
@@ -17,7 +18,12 @@ import java.lang.reflect.Constructor
  * @author Cubxity
  * @since 7/20/2019
  */
-class ProtocolSession(val side: Side, val channel: Channel) : SimpleChannelInboundHandler<Packet>() {
+class ProtocolSession @JvmOverloads constructor(
+    val side: Side,
+    val channel: Channel,
+    val incomingVersion: ProtocolVersion = ProtocolVersion.V1_14_4,
+    val outgoingVersion: ProtocolVersion = ProtocolVersion.V1_14_4
+) : SimpleChannelInboundHandler<Packet>() {
     companion object {
         val packetConstructors = mutableMapOf<Class<out Packet>, Constructor<out Packet>>()
     }
@@ -63,13 +69,37 @@ class ProtocolSession(val side: Side, val channel: Channel) : SimpleChannelInbou
      */
     var subProtocol = SubProtocol.HANDSHAKE
 
-    val packetBroadcast = ConflatedBroadcastChannel<Packet>()
+    val packetProcessor = EmitterProcessor.create<Packet>()
+
+    val packetScheduler = Schedulers.newSingle("Protocol-PacketManager", true)
+
+    val packetSink = packetProcessor.sink(FluxSink.OverflowStrategy.BUFFER)
 
 
     /**
      * Applies all default settings
      */
     fun applyDefaults() {
+        registerDefaults()
+        when (side) {
+            Side.CLIENT -> defaultClientHandler()
+            Side.SERVER -> defaultServerHandler()
+        }
+    }
+
+    fun defaultServerHandler() {
+        onPacket<HandshakePacket>()
+            .next()
+            .subscribe {
+                subProtocol = when (it.intent) {
+                    HandshakePacket.Intent.LOGIN -> SubProtocol.LOGIN
+                    HandshakePacket.Intent.STATUS -> SubProtocol.STATUS
+                }
+                registerDefaults()
+            }
+    }
+
+    fun defaultClientHandler() {
 
     }
 
@@ -84,15 +114,16 @@ class ProtocolSession(val side: Side, val channel: Channel) : SimpleChannelInbou
             outgoingPackets.clear()
         }
         when (subProtocol) {
-            SubProtocol.HANDSHAKE -> {
-
+            SubProtocol.HANDSHAKE -> when (side) {
+                Side.CLIENT -> outgoingPackets[0] = HandshakePacket::class.java
+                Side.SERVER -> incomingPackets[0] = HandshakePacket::class.java
             }
             SubProtocol.STATUS -> when (side) {
                 Side.CLIENT -> {
 
                 }
                 Side.SERVER -> {
-
+                    incomingPackets
                 }
             }
             SubProtocol.LOGIN -> when (side) {
@@ -114,7 +145,9 @@ class ProtocolSession(val side: Side, val channel: Channel) : SimpleChannelInbou
         }
     }
 
-    fun <T : Packet> onPacket() = packetBroadcast.openSubscription().asFlux() as Flux<T>
+    inline fun <reified T : Packet> onPacket() =
+        packetProcessor.publishOn(packetScheduler)
+            .ofType(T::class.java)
 
     fun createOutgoingPacketById(id: Int): Packet {
         val p = outgoingPackets[id] ?: return PassthroughPacket(id)
@@ -134,8 +167,13 @@ class ProtocolSession(val side: Side, val channel: Channel) : SimpleChannelInbou
     fun getIncomingId(packet: Packet) =
         incomingPackets.keys.elementAtOrElse(incomingPackets.values.indexOf(packet::class.java)) { (packet as? PassthroughPacket)?.id }
 
+    fun send(packet: Packet) {
+        channel.writeAndFlush(packet)
+        //TODO: Packet sent event
+    }
+
     override fun channelRead0(ctx: ChannelHandlerContext, packet: Packet) {
-        packetBroadcast.offer(packet)
+        packetSink.next(packet)
     }
 
     enum class Side {
