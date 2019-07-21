@@ -24,6 +24,7 @@ dependencies {
     compile("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.3.0-RC")
     compile("io.projectreactor.kotlin:reactor-kotlin-extensions:1.0.0.M1")
     compile("io.projectreactor.netty:reactor-netty")
+    compile("com.fasterxml.jackson.module:jackson-module-kotlin:2.9.+")
     compile("ch.qos.logback:logback-classic:1.3.0-alpha4")
 }
 

@@ -13,6 +13,7 @@ import dev.cubxity.mc.protocol.packets.status.client.StatusPingPacket
 import dev.cubxity.mc.protocol.packets.status.client.StatusQueryPacket
 import dev.cubxity.mc.protocol.packets.status.server.StatusPongPacket
 import dev.cubxity.mc.protocol.packets.status.server.StatusResponsePacket
+import dev.cubxity.mc.protocol.utils.CryptUtil
 import io.netty.channel.Channel
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.SimpleChannelInboundHandler
@@ -21,6 +22,7 @@ import reactor.core.publisher.EmitterProcessor
 import reactor.core.publisher.FluxSink
 import reactor.core.scheduler.Schedulers
 import java.lang.reflect.Constructor
+import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
 
 /**
@@ -82,9 +84,7 @@ class ProtocolSession @JvmOverloads constructor(
     var subProtocol = SubProtocol.HANDSHAKE
 
     val packetProcessor = EmitterProcessor.create<Packet>()
-
     val packetScheduler = Schedulers.newSingle("Protocol-PacketManager", true)
-
     val packetSink = packetProcessor.sink(FluxSink.OverflowStrategy.BUFFER)
 
     /**
@@ -107,6 +107,9 @@ class ProtocolSession @JvmOverloads constructor(
     }
 
     fun defaultServerHandler() {
+        val key = CryptUtil.generateKeyPair()
+        val verifyToken = ByteArray(4)
+        Random().nextBytes(verifyToken)
         syncListeners += {
             when (it) {
                 is HandshakePacket -> {
@@ -116,6 +119,10 @@ class ProtocolSession @JvmOverloads constructor(
                     }
                     registerDefaults()
                 }
+                is LoginStartPacket -> send(EncryptionRequestPacket("", key.public, verifyToken))
+                is EncryptionResponsePacket -> encryption = PacketEncryption(it.getSecretKey(key.private))
+//                is SetCompressionPacket -> compressionThreshold = it.threshold server sends these smh
+//                is LoginSuccessPacket -> subProtocol = SubProtocol.GAME
             }
         }
     }
@@ -164,6 +171,7 @@ class ProtocolSession @JvmOverloads constructor(
                 client[0x02] = LoginPluginResponsePacket::class.java
             }
             SubProtocol.GAME -> {
+
             }
         }
     }
