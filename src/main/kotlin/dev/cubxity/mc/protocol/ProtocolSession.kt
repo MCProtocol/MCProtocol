@@ -12,10 +12,12 @@ import dev.cubxity.mc.protocol.packets.status.server.StatusResponsePacket
 import io.netty.channel.Channel
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.SimpleChannelInboundHandler
+import org.slf4j.LoggerFactory
 import reactor.core.publisher.EmitterProcessor
 import reactor.core.publisher.FluxSink
 import reactor.core.scheduler.Schedulers
 import java.lang.reflect.Constructor
+import java.util.concurrent.CopyOnWriteArrayList
 
 /**
  * The main juice
@@ -31,6 +33,8 @@ class ProtocolSession @JvmOverloads constructor(
     companion object {
         val packetConstructors = mutableMapOf<Class<out Packet>, Constructor<out Packet>>()
     }
+
+    val logger = LoggerFactory.getLogger(this::class.java)
 
     /**
      * Packet encryption
@@ -79,6 +83,13 @@ class ProtocolSession @JvmOverloads constructor(
 
     val packetSink = packetProcessor.sink(FluxSink.OverflowStrategy.BUFFER)
 
+    /**
+     * Do not use this unless it's required
+     * The listeners will be called in the thread that [channelRead0] is called from
+     * @see onPacket
+     */
+    val syncListeners = CopyOnWriteArrayList<(Packet) -> Unit>()
+
 
     /**
      * Applies all default settings
@@ -92,19 +103,20 @@ class ProtocolSession @JvmOverloads constructor(
     }
 
     fun defaultServerHandler() {
-        onPacket<HandshakePacket>()
-            .next()
-            .subscribe {
-                subProtocol = when (it.intent) {
-                    HandshakePacket.Intent.LOGIN -> SubProtocol.LOGIN
-                    HandshakePacket.Intent.STATUS -> SubProtocol.STATUS
+        syncListeners += {
+            when (it) {
+                is HandshakePacket -> {
+                    subProtocol = when (it.intent) {
+                        HandshakePacket.Intent.LOGIN -> SubProtocol.LOGIN
+                        HandshakePacket.Intent.STATUS -> SubProtocol.STATUS
+                    }
+                    registerDefaults()
                 }
-                registerDefaults()
             }
+        }
     }
 
     fun defaultClientHandler() {
-
     }
 
     /**
@@ -135,23 +147,23 @@ class ProtocolSession @JvmOverloads constructor(
                 client[0x00] = StatusQueryPacket::class.java
                 client[0x01] = StatusPingPacket::class.java
             }
-            SubProtocol.LOGIN -> when (side) {
-                Side.CLIENT -> {
+            SubProtocol.LOGIN -> {
 
-                }
-                Side.SERVER -> {
-
-                }
             }
-            SubProtocol.GAME -> when (side) {
-                Side.CLIENT -> {
-
-                }
-                Side.SERVER -> {
-
-                }
+            SubProtocol.GAME -> {
             }
         }
+    }
+
+    /**
+     * Prints every packet received
+     * This is used for debugging
+     * NOTE: [logger]'s level is required to be at DEBUG
+     */
+    fun wiretap(): ProtocolSession {
+        onPacket<Packet>()
+            .subscribe { logger.debug("[$side]: ${it.javaClass.simpleName}") }
+        return this
     }
 
     inline fun <reified T : Packet> onPacket() =
@@ -182,6 +194,7 @@ class ProtocolSession @JvmOverloads constructor(
     }
 
     override fun channelRead0(ctx: ChannelHandlerContext, packet: Packet) {
+        syncListeners.forEach { it(packet) }
         packetSink.next(packet)
     }
 

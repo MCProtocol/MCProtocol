@@ -8,24 +8,19 @@ MCProtocolLib license can be found [here](https://github.com/Steveice10/MCProtoc
 
 **Kotlin:**
 ```kotlin
-    server()
-        .sessionFactory { ch ->
-            println("New session: ${ch.remoteAddress()}")
-            buildProtocol(SERVER, ch) {
-                applyDefaults()
-                onPacket<HandshakePacket>()
-                    .subscribe { println("Handshake: ${it.intent}") }
-                onPacket<PassthroughPacket>()
-                    .subscribe { println("Packet being passthrough: ${it.id}") }
+     server()
+            .sessionFactory { ch ->
+                println("New session: ${ch.remoteAddress()}")
+                buildProtocol(SERVER, ch) {
+                    applyDefaults()
+                    wiretap()
+                }
             }
-        }
-        .bind()
-        .doOnSuccess {
-            println("Bound to: ${it.host()}:${it.port()}")
-        }
-        .block()!!
-        .onDispose()
-        .block()
+            .bind()
+            .doOnSuccess { println("Bound to: ${it.host()}:${it.port()}") }
+            .block()!!
+            .onDispose()
+            .block() // Block until the server shuts down
 ```
 
 **Java:**
