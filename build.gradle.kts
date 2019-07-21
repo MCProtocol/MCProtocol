@@ -22,6 +22,7 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation("io.reactivex.rxjava2:rxkotlin:2.4.0-RC3")
     compile("io.projectreactor.netty:reactor-netty")
+    compile("ch.qos.logback:logback-classic:1.3.0-alpha4")
 }
 
 tasks.withType<KotlinCompile> {
