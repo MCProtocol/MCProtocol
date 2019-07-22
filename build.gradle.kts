@@ -26,6 +26,7 @@ dependencies {
     compile("io.projectreactor.netty:reactor-netty")
     compile("com.fasterxml.jackson.module:jackson-module-kotlin:2.9.+")
     compile("ch.qos.logback:logback-classic:1.3.0-alpha4")
+    compile("org.objenesis:objenesis:3.0.1")
 }
 
 tasks.withType<KotlinCompile> {

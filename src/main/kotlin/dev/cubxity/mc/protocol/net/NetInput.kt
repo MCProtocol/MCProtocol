@@ -12,18 +12,13 @@ import java.util.*
  * @since 7/20/2019
  */
 class NetInput(val buf: ByteBuf) {
+
     fun readBoolean() = buf.readBoolean()
-
     fun readByte() = buf.readByte()
-
     fun readUnsignedByte() = buf.readUnsignedByte().toInt()
-
     fun readShort() = buf.readShort()
-
     fun readUnsignedShort() = buf.readUnsignedShort()
-
     fun readChar() = buf.readChar()
-
     fun readInt() = buf.readInt()
 
     fun readVarInt(): Int {
@@ -57,7 +52,6 @@ class NetInput(val buf: ByteBuf) {
     }
 
     fun readFloat() =buf.readFloat()
-
     fun readDouble() = buf.readDouble()
 
     fun readBytes(length: Int): ByteArray {
@@ -193,8 +187,8 @@ class NetInput(val buf: ByteBuf) {
     }
 
     fun readUUID() = UUID(this.readLong(), this.readLong())
-
+    fun readAngle() = buf.readByte() * 360 / 256f
+    fun readVelocity() = (buf.readShort() / 8000.0).toShort()
     fun available() = buf.readableBytes()
-
     fun readerIndex(i: Int) = buf.readerIndex(i)
 }

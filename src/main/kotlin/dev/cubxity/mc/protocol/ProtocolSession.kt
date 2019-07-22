@@ -4,6 +4,11 @@ import dev.cubxity.mc.protocol.net.PacketEncryption
 import dev.cubxity.mc.protocol.net.pipeline.TcpPacketCompression
 import dev.cubxity.mc.protocol.packets.Packet
 import dev.cubxity.mc.protocol.packets.PassthroughPacket
+import dev.cubxity.mc.protocol.packets.data.MagicRegistry
+import dev.cubxity.mc.protocol.packets.game.server.entity.spawn.SpawnExperienceOrbPacket
+import dev.cubxity.mc.protocol.packets.game.server.entity.spawn.SpawnGlobalEntityPacket
+import dev.cubxity.mc.protocol.packets.game.server.entity.spawn.SpawnMobPacket
+import dev.cubxity.mc.protocol.packets.game.server.entity.spawn.SpawnObjectPacket
 import dev.cubxity.mc.protocol.packets.handshake.client.HandshakePacket
 import dev.cubxity.mc.protocol.packets.login.client.EncryptionResponsePacket
 import dev.cubxity.mc.protocol.packets.login.client.LoginPluginResponsePacket
@@ -24,6 +29,14 @@ import reactor.core.scheduler.Schedulers
 import java.lang.reflect.Constructor
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
+import org.objenesis.ObjenesisStd
+import org.objenesis.Objenesis
+import org.objenesis.ObjenesisHelper.getInstantiatorOf
+import org.objenesis.instantiator.ObjectInstantiator
+
+
+
+
 
 /**
  * The main juice
@@ -36,6 +49,9 @@ class ProtocolSession @JvmOverloads constructor(
     val incomingVersion: ProtocolVersion = ProtocolVersion.V1_14_4,
     val outgoingVersion: ProtocolVersion = ProtocolVersion.V1_14_4
 ) : SimpleChannelInboundHandler<Packet>() {
+
+    private val objenesis = ObjenesisStd()
+
     companion object {
         val packetConstructors = mutableMapOf<Class<out Packet>, Constructor<out Packet>>()
     }
@@ -128,6 +144,19 @@ class ProtocolSession @JvmOverloads constructor(
     }
 
     fun defaultClientHandler() {
+        syncListeners += {
+            when (it) {
+                is HandshakePacket -> {
+                    subProtocol = when (it.intent) {
+                        HandshakePacket.Intent.LOGIN -> SubProtocol.LOGIN
+                        HandshakePacket.Intent.STATUS -> SubProtocol.STATUS
+                    }
+                    registerDefaults()
+                }
+//                is SetCompressionPacket -> compressionThreshold = it.threshold server sends these smh
+//                is LoginSuccessPacket -> subProtocol = SubProtocol.GAME
+            }
+        }
     }
 
     /**
@@ -150,6 +179,7 @@ class ProtocolSession @JvmOverloads constructor(
             Side.CLIENT -> incomingPackets
             Side.SERVER -> outgoingPackets
         }
+
         when (subProtocol) {
             SubProtocol.HANDSHAKE -> client[0x00] = HandshakePacket::class.java
             SubProtocol.STATUS -> {
@@ -171,9 +201,16 @@ class ProtocolSession @JvmOverloads constructor(
                 client[0x02] = LoginPluginResponsePacket::class.java
             }
             SubProtocol.GAME -> {
-
+                server[0x00] = SpawnObjectPacket::class.java
+                server[0x01] = SpawnExperienceOrbPacket::class.java
+                server[0x02] = SpawnGlobalEntityPacket::class.java
+                server[0x03] = SpawnMobPacket::class.java
             }
         }
+
+        println(side)
+        println(subProtocol)
+        println(outgoingPackets)
     }
 
     /**
@@ -193,14 +230,20 @@ class ProtocolSession @JvmOverloads constructor(
 
     fun createOutgoingPacketById(id: Int): Packet {
         val p = outgoingPackets[id] ?: return PassthroughPacket(id)
-        val c = packetConstructors.computeIfAbsent(p) { p.getConstructor().apply { isAccessible = true } }
-        return c.newInstance()
+        return objenesis
+            .getInstantiatorOf(p)
+            .newInstance();
+//        val c = packetConstructors.computeIfAbsent(p) { p.getConstructor().apply { isAccessible = true } }
+//        return c.newInstance()
     }
 
     fun createIncomingPacketById(id: Int): Packet {
         val p = incomingPackets[id] ?: return PassthroughPacket(id)
-        val c = packetConstructors.computeIfAbsent(p) { p.getConstructor().apply { isAccessible = true } }
-        return c.newInstance()
+        return objenesis
+            .getInstantiatorOf(p)
+            .newInstance()
+//        val c = packetConstructors.computeIfAbsent(p) { p.getConstructor().apply { isAccessible = true } }
+//        return c.newInstance()
     }
 
     fun getOutgoingId(packet: Packet) =

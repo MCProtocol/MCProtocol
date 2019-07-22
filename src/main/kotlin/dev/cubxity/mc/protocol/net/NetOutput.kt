@@ -11,13 +11,9 @@ import java.util.*
  */
 class NetOutput(val buf: ByteBuf) {
     fun writeBoolean(b: Boolean) = buf.writeBoolean(b)
-
     fun writeByte(b: Int) = buf.writeByte(b)
-
     fun writeShort(s: Short) = buf.writeShort(s.toInt())
-
     fun writeChar(c: Int) = buf.writeChar(c)
-
     fun writeInt(i: Int) = buf.writeInt(i)
 
     fun writeVarInt(i: Int) {
@@ -42,17 +38,11 @@ class NetOutput(val buf: ByteBuf) {
     }
 
     fun writeFloat(f: Float) = buf.writeFloat(f)
-
     fun writeDouble(d: Double) = buf.writeDouble(d)
-
     fun writeBytes(b: ByteArray) = buf.writeBytes(b)
-
     fun writeBytes(b: ByteArray, length: Int) = buf.writeBytes(b, 0, length)
-
     fun writeShorts(s: ShortArray) = s.forEach { writeShort(it) }
-
     fun writeInts(i: IntArray) = i.forEach { writeInt(it) }
-
     fun writeLongs(l: LongArray) = l.forEach { writeLong(it) }
 
     fun writeString(s: String) {
@@ -69,4 +59,7 @@ class NetOutput(val buf: ByteBuf) {
         writeLong(uuid.mostSignificantBits)
         writeLong(uuid.leastSignificantBits)
     }
+
+    fun writeAngle(angle: Float) = writeByte((angle * 256.0f / 360.0f).toInt())
+    fun writeVelocity(vel: Short) = buf.writeShort(vel * 8000)
 }
