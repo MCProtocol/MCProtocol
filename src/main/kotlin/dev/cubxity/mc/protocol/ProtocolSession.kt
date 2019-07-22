@@ -4,6 +4,7 @@ import dev.cubxity.mc.protocol.net.PacketEncryption
 import dev.cubxity.mc.protocol.net.pipeline.TcpPacketCompression
 import dev.cubxity.mc.protocol.packets.Packet
 import dev.cubxity.mc.protocol.packets.PassthroughPacket
+import dev.cubxity.mc.protocol.packets.game.server.entity.spawn.*
 import dev.cubxity.mc.protocol.packets.handshake.client.HandshakePacket
 import dev.cubxity.mc.protocol.packets.login.client.EncryptionResponsePacket
 import dev.cubxity.mc.protocol.packets.login.client.LoginPluginResponsePacket
@@ -24,6 +25,8 @@ import reactor.core.scheduler.Schedulers
 import java.lang.reflect.Constructor
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
+import org.objenesis.ObjenesisStd
+
 
 /**
  * The main juice
@@ -36,6 +39,9 @@ class ProtocolSession @JvmOverloads constructor(
     val incomingVersion: ProtocolVersion = ProtocolVersion.V1_14_4,
     val outgoingVersion: ProtocolVersion = ProtocolVersion.V1_14_4
 ) : SimpleChannelInboundHandler<Packet>() {
+
+    private val objenesis = ObjenesisStd()
+
     companion object {
         val packetConstructors = mutableMapOf<Class<out Packet>, Constructor<out Packet>>()
     }
@@ -128,6 +134,7 @@ class ProtocolSession @JvmOverloads constructor(
     }
 
     fun defaultClientHandler() {
+
     }
 
     /**
@@ -150,6 +157,7 @@ class ProtocolSession @JvmOverloads constructor(
             Side.CLIENT -> incomingPackets
             Side.SERVER -> outgoingPackets
         }
+
         when (subProtocol) {
             SubProtocol.HANDSHAKE -> client[0x00] = HandshakePacket::class.java
             SubProtocol.STATUS -> {
@@ -171,7 +179,12 @@ class ProtocolSession @JvmOverloads constructor(
                 client[0x02] = LoginPluginResponsePacket::class.java
             }
             SubProtocol.GAME -> {
-
+                server[0x00] = ServerSpawnObjectPacket::class.java
+                server[0x01] = ServerSpawnExperienceOrbPacket::class.java
+                server[0x02] = ServerSpawnGlobalEntityPacket::class.java
+                server[0x03] = ServerSpawnMobPacket::class.java
+                server[0x04] = ServerSpawnPaintingPacket::class.java
+                server[0x05] = ServerSpawnPlayerPacket::class.java
             }
         }
     }
@@ -193,14 +206,20 @@ class ProtocolSession @JvmOverloads constructor(
 
     fun createOutgoingPacketById(id: Int): Packet {
         val p = outgoingPackets[id] ?: return PassthroughPacket(id)
-        val c = packetConstructors.computeIfAbsent(p) { p.getConstructor().apply { isAccessible = true } }
-        return c.newInstance()
+        return objenesis
+            .getInstantiatorOf(p)
+            .newInstance();
+//        val c = packetConstructors.computeIfAbsent(p) { p.getConstructor().apply { isAccessible = true } }
+//        return c.newInstance()
     }
 
     fun createIncomingPacketById(id: Int): Packet {
         val p = incomingPackets[id] ?: return PassthroughPacket(id)
-        val c = packetConstructors.computeIfAbsent(p) { p.getConstructor().apply { isAccessible = true } }
-        return c.newInstance()
+        return objenesis
+            .getInstantiatorOf(p)
+            .newInstance()
+//        val c = packetConstructors.computeIfAbsent(p) { p.getConstructor().apply { isAccessible = true } }
+//        return c.newInstance()
     }
 
     fun getOutgoingId(packet: Packet) =
