@@ -18,15 +18,13 @@ import dev.cubxity.mc.protocol.utils.CryptUtil
 import io.netty.channel.Channel
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.SimpleChannelInboundHandler
+import org.objenesis.ObjenesisStd
 import org.slf4j.LoggerFactory
 import reactor.core.publisher.EmitterProcessor
 import reactor.core.publisher.FluxSink
 import reactor.core.scheduler.Schedulers
-import java.lang.reflect.Constructor
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
-import org.objenesis.ObjenesisStd
-
 
 /**
  * The main juice
@@ -41,10 +39,6 @@ class ProtocolSession @JvmOverloads constructor(
 ) : SimpleChannelInboundHandler<Packet>() {
 
     private val objenesis = ObjenesisStd()
-
-    companion object {
-        val packetConstructors = mutableMapOf<Class<out Packet>, Constructor<out Packet>>()
-    }
 
     val logger = LoggerFactory.getLogger(this::class.java)
 
@@ -208,9 +202,7 @@ class ProtocolSession @JvmOverloads constructor(
         val p = outgoingPackets[id] ?: return PassthroughPacket(id)
         return objenesis
             .getInstantiatorOf(p)
-            .newInstance();
-//        val c = packetConstructors.computeIfAbsent(p) { p.getConstructor().apply { isAccessible = true } }
-//        return c.newInstance()
+            .newInstance()
     }
 
     fun createIncomingPacketById(id: Int): Packet {
@@ -218,8 +210,6 @@ class ProtocolSession @JvmOverloads constructor(
         return objenesis
             .getInstantiatorOf(p)
             .newInstance()
-//        val c = packetConstructors.computeIfAbsent(p) { p.getConstructor().apply { isAccessible = true } }
-//        return c.newInstance()
     }
 
     fun getOutgoingId(packet: Packet) =

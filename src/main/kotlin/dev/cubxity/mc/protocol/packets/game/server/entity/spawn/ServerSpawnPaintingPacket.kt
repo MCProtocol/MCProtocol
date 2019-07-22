@@ -1,13 +1,13 @@
 package dev.cubxity.mc.protocol.packets.game.server.entity.spawn
 
 import dev.cubxity.mc.protocol.ProtocolVersion
+import dev.cubxity.mc.protocol.data.MagicRegistry
+import dev.cubxity.mc.protocol.data.enum.EnumDirection
+import dev.cubxity.mc.protocol.data.enum.EnumPaintingType
 import dev.cubxity.mc.protocol.entities.SimplePosition
 import dev.cubxity.mc.protocol.net.NetInput
 import dev.cubxity.mc.protocol.net.NetOutput
 import dev.cubxity.mc.protocol.packets.Packet
-import dev.cubxity.mc.protocol.packets.data.MagicRegistry
-import dev.cubxity.mc.protocol.packets.data.enum.EnumDirection
-import dev.cubxity.mc.protocol.packets.data.enum.EnumPaintingType
 import java.util.*
 
 class ServerSpawnPaintingPacket(
