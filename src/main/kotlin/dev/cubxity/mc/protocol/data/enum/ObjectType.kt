@@ -1,6 +1,6 @@
 package dev.cubxity.mc.protocol.data.enum
 
-enum class EnumObjectType(val bbXZ: Double, val bbY: Double) {
+enum class ObjectType(val bbXZ: Double, val bbY: Double) {
 
     BOAT(1.375, 0.6),
     ITEM_STACK(0.25, 0.25),

@@ -1,10 +1,11 @@
 package dev.cubxity.mc.protocol
 
 import dev.cubxity.mc.protocol.dsl.defaultProtocol
+import dev.cubxity.mc.protocol.events.ConnectedEvent
 import dev.cubxity.mc.protocol.net.pipeline.TcpPacketCodec
 import dev.cubxity.mc.protocol.net.pipeline.TcpPacketEncryptor
 import dev.cubxity.mc.protocol.net.pipeline.TcpPacketSizer
-import io.netty.channel.Channel
+import io.netty.channel.socket.nio.NioSocketChannel
 import reactor.netty.tcp.TcpClient
 
 /**
@@ -13,14 +14,16 @@ import reactor.netty.tcp.TcpClient
  */
 class MCClient @JvmOverloads constructor(
     val host: String, val port: Int = 25565,
-    var sessionFactory: (Channel) -> ProtocolSession = { defaultProtocol(ProtocolSession.Side.CLIENT, it) }
+    var sessionFactory: (NioSocketChannel) -> ProtocolSession = { defaultProtocol(ProtocolSession.Side.CLIENT, it) }
 ) {
     val client = TcpClient.create()
         .host(host)
         .port(port)
+        .wiretap()
         .doOnConnected {
-            val channel = it.channel()
+            val channel = it.channel() as NioSocketChannel
             val protocol = sessionFactory(channel)
+            protocol.sink.next(ConnectedEvent(it))
             with(channel.config()) {
                 setOption(io.netty.channel.ChannelOption.IP_TOS, 0x18)
                 setOption(io.netty.channel.ChannelOption.TCP_NODELAY, false)
@@ -34,7 +37,7 @@ class MCClient @JvmOverloads constructor(
     /**
      * Builder function for session factory
      */
-    fun sessionFactory(factory: (Channel) -> ProtocolSession): MCClient {
+    fun sessionFactory(factory: (NioSocketChannel) -> ProtocolSession): MCClient {
         sessionFactory = factory
         return this
     }

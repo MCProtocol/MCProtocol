@@ -14,48 +14,52 @@ object MagicRegistry {
     private fun registerVersion(version: ProtocolVersion) {
         val data = mutableMapOf<Any, Any>()
 
-        data[EnumGlobalEntityType.THUNDER_BOLT] = 1
+        data[GlobalEntityType.THUNDER_BOLT] = 1
 
-        data[EnumObjectType.BOAT] = 1
-        data[EnumObjectType.ITEM_STACK] = 2
-        data[EnumObjectType.AREA_EFFECT_CLOUD] = 3
-        data[EnumObjectType.MINECART] = 10
-        data[EnumObjectType.ACTIVATED_TNT] = 50
-        data[EnumObjectType.ENDER_CRYSTAL] = 51
-        data[EnumObjectType.ARROW] = 60
-        data[EnumObjectType.SNOWBALL] = 61
-        data[EnumObjectType.EGG] = 62
-        data[EnumObjectType.FIRE_BALL] = 63
-        data[EnumObjectType.FIRE_CHARGE] = 64
-        data[EnumObjectType.THROWN_ENDERPEARL] = 65
-        data[EnumObjectType.WITHER_SKULL] = 66
-        data[EnumObjectType.SHULKER_BULLET] = 67
-        data[EnumObjectType.LLAMA_SPIT] = 68
-        data[EnumObjectType.FALLING_OBJECT] = 70
-        data[EnumObjectType.ITEM_FRAME] = 71
-        data[EnumObjectType.EYE_OF_ENDER] = 72
-        data[EnumObjectType.THROWN_POTION] = 73
-        data[EnumObjectType.THROWN_EXP_BOTTLE] = 75
-        data[EnumObjectType.FIREWORK_ROCKET] = 76
-        data[EnumObjectType.LEASH_KNOT] = 77
-        data[EnumObjectType.ARMOR_STAND] = 78
-        data[EnumObjectType.EVOCATION_FANGS] = 79
-        data[EnumObjectType.FISHING_HOOK] = 90
-        data[EnumObjectType.SPECTRAL_ARROW] = 91
-        data[EnumObjectType.DRAGON_FIREBALL] = 93
-        data[EnumObjectType.TRIDENT] = 94
+        data[ObjectType.BOAT] = 1
+        data[ObjectType.ITEM_STACK] = 2
+        data[ObjectType.AREA_EFFECT_CLOUD] = 3
+        data[ObjectType.MINECART] = 10
+        data[ObjectType.ACTIVATED_TNT] = 50
+        data[ObjectType.ENDER_CRYSTAL] = 51
+        data[ObjectType.ARROW] = 60
+        data[ObjectType.SNOWBALL] = 61
+        data[ObjectType.EGG] = 62
+        data[ObjectType.FIRE_BALL] = 63
+        data[ObjectType.FIRE_CHARGE] = 64
+        data[ObjectType.THROWN_ENDERPEARL] = 65
+        data[ObjectType.WITHER_SKULL] = 66
+        data[ObjectType.SHULKER_BULLET] = 67
+        data[ObjectType.LLAMA_SPIT] = 68
+        data[ObjectType.FALLING_OBJECT] = 70
+        data[ObjectType.ITEM_FRAME] = 71
+        data[ObjectType.EYE_OF_ENDER] = 72
+        data[ObjectType.THROWN_POTION] = 73
+        data[ObjectType.THROWN_EXP_BOTTLE] = 75
+        data[ObjectType.FIREWORK_ROCKET] = 76
+        data[ObjectType.LEASH_KNOT] = 77
+        data[ObjectType.ARMOR_STAND] = 78
+        data[ObjectType.EVOCATION_FANGS] = 79
+        data[ObjectType.FISHING_HOOK] = 90
+        data[ObjectType.SPECTRAL_ARROW] = 91
+        data[ObjectType.DRAGON_FIREBALL] = 93
+        data[ObjectType.TRIDENT] = 94
 
-        for (i in EnumMobType.values().indices) {
-            val enum = EnumMobType.values()[i]
-            val value = if (enum == EnumMobType.SLIME) 67 else i
+        data[MessageType.CHAT] = 0
+        data[MessageType.SYSTEM] = 1
+        data[MessageType.NOTIFICATION] = 2
+
+        for (i in MobType.values().indices) {
+            val enum = MobType.values()[i]
+            val value = if (enum == MobType.SLIME) 67 else i
             data[enum] = value
         }
 
-        for (i in EnumPaintingType.values().indices)
-            data[EnumMobType.values()[i]] = i
+        for (i in PaintingType.values().indices)
+            data[MobType.values()[i]] = i
 
-        for (i in EnumDirection.values().indices)
-            data[EnumDirection.values()[i]] = i
+        for (i in Direction.values().indices)
+            data[Direction.values()[i]] = i
 
         versionData[version] = data
     }

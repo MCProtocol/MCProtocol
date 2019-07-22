@@ -1,6 +1,6 @@
 package dev.cubxity.mc.protocol.data.enum
 
-enum class EnumDirection {
+enum class Direction {
 
     SOUTH,
     WEST,

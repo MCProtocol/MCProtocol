@@ -1,13 +1,18 @@
 package dev.cubxity.mc.protocol
 
 import com.github.steveice10.mc.auth.data.GameProfile
+import com.github.steveice10.mc.auth.exception.request.InvalidCredentialsException
+import com.github.steveice10.mc.auth.exception.request.RequestException
+import com.github.steveice10.mc.auth.exception.request.ServiceUnavailableException
+import com.github.steveice10.mc.auth.service.AuthenticationService
 import com.github.steveice10.mc.auth.service.SessionService
 import dev.cubxity.mc.protocol.dsl.msg
 import dev.cubxity.mc.protocol.events.*
 import dev.cubxity.mc.protocol.net.PacketEncryption
 import dev.cubxity.mc.protocol.net.pipeline.TcpPacketCompression
 import dev.cubxity.mc.protocol.packets.Packet
-import dev.cubxity.mc.protocol.packets.PassthroughPacket
+import dev.cubxity.mc.protocol.packets.RawPacket
+import dev.cubxity.mc.protocol.packets.game.server.ServerChatPacket
 import dev.cubxity.mc.protocol.packets.game.server.ServerDisconnectPacket
 import dev.cubxity.mc.protocol.packets.game.server.ServerKeepAlivePacket
 import dev.cubxity.mc.protocol.packets.game.server.entity.spawn.*
@@ -21,9 +26,9 @@ import dev.cubxity.mc.protocol.packets.status.client.StatusQueryPacket
 import dev.cubxity.mc.protocol.packets.status.server.StatusPongPacket
 import dev.cubxity.mc.protocol.packets.status.server.StatusResponsePacket
 import dev.cubxity.mc.protocol.utils.CryptUtil
-import io.netty.channel.Channel
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.SimpleChannelInboundHandler
+import io.netty.channel.socket.nio.NioSocketChannel
 import kotlinx.coroutines.*
 import org.objenesis.ObjenesisStd
 import org.slf4j.LoggerFactory
@@ -41,7 +46,7 @@ import java.util.concurrent.CopyOnWriteArrayList
  */
 class ProtocolSession @JvmOverloads constructor(
     val side: Side,
-    val channel: Channel,
+    val channel: NioSocketChannel,
     val incomingVersion: ProtocolVersion = ProtocolVersion.V1_14_4,
     val outgoingVersion: ProtocolVersion = ProtocolVersion.V1_14_4
 ) : SimpleChannelInboundHandler<Packet>(), CoroutineScope {
@@ -76,6 +81,11 @@ class ProtocolSession @JvmOverloads constructor(
         }
 
     /**
+     * Intent for the client
+     */
+    var intent: HandshakePacket.Intent = HandshakePacket.Intent.LOGIN
+
+    /**
      * If the server and client default handler should skip auth
      */
     var offline: Boolean = false
@@ -89,6 +99,16 @@ class ProtocolSession @JvmOverloads constructor(
      * Session profile
      */
     lateinit var profile: GameProfile
+
+    /**
+     * Session access token
+     */
+    lateinit var accessToken: String
+
+    /**
+     * Session client token
+     */
+    var clientToken: String = UUID.randomUUID().toString()
 
     var keyPair = CryptUtil.generateKeyPair()
 
@@ -197,8 +217,58 @@ class ProtocolSession @JvmOverloads constructor(
     }
 
     fun defaultClientHandler() {
-        val addr = channel.remoteAddress()
-
+        on<ConnectedEvent>()
+            .next()
+            .subscribe {
+                val addr = channel.remoteAddress()
+                send(
+                    HandshakePacket(
+                        outgoingVersion.id,
+                        addr.hostString,
+                        addr.port,
+                        intent
+                    )
+                )
+            }
+        on<PacketSentEvent<HandshakePacket>>()
+            .next()
+            .subscribe {
+                when (intent) {
+                    HandshakePacket.Intent.LOGIN -> subProtocol = SubProtocol.LOGIN
+                    HandshakePacket.Intent.STATUS -> subProtocol = SubProtocol.STATUS
+                }
+                registerDefaults()
+                send(LoginStartPacket(profile.name))
+            }
+        on<PacketReceivedEvent<EncryptionRequestPacket>>()
+            .next()
+            .subscribe { (packet) ->
+                val key = CryptUtil.generateSharedKey()
+                val serverHash =
+                    BigInteger(CryptUtil.getServerIdHash(packet.serverId, packet.publicKey, key)).toString(16)
+                try {
+                    SessionService().joinServer(profile, accessToken, serverHash)
+                    send(EncryptionResponsePacket(key, packet.publicKey, packet.verifyToken))
+                    encryption = PacketEncryption(key)
+                } catch (e: ServiceUnavailableException) {
+                    disconnect("Login failed: Authentication service unavailable.")
+                } catch (e: InvalidCredentialsException) {
+                    disconnect("Login failed: Invalid login session.")
+                } catch (e: RequestException) {
+                    disconnect("Login failed: Authentication error: " + e.message)
+                }
+            }
+        syncListeners += {
+            when (it) {
+                is LoginSuccessPacket -> {
+                    subProtocol = SubProtocol.GAME
+                    registerDefaults()
+                }
+                is SetCompressionPacket -> {
+                    compressionThreshold = it.threshold
+                }
+            }
+        }
     }
 
     /**
@@ -249,10 +319,41 @@ class ProtocolSession @JvmOverloads constructor(
                 server[0x03] = ServerSpawnMobPacket::class.java
                 server[0x04] = ServerSpawnPaintingPacket::class.java
                 server[0x05] = ServerSpawnPlayerPacket::class.java
+                server[0x0E] = ServerChatPacket::class.java
                 server[0x1B] = ServerDisconnectPacket::class.java
                 server[0x21] = ServerKeepAlivePacket::class.java
             }
         }
+    }
+
+    /**
+     * Offline minecraft user
+     * @param username
+     * @param uuid optional UUID
+     */
+    @JvmOverloads
+    fun offline(username: String, uuid: UUID = UUID.randomUUID()) {
+        profile = GameProfile(uuid, username)
+    }
+
+    /**
+     * Logging into Minecraft
+     * @param username email of Mojang account or username for legacy account
+     * @param using username or access/refresh token depending on [token] parameter
+     * @param clientToken optional client token
+     */
+    @JvmOverloads
+    fun login(username: String, using: String, clientToken: String = this.clientToken, token: Boolean = false) {
+        val auth = AuthenticationService(clientToken)
+        auth.username = username
+        if (token)
+            auth.accessToken = using
+        else
+            auth.password = using
+        auth.login()
+        profile = auth.selectedProfile
+        accessToken = auth.accessToken
+        this.clientToken = auth.clientToken
     }
 
     /**
@@ -271,24 +372,24 @@ class ProtocolSession @JvmOverloads constructor(
             .ofType(T::class.java)
 
     fun createOutgoingPacketById(id: Int): Packet {
-        val p = outgoingPackets[id] ?: return PassthroughPacket(id)
+        val p = outgoingPackets[id] ?: return RawPacket(id)
         return objenesis
             .getInstantiatorOf(p)
             .newInstance()
     }
 
     fun createIncomingPacketById(id: Int): Packet {
-        val p = incomingPackets[id] ?: return PassthroughPacket(id)
+        val p = incomingPackets[id] ?: return RawPacket(id)
         return objenesis
             .getInstantiatorOf(p)
             .newInstance()
     }
 
     fun getOutgoingId(packet: Packet) =
-        outgoingPackets.keys.elementAtOrElse(outgoingPackets.values.indexOf(packet::class.java)) { (packet as? PassthroughPacket)?.id }
+        outgoingPackets.keys.elementAtOrElse(outgoingPackets.values.indexOf(packet::class.java)) { (packet as? RawPacket)?.id }
 
     fun getIncomingId(packet: Packet) =
-        incomingPackets.keys.elementAtOrElse(incomingPackets.values.indexOf(packet::class.java)) { (packet as? PassthroughPacket)?.id }
+        incomingPackets.keys.elementAtOrElse(incomingPackets.values.indexOf(packet::class.java)) { (packet as? RawPacket)?.id }
 
     fun send(packet: Packet) {
         val e = PacketSendingEvent(packet)
@@ -305,14 +406,6 @@ class ProtocolSession @JvmOverloads constructor(
             send(if (subProtocol == SubProtocol.LOGIN) LoginDisconnectPacket(m) else ServerDisconnectPacket(m))
             channel.disconnect()
         }
-    }
-
-    override fun channelActive(ctx: ChannelHandlerContext) {
-        sink.next(ConnectedEvent(ctx))
-    }
-
-    override fun channelInactive(ctx: ChannelHandlerContext) {
-        sink.next(DisconnectedEvent(ctx))
     }
 
     override fun channelRead0(ctx: ChannelHandlerContext, packet: Packet) {
