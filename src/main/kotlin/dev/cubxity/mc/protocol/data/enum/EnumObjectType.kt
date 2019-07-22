@@ -1,4 +1,4 @@
-package dev.cubxity.mc.protocol.packets.data.enum
+package dev.cubxity.mc.protocol.data.enum
 
 enum class EnumObjectType(val bbXZ: Double, val bbY: Double) {
 

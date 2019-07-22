@@ -1,18 +1,18 @@
-package dev.cubxity.mc.protocol.packets.data
+package dev.cubxity.mc.protocol.data
 
 import dev.cubxity.mc.protocol.ProtocolVersion
-import dev.cubxity.mc.protocol.packets.data.enum.*
+import dev.cubxity.mc.protocol.data.enum.*
 
 object MagicRegistry {
 
-    val versionData = hashMapOf<ProtocolVersion, HashMap<Any, Any>>()
+    val versionData = hashMapOf<ProtocolVersion, MutableMap<Any, Any>>()
 
     init {
         ProtocolVersion.values().forEach { registerVersion(it) }
     }
 
     private fun registerVersion(version: ProtocolVersion) {
-        val data = hashMapOf<Any, Any>()
+        val data = mutableMapOf<Any, Any>()
 
         data[EnumGlobalEntityType.THUNDER_BOLT] = 1
 
@@ -45,39 +45,25 @@ object MagicRegistry {
         data[EnumObjectType.DRAGON_FIREBALL] = 93
         data[EnumObjectType.TRIDENT] = 94
 
-        for (i in 0..EnumMobType.values().size) {
+        for (i in EnumMobType.values().indices) {
             val enum = EnumMobType.values()[i]
             val value = if (enum == EnumMobType.SLIME) 67 else i
             data[enum] = value
         }
 
-        for (i in 0..EnumPaintingType.values().size) {
+        for (i in EnumPaintingType.values().indices)
             data[EnumMobType.values()[i]] = i
-        }
 
-        for (i in 0..EnumDirection.values().size) {
+        for (i in EnumDirection.values().indices)
             data[EnumDirection.values()[i]] = i
-        }
 
         versionData[version] = data
     }
 
-    inline fun <reified T> lookupEntry(version: ProtocolVersion, value: Any): Map.Entry<Any, Any>? =
-        versionData[version]!!.entries.firstOrNull {
-            if (it.key is T) {
-                val eVal = it.value
+    inline fun <reified T> lookupKey(version: ProtocolVersion, value: Any): T {
+        val data = versionData[version]!!
+        return data.keys.elementAt(data.values.indexOf(value)) as T
+    }
 
-                when (value) {
-                    is Number -> {
-                        return@firstOrNull (eVal as Number) == value
-                    }
-                }
-            }
-
-            false
-        }
-
-    inline fun <reified T> lookupKey(version: ProtocolVersion, other: Any) = lookupEntry<T>(version, other)?.key as T
-    inline fun <reified T> lookupValue(version: ProtocolVersion, other: Any) = lookupEntry<T>(version, other)?.value as T
-
+    inline fun <reified T> lookupValue(version: ProtocolVersion, key: Any) = versionData[version]!![key] as T
 }
