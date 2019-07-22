@@ -134,19 +134,7 @@ class ProtocolSession @JvmOverloads constructor(
     }
 
     fun defaultClientHandler() {
-        syncListeners += {
-            when (it) {
-                is HandshakePacket -> {
-                    subProtocol = when (it.intent) {
-                        HandshakePacket.Intent.LOGIN -> SubProtocol.LOGIN
-                        HandshakePacket.Intent.STATUS -> SubProtocol.STATUS
-                    }
-                    registerDefaults()
-                }
-//                is SetCompressionPacket -> compressionThreshold = it.threshold server sends these smh
-//                is LoginSuccessPacket -> subProtocol = SubProtocol.GAME
-            }
-        }
+
     }
 
     /**
