@@ -1,5 +1,6 @@
 package dev.cubxity.mc.protocol.net
 
+import dev.cubxity.mc.protocol.entities.Message
 import dev.cubxity.mc.protocol.entities.SimplePosition
 import io.netty.buffer.ByteBuf
 import java.util.*
@@ -69,4 +70,5 @@ class NetOutput(val buf: ByteBuf) {
         val z = position.z.toLong()
         buf.writeLong(x and 0x3FFFFFF shl 38 or (y and 0xFFF shl 26) or (z and 0x3FFFFFF))
     }
+    fun writeMessage(message: Message) = writeString(message.toJson())
 }

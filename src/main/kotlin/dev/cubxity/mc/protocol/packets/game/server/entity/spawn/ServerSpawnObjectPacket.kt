@@ -2,7 +2,7 @@ package dev.cubxity.mc.protocol.packets.game.server.entity.spawn
 
 import dev.cubxity.mc.protocol.ProtocolVersion
 import dev.cubxity.mc.protocol.data.MagicRegistry
-import dev.cubxity.mc.protocol.data.enum.EnumObjectType
+import dev.cubxity.mc.protocol.data.enums.EnumObjectType
 import dev.cubxity.mc.protocol.net.NetInput
 import dev.cubxity.mc.protocol.net.NetOutput
 import dev.cubxity.mc.protocol.packets.Packet

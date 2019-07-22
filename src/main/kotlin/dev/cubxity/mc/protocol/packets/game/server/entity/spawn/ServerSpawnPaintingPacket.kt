@@ -2,8 +2,8 @@ package dev.cubxity.mc.protocol.packets.game.server.entity.spawn
 
 import dev.cubxity.mc.protocol.ProtocolVersion
 import dev.cubxity.mc.protocol.data.MagicRegistry
-import dev.cubxity.mc.protocol.data.enum.EnumDirection
-import dev.cubxity.mc.protocol.data.enum.EnumPaintingType
+import dev.cubxity.mc.protocol.data.enums.EnumFacing
+import dev.cubxity.mc.protocol.data.enums.EnumPaintingType
 import dev.cubxity.mc.protocol.entities.SimplePosition
 import dev.cubxity.mc.protocol.net.NetInput
 import dev.cubxity.mc.protocol.net.NetOutput
@@ -15,7 +15,7 @@ class ServerSpawnPaintingPacket(
     var entityUuid: UUID,
     var motive: EnumPaintingType,
     var location: SimplePosition,
-    var direction: EnumDirection
+    var direction: EnumFacing
 ) : Packet() {
 
     override fun read(buf: NetInput, target: ProtocolVersion) {

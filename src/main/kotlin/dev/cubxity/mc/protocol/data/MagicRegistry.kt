@@ -1,7 +1,10 @@
 package dev.cubxity.mc.protocol.data
 
 import dev.cubxity.mc.protocol.ProtocolVersion
-import dev.cubxity.mc.protocol.data.enum.*
+import dev.cubxity.mc.protocol.data.enums.*
+import dev.cubxity.mc.protocol.data.enums.bossbar.EnumBossBarAction
+import dev.cubxity.mc.protocol.data.enums.bossbar.EnumBossBarColor
+import dev.cubxity.mc.protocol.data.enums.bossbar.EnumBossBarDivisions
 
 object MagicRegistry {
 
@@ -54,8 +57,20 @@ object MagicRegistry {
         for (i in EnumPaintingType.values().indices)
             data[EnumMobType.values()[i]] = i
 
-        for (i in EnumDirection.values().indices)
-            data[EnumDirection.values()[i]] = i
+        for (i in EnumFacing.values().indices)
+            data[EnumFacing.values()[i]] = i
+
+        for (i in EnumAnimationType.values().indices)
+            data[EnumAnimationType.values()[i]] = i
+
+        for (i in EnumBossBarAction.values().indices)
+            data[EnumBossBarAction.values()[i]] = i
+
+        for (i in EnumBossBarColor.values().indices)
+            data[EnumBossBarColor.values()[i]] = i
+
+        for (i in EnumBossBarDivisions.values().indices)
+            data[EnumBossBarDivisions.values()[i]] = i
 
         versionData[version] = data
     }

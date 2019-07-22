@@ -1,5 +1,6 @@
 package dev.cubxity.mc.protocol.net
 
+import dev.cubxity.mc.protocol.entities.Message
 import dev.cubxity.mc.protocol.entities.SimplePosition
 import io.netty.buffer.ByteBuf
 import java.io.IOException
@@ -197,6 +198,7 @@ class NetInput(val buf: ByteBuf) {
         val z = value shl 38 shr 38
         return SimplePosition(x.toDouble(), y.toDouble(), z.toDouble())
     }
+    fun readMessage() = Message.fromJson(readString())
     fun available() = buf.readableBytes()
     fun readerIndex(i: Int) = buf.readerIndex(i)
 }
