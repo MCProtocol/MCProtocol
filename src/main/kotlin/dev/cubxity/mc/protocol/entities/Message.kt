@@ -28,6 +28,7 @@ data class Message @JvmOverloads constructor(
     companion object {
         private val mapper = jacksonObjectMapper()
 
+        @JvmStatic
         fun fromJson(json: String) = mapper.readValue(json, Message::class.java)
     }
 
@@ -56,6 +57,31 @@ data class Message @JvmOverloads constructor(
         @JsonAlias("show_achievement")
         var showAchievement: String? = null
     )
+
+    fun bold(): Message {
+        bold = "true"
+        return this
+    }
+
+    fun italic(): Message {
+        italic = "true"
+        return this
+    }
+
+    fun underline(): Message {
+        underlined = "true"
+        return this
+    }
+
+    fun strikethrough(): Message {
+        strikethrough = "true"
+        return this
+    }
+
+    fun obfuscated(): Message {
+        obfuscated = "true"
+        return this
+    }
 
     fun toJson() = mapper.writeValueAsString(this)
 

@@ -11,6 +11,7 @@ version = "1.0"
 repositories {
     mavenCentral()
     maven { url = uri("https://repo.spring.io/milestone") }
+    maven { url = uri("https://jitpack.io") }
 }
 
 dependencyManagement {
@@ -27,6 +28,7 @@ dependencies {
     compile("com.fasterxml.jackson.module:jackson-module-kotlin:2.9.+")
     compile("ch.qos.logback:logback-classic:1.3.0-alpha4")
     compile("org.objenesis:objenesis:3.0.1")
+    compile("com.github.Steveice10:MCAuthLib:1.0")
 }
 
 tasks.withType<KotlinCompile> {

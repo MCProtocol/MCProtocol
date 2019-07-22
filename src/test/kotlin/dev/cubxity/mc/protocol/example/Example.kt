@@ -1,8 +1,10 @@
 package dev.cubxity.mc.protocol.example
 
-import dev.cubxity.mc.protocol.ProtocolSession.Side.SERVER
+import dev.cubxity.mc.protocol.ProtocolSession.Side.CLIENT
 import dev.cubxity.mc.protocol.dsl.buildProtocol
-import dev.cubxity.mc.protocol.dsl.server
+import dev.cubxity.mc.protocol.dsl.client
+import dev.cubxity.mc.protocol.events.PacketReceivedEvent
+import dev.cubxity.mc.protocol.packets.login.server.LoginSuccessPacket
 
 
 /**
@@ -10,17 +12,20 @@ import dev.cubxity.mc.protocol.dsl.server
  * @since 7/20/2019
  */
 fun main() {
-    server()
+    client("mc.hypixel.net")
         .sessionFactory { ch ->
-            println("New session: ${ch.remoteAddress()}")
-            buildProtocol(SERVER, ch) {
+            buildProtocol(CLIENT, ch) {
                 applyDefaults()
                 wiretap()
+                on<PacketReceivedEvent<LoginSuccessPacket>>()
+                    .subscribe {
+                        println("Login success!")
+                    }
             }
         }
-        .bind()
-        .doOnSuccess { println("Bound to: ${it.host()}:${it.port()}") }
+        .connect()
+        .doOnSuccess { println("Connected: $it") }
         .block()!!
         .onDispose()
-        .block() // Block until the server shuts down
+        .block() // Block until the client shuts down
 }
