@@ -11,12 +11,7 @@ import dev.cubxity.mc.protocol.packets.Packet
  * @author Cubxity
  * @since 7/21/2019
  */
-class HandshakePacket : Packet() {
-    var protocolVersion: Int = 0
-    lateinit var hostname: String
-    var port: Int = 0
-    lateinit var intent: Intent
-
+class HandshakePacket(var protocolVersion: Int, var hostname: String, var port: Int, var intent: Intent) : Packet() {
     override fun read(buf: NetInput, target: ProtocolVersion) {
         protocolVersion = buf.readVarInt()
         hostname = buf.readString()

@@ -1,6 +1,6 @@
-package dev.cubxity.mc.protocol.entities;
+package dev.cubxity.mc.protocol.entities
 
-public enum ChatColor {
+enum class ChatColor {
     BLACK,
     DARK_BLUE,
     DARK_GREEN,
@@ -19,8 +19,5 @@ public enum ChatColor {
     WHITE,
     RESET;
 
-    @Override
-    public String toString() {
-        return super.toString();
-    }
+    override fun toString() = name.toLowerCase()
 }
