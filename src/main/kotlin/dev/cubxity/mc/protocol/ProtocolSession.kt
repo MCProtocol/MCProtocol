@@ -199,10 +199,6 @@ class ProtocolSession @JvmOverloads constructor(
                 server[0x05] = ServerSpawnPlayerPacket::class.java
             }
         }
-
-        println(side)
-        println(subProtocol)
-        println(outgoingPackets)
     }
 
     /**
