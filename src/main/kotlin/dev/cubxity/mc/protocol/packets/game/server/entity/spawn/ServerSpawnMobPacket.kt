@@ -5,19 +5,20 @@ import dev.cubxity.mc.protocol.net.NetInput
 import dev.cubxity.mc.protocol.net.NetOutput
 import dev.cubxity.mc.protocol.packets.Packet
 import dev.cubxity.mc.protocol.packets.data.MagicRegistry
-import dev.cubxity.mc.protocol.packets.data.enum.EnumObjectType
+import dev.cubxity.mc.protocol.packets.data.enum.EnumMobType
 import java.util.*
 
-class SpawnObjectPacket(
+// TODO: Handle metadata
+class ServerSpawnMobPacket(
     var entityId: Int,
-    var objectUuid: UUID,
-    var type: EnumObjectType,
+    var entityUuid: UUID,
+    var type: EnumMobType,
     var x: Double,
     var y: Double,
     var z: Double,
     var pitch: Float,
     var yaw: Float,
-    var data: Int,
+    var headPitch: Float,
     var velocityX: Short,
     var velocityY: Short,
     var velocityZ: Short
@@ -25,14 +26,14 @@ class SpawnObjectPacket(
 
     override fun read(buf: NetInput, target: ProtocolVersion) {
         entityId = buf.readVarInt()
-        objectUuid = buf.readUUID()
-        type = MagicRegistry.lookupKey(target, buf.readByte()) ?: return
+        entityUuid = buf.readUUID()
+        type = MagicRegistry.lookupKey(target, buf.readVarInt())
         x = buf.readDouble()
         y = buf.readDouble()
         z = buf.readDouble()
         pitch = buf.readAngle()
         yaw = buf.readAngle()
-        data = buf.readInt()
+        headPitch = buf.readAngle()
         velocityX = buf.readVelocity()
         velocityY = buf.readVelocity()
         velocityZ = buf.readVelocity()
@@ -40,16 +41,16 @@ class SpawnObjectPacket(
 
     override fun write(out: NetOutput, target: ProtocolVersion) {
         out.writeVarInt(entityId)
-        out.writeUUID(objectUuid)
-        out.writeByte(MagicRegistry.lookupValue(target, type))
+        out.writeUUID(entityUuid)
+        out.writeVarInt(MagicRegistry.lookupValue(target, type))
         out.writeDouble(x)
         out.writeDouble(y)
         out.writeDouble(z)
         out.writeAngle(pitch)
         out.writeAngle(yaw)
-        out.writeInt(data)
-        out.writeShort((velocityX * 8000.0).toShort())
-        out.writeShort((velocityY * 8000.0).toShort())
-        out.writeShort((velocityZ * 8000.0).toShort())
+        out.writeAngle(headPitch)
+        out.writeVelocity(velocityX)
+        out.writeVelocity(velocityY)
+        out.writeVelocity(velocityZ)
     }
 }

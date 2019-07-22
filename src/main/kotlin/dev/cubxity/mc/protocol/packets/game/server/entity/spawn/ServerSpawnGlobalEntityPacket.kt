@@ -8,7 +8,7 @@ import dev.cubxity.mc.protocol.packets.data.MagicRegistry
 import dev.cubxity.mc.protocol.packets.data.enum.EnumGlobalEntityType
 import dev.cubxity.mc.protocol.packets.data.enum.EnumObjectType
 
-class SpawnGlobalEntityPacket(
+class ServerSpawnGlobalEntityPacket(
     var entityId: Int,
     var type: EnumGlobalEntityType,
     var x: Double,

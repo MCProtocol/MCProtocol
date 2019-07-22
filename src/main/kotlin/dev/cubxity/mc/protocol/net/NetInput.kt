@@ -1,5 +1,6 @@
 package dev.cubxity.mc.protocol.net
 
+import dev.cubxity.mc.protocol.entities.SimplePosition
 import io.netty.buffer.ByteBuf
 import java.io.IOException
 import java.nio.charset.Charset
@@ -189,6 +190,13 @@ class NetInput(val buf: ByteBuf) {
     fun readUUID() = UUID(this.readLong(), this.readLong())
     fun readAngle() = buf.readByte() * 360 / 256f
     fun readVelocity() = (buf.readShort() / 8000.0).toShort()
+    fun readPosition(): SimplePosition {
+        val value = readLong()
+        val x = value shr 38
+        val y = value shr 26 and 0xFFF
+        val z = value shl 38 shr 38
+        return SimplePosition(x.toDouble(), y.toDouble(), z.toDouble())
+    }
     fun available() = buf.readableBytes()
     fun readerIndex(i: Int) = buf.readerIndex(i)
 }

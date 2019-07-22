@@ -1,9 +1,7 @@
 package dev.cubxity.mc.protocol.packets.data
 
 import dev.cubxity.mc.protocol.ProtocolVersion
-import dev.cubxity.mc.protocol.packets.data.enum.EnumGlobalEntityType
-import dev.cubxity.mc.protocol.packets.data.enum.EnumMobType
-import dev.cubxity.mc.protocol.packets.data.enum.EnumObjectType
+import dev.cubxity.mc.protocol.packets.data.enum.*
 
 object MagicRegistry {
 
@@ -51,6 +49,14 @@ object MagicRegistry {
             val enum = EnumMobType.values()[i]
             val value = if (enum == EnumMobType.SLIME) 67 else i
             data[enum] = value
+        }
+
+        for (i in 0..EnumPaintingType.values().size) {
+            data[EnumMobType.values()[i]] = i
+        }
+
+        for (i in 0..EnumDirection.values().size) {
+            data[EnumDirection.values()[i]] = i
         }
 
         versionData[version] = data

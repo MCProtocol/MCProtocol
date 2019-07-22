@@ -1,5 +1,6 @@
 package dev.cubxity.mc.protocol.net
 
+import dev.cubxity.mc.protocol.entities.SimplePosition
 import io.netty.buffer.ByteBuf
 import java.util.*
 
@@ -62,4 +63,10 @@ class NetOutput(val buf: ByteBuf) {
 
     fun writeAngle(angle: Float) = writeByte((angle * 256.0f / 360.0f).toInt())
     fun writeVelocity(vel: Short) = buf.writeShort(vel * 8000)
+    fun writePosition(position: SimplePosition) {
+        val x = position.x.toLong()
+        val y = position.y.toLong()
+        val z = position.z.toLong()
+        buf.writeLong(x and 0x3FFFFFF shl 38 or (y and 0xFFF shl 26) or (z and 0x3FFFFFF))
+    }
 }

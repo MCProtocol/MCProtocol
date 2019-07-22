@@ -5,55 +5,51 @@ import dev.cubxity.mc.protocol.net.NetInput
 import dev.cubxity.mc.protocol.net.NetOutput
 import dev.cubxity.mc.protocol.packets.Packet
 import dev.cubxity.mc.protocol.packets.data.MagicRegistry
-import dev.cubxity.mc.protocol.packets.data.enum.EnumMobType
+import dev.cubxity.mc.protocol.packets.data.enum.EnumObjectType
 import java.util.*
 
-// TODO: Handle metadata
-class SpawnMobPacket(
+class ServerSpawnObjectPacket(
     var entityId: Int,
-    var entityUuid: UUID,
-    var type: EnumMobType,
+    var objectUuid: UUID,
+    var type: EnumObjectType,
     var x: Double,
     var y: Double,
     var z: Double,
     var pitch: Float,
     var yaw: Float,
-    var headPitch: Float,
+    var data: Int,
     var velocityX: Short,
     var velocityY: Short,
-    var velocityZ: Short,
-    var metadata: Int
+    var velocityZ: Short
 ) : Packet() {
 
     override fun read(buf: NetInput, target: ProtocolVersion) {
         entityId = buf.readVarInt()
-        entityUuid = buf.readUUID()
-        type = MagicRegistry.lookupKey(target, buf.readVarInt())
+        objectUuid = buf.readUUID()
+        type = MagicRegistry.lookupKey(target, buf.readByte()) ?: return
         x = buf.readDouble()
         y = buf.readDouble()
         z = buf.readDouble()
         pitch = buf.readAngle()
         yaw = buf.readAngle()
-        headPitch = buf.readAngle()
+        data = buf.readInt()
         velocityX = buf.readVelocity()
         velocityY = buf.readVelocity()
         velocityZ = buf.readVelocity()
-        metadata = buf.readVarInt()
     }
 
     override fun write(out: NetOutput, target: ProtocolVersion) {
         out.writeVarInt(entityId)
-        out.writeUUID(entityUuid)
-        out.writeVarInt(MagicRegistry.lookupValue(target, type))
+        out.writeUUID(objectUuid)
+        out.writeByte(MagicRegistry.lookupValue(target, type))
         out.writeDouble(x)
         out.writeDouble(y)
         out.writeDouble(z)
         out.writeAngle(pitch)
         out.writeAngle(yaw)
-        out.writeAngle(headPitch)
-        out.writeVelocity(velocityX)
-        out.writeVelocity(velocityY)
-        out.writeVelocity(velocityZ)
-        out.writeVarInt(metadata)
+        out.writeInt(data)
+        out.writeShort((velocityX * 8000.0).toShort())
+        out.writeShort((velocityY * 8000.0).toShort())
+        out.writeShort((velocityZ * 8000.0).toShort())
     }
 }

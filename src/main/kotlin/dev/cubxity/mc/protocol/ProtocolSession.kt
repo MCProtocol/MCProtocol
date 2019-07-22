@@ -4,11 +4,7 @@ import dev.cubxity.mc.protocol.net.PacketEncryption
 import dev.cubxity.mc.protocol.net.pipeline.TcpPacketCompression
 import dev.cubxity.mc.protocol.packets.Packet
 import dev.cubxity.mc.protocol.packets.PassthroughPacket
-import dev.cubxity.mc.protocol.packets.data.MagicRegistry
-import dev.cubxity.mc.protocol.packets.game.server.entity.spawn.SpawnExperienceOrbPacket
-import dev.cubxity.mc.protocol.packets.game.server.entity.spawn.SpawnGlobalEntityPacket
-import dev.cubxity.mc.protocol.packets.game.server.entity.spawn.SpawnMobPacket
-import dev.cubxity.mc.protocol.packets.game.server.entity.spawn.SpawnObjectPacket
+import dev.cubxity.mc.protocol.packets.game.server.entity.spawn.*
 import dev.cubxity.mc.protocol.packets.handshake.client.HandshakePacket
 import dev.cubxity.mc.protocol.packets.login.client.EncryptionResponsePacket
 import dev.cubxity.mc.protocol.packets.login.client.LoginPluginResponsePacket
@@ -30,12 +26,6 @@ import java.lang.reflect.Constructor
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
 import org.objenesis.ObjenesisStd
-import org.objenesis.Objenesis
-import org.objenesis.ObjenesisHelper.getInstantiatorOf
-import org.objenesis.instantiator.ObjectInstantiator
-
-
-
 
 
 /**
@@ -201,10 +191,12 @@ class ProtocolSession @JvmOverloads constructor(
                 client[0x02] = LoginPluginResponsePacket::class.java
             }
             SubProtocol.GAME -> {
-                server[0x00] = SpawnObjectPacket::class.java
-                server[0x01] = SpawnExperienceOrbPacket::class.java
-                server[0x02] = SpawnGlobalEntityPacket::class.java
-                server[0x03] = SpawnMobPacket::class.java
+                server[0x00] = ServerSpawnObjectPacket::class.java
+                server[0x01] = ServerSpawnExperienceOrbPacket::class.java
+                server[0x02] = ServerSpawnGlobalEntityPacket::class.java
+                server[0x03] = ServerSpawnMobPacket::class.java
+                server[0x04] = ServerSpawnPaintingPacket::class.java
+                server[0x05] = ServerSpawnPlayerPacket::class.java
             }
         }
 
