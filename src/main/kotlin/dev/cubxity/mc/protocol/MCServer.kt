@@ -3,11 +3,12 @@ package dev.cubxity.mc.protocol
 import dev.cubxity.mc.protocol.dsl.defaultProtocol
 import dev.cubxity.mc.protocol.events.ConnectedEvent
 import dev.cubxity.mc.protocol.net.pipeline.TcpPacketCodec
+import dev.cubxity.mc.protocol.net.pipeline.TcpPacketCompression
 import dev.cubxity.mc.protocol.net.pipeline.TcpPacketEncryptor
 import dev.cubxity.mc.protocol.net.pipeline.TcpPacketSizer
-import io.netty.channel.Channel
 import io.netty.channel.ChannelOption
 import io.netty.channel.socket.nio.NioSocketChannel
+import reactor.netty.Connection
 import reactor.netty.tcp.TcpServer
 
 /**
@@ -21,7 +22,13 @@ import reactor.netty.tcp.TcpServer
 class MCServer @JvmOverloads constructor(
     val host: String = "127.0.0.1",
     val port: Int = 25565,
-    var sessionFactory: (NioSocketChannel) -> ProtocolSession = { defaultProtocol(ProtocolSession.Side.SERVER, it) }
+    var sessionFactory: (Connection, NioSocketChannel) -> ProtocolSession = { con, ch ->
+        defaultProtocol(
+            ProtocolSession.Side.SERVER,
+            con,
+            ch
+        )
+    }
 ) {
     val server = TcpServer.create()
         .host(host)
@@ -29,7 +36,7 @@ class MCServer @JvmOverloads constructor(
         .handle { i, o -> i.receive().then() }
         .doOnConnection {
             val channel = it.channel() as NioSocketChannel
-            val protocol = sessionFactory(channel)
+            val protocol = sessionFactory(it, channel)
             protocol.sink.next(ConnectedEvent(it))
             with(channel.config()) {
                 setOption(ChannelOption.IP_TOS, 0x18)
@@ -37,6 +44,7 @@ class MCServer @JvmOverloads constructor(
             }
             it.addHandlerLast("encryption", TcpPacketEncryptor(protocol))
             it.addHandlerLast("sizer", TcpPacketSizer())
+            it.addHandlerLast("compression", TcpPacketCompression(protocol))
             it.addHandlerLast("codec", TcpPacketCodec(protocol))
             it.addHandlerLast("manager", protocol)
         }
@@ -44,7 +52,7 @@ class MCServer @JvmOverloads constructor(
     /**
      * Builder function for session factory
      */
-    fun sessionFactory(factory: (Channel) -> ProtocolSession): MCServer {
+    fun sessionFactory(factory: (Connection, NioSocketChannel) -> ProtocolSession): MCServer {
         sessionFactory = factory
         return this
     }

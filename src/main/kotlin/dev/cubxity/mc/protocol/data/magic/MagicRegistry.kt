@@ -1,7 +1,6 @@
-package dev.cubxity.mc.protocol.data
+package dev.cubxity.mc.protocol.data.magic
 
 import dev.cubxity.mc.protocol.ProtocolVersion
-import dev.cubxity.mc.protocol.data.enum.*
 
 object MagicRegistry {
 
@@ -48,6 +47,26 @@ object MagicRegistry {
         data[MessageType.CHAT] = 0
         data[MessageType.SYSTEM] = 1
         data[MessageType.NOTIFICATION] = 2
+
+        data[Gamemode.SURVIVAL] = 0
+        data[Gamemode.CREATIVE] = 1
+        data[Gamemode.ADVENTURE] = 2
+        data[Gamemode.SPECTATOR] = 3
+
+        data[Dimension.NETHER] = -1
+        data[Dimension.OVERWORLD] = 0
+        data[Dimension.END] = 1
+
+        data[Difficulity.PEACEFUL] = 0
+        data[Difficulity.EASY] = 1
+        data[Difficulity.NORMAL] = 2
+        data[Difficulity.HARD] = 3
+
+        data[LevelType.DEFAULT] = "default"
+        data[LevelType.FLAT] = "flat"
+        data[LevelType.LARGE_BIOMES] = "largeBiomes"
+        data[LevelType.AMPLIFIED] = "amplified"
+        data[LevelType.DEFAULT_1_1] = "default_1_1"
 
         for (i in MobType.values().indices) {
             val enum = MobType.values()[i]

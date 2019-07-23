@@ -1,4 +1,4 @@
-package dev.cubxity.mc.protocol.data.enum
+package dev.cubxity.mc.protocol.data.magic
 
 enum class PaintingType {
 

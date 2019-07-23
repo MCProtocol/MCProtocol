@@ -6,4 +6,4 @@ import dev.cubxity.mc.protocol.packets.Packet
  * @author Cubxity
  * @since 7/22/2019
  */
-class PacketSendingEvent<T : Packet>(val packet: T) : CancellableEvent()
+class PacketSendingEvent(val packet: Packet) : CancellableEvent()

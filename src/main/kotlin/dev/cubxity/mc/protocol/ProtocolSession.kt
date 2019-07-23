@@ -6,14 +6,18 @@ import com.github.steveice10.mc.auth.exception.request.RequestException
 import com.github.steveice10.mc.auth.exception.request.ServiceUnavailableException
 import com.github.steveice10.mc.auth.service.AuthenticationService
 import com.github.steveice10.mc.auth.service.SessionService
+import dev.cubxity.mc.protocol.data.magic.Dimension
+import dev.cubxity.mc.protocol.data.magic.Gamemode
+import dev.cubxity.mc.protocol.data.magic.LevelType
 import dev.cubxity.mc.protocol.dsl.msg
+import dev.cubxity.mc.protocol.entities.ServerListData
 import dev.cubxity.mc.protocol.events.*
 import dev.cubxity.mc.protocol.net.PacketEncryption
-import dev.cubxity.mc.protocol.net.pipeline.TcpPacketCompression
 import dev.cubxity.mc.protocol.packets.Packet
 import dev.cubxity.mc.protocol.packets.RawPacket
 import dev.cubxity.mc.protocol.packets.game.server.ServerChatPacket
 import dev.cubxity.mc.protocol.packets.game.server.ServerDisconnectPacket
+import dev.cubxity.mc.protocol.packets.game.server.ServerJoinGamePacket
 import dev.cubxity.mc.protocol.packets.game.server.ServerKeepAlivePacket
 import dev.cubxity.mc.protocol.packets.game.server.entity.spawn.*
 import dev.cubxity.mc.protocol.packets.handshake.client.HandshakePacket
@@ -26,6 +30,7 @@ import dev.cubxity.mc.protocol.packets.status.client.StatusQueryPacket
 import dev.cubxity.mc.protocol.packets.status.server.StatusPongPacket
 import dev.cubxity.mc.protocol.packets.status.server.StatusResponsePacket
 import dev.cubxity.mc.protocol.utils.CryptUtil
+import io.netty.channel.ChannelFuture
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.SimpleChannelInboundHandler
 import io.netty.channel.socket.nio.NioSocketChannel
@@ -35,6 +40,7 @@ import org.slf4j.LoggerFactory
 import reactor.core.publisher.EmitterProcessor
 import reactor.core.publisher.FluxSink
 import reactor.core.scheduler.Schedulers
+import reactor.netty.Connection
 import java.math.BigInteger
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
@@ -46,9 +52,10 @@ import java.util.concurrent.CopyOnWriteArrayList
  */
 class ProtocolSession @JvmOverloads constructor(
     val side: Side,
+    val connection: Connection,
     val channel: NioSocketChannel,
-    val incomingVersion: ProtocolVersion = ProtocolVersion.V1_14_4,
-    val outgoingVersion: ProtocolVersion = ProtocolVersion.V1_14_4
+    var incomingVersion: ProtocolVersion = ProtocolVersion.V1_14_4,
+    var outgoingVersion: ProtocolVersion = ProtocolVersion.V1_14_4
 ) : SimpleChannelInboundHandler<Packet>(), CoroutineScope {
 
     override val coroutineContext = Dispatchers.Default + Job()
@@ -67,18 +74,13 @@ class ProtocolSession @JvmOverloads constructor(
      * Protocol compression
      * https://wiki.vg/Protocol#With_compression
      */
-    var compressionThreshold: Int? = null
-        set(value) {
-            if (subProtocol == SubProtocol.LOGIN)
-                with(channel.pipeline()) {
-                    if (value != null) {
-                        if (get("compression") == null)
-                            addBefore("codec", "compression", TcpPacketCompression(this@ProtocolSession))
-                    } else if (get("compression") != null)
-                        remove("compression")
-                }
-            field = value
-        }
+    var compressionThreshold: Int = 256
+
+    /**
+     * If the compression should be enabled,
+     * this should be enabled ONLY after received/sent the [SetCompressionPacket]
+     */
+    var enableCompression: Boolean = false
 
     /**
      * Intent for the client
@@ -165,11 +167,13 @@ class ProtocolSession @JvmOverloads constructor(
                     }
                     registerDefaults()
                 }
-                is LoginStartPacket -> send(EncryptionRequestPacket("", keyPair.public, verifyToken))
+                is LoginStartPacket -> {
+                    username = it.username
+                    send(EncryptionRequestPacket("", keyPair.public, verifyToken))
+                }
                 is EncryptionResponsePacket -> {
                     if (!Arrays.equals(it.getVerifyToken(keyPair.private), verifyToken)) {
                         disconnect("Invalid nonce")
-                        channel.disconnect()
                     } else
                         if (offline) {
                             encryption = PacketEncryption(it.getSecretKey(keyPair.private))
@@ -189,31 +193,61 @@ class ProtocolSession @JvmOverloads constructor(
                                     if (profile == null)
                                         disconnect("Failed to verify username.")
                                     else {
-                                        if (compressionThreshold != null) {
-                                            compressionThreshold = compressionThreshold
-                                            // This will add the compression stuff to the pipeline
-                                        }
                                         this@ProtocolSession.profile = profile
                                         send(LoginSuccessPacket(profile.id.toString(), profile.name))
-                                        launch {
-                                            var lastPing: Long
-                                            while (channel.isOpen) {
-                                                lastPing = System.currentTimeMillis()
-                                                send(ServerKeepAlivePacket(lastPing))
-                                                delay(2000)
+                                            ?.addListener {
+                                                subProtocol = SubProtocol.GAME
+                                                registerDefaults()
+                                                send(
+                                                    ServerJoinGamePacket(
+                                                        0,
+                                                        Gamemode.CREATIVE,
+                                                        false,
+                                                        Dimension.OVERWORLD,
+                                                        1,
+                                                        LevelType.DEFAULT
+                                                    )
+                                                )
+                                                launch {
+                                                    var lastPing: Long
+                                                    while (channel.isOpen) {
+                                                        lastPing = System.currentTimeMillis()
+                                                        send(ServerKeepAlivePacket(lastPing))
+                                                        delay(2000)
+                                                    }
+                                                }
                                             }
-                                        }
                                     }
                                 } catch (ex: Exception) {
+                                    ex.printStackTrace()
                                     disconnect("Failed to authenticate")
                                 }
                             }
                         }
                 }
-//                is SetCompressionPacket -> compressionThreshold = it.threshold server sends these smh
-//                is LoginSuccessPacket -> subProtocol = SubProtocol.GAME
             }
         }
+        on<PacketReceivedEvent>()
+            .filter { it.packet is StatusQueryPacket }
+            .next()
+            .subscribe {
+                send(
+                    StatusResponsePacket(
+                        ServerListData(
+                            ServerListData.Version("MCProtocol", outgoingVersion.id),
+                            msg("MCProtocol Server"),
+                            ServerListData.Players(1, 0)
+                        )
+                    )
+                )
+            }
+        on<PacketReceivedEvent>()
+            .filter { it.packet is StatusPingPacket }
+            .map { it.packet as StatusPingPacket }
+//            .next()
+            .subscribe {
+                send(StatusPongPacket(it.time))
+            }
     }
 
     fun defaultClientHandler() {
@@ -229,26 +263,26 @@ class ProtocolSession @JvmOverloads constructor(
                         intent
                     )
                 )
+                    ?.addListener {
+                        subProtocol = when (intent) {
+                            HandshakePacket.Intent.LOGIN -> SubProtocol.LOGIN
+                            HandshakePacket.Intent.STATUS -> SubProtocol.STATUS
+                        }
+                        registerDefaults()
+                        send(LoginStartPacket(profile.name))
+                    }
             }
-        on<PacketSentEvent<HandshakePacket>>()
+        on<PacketReceivedEvent>()
+            .filter { it.packet is EncryptionRequestPacket }
+            .map { it.packet as EncryptionRequestPacket }
             .next()
             .subscribe {
-                when (intent) {
-                    HandshakePacket.Intent.LOGIN -> subProtocol = SubProtocol.LOGIN
-                    HandshakePacket.Intent.STATUS -> subProtocol = SubProtocol.STATUS
-                }
-                registerDefaults()
-                send(LoginStartPacket(profile.name))
-            }
-        on<PacketReceivedEvent<EncryptionRequestPacket>>()
-            .next()
-            .subscribe { (packet) ->
                 val key = CryptUtil.generateSharedKey()
                 val serverHash =
-                    BigInteger(CryptUtil.getServerIdHash(packet.serverId, packet.publicKey, key)).toString(16)
+                    BigInteger(CryptUtil.getServerIdHash(it.serverId, it.publicKey, key)).toString(16)
                 try {
                     SessionService().joinServer(profile, accessToken, serverHash)
-                    send(EncryptionResponsePacket(key, packet.publicKey, packet.verifyToken))
+                    send(EncryptionResponsePacket(key, it.publicKey, it.verifyToken))
                     encryption = PacketEncryption(key)
                 } catch (e: ServiceUnavailableException) {
                     disconnect("Login failed: Authentication service unavailable.")
@@ -266,6 +300,8 @@ class ProtocolSession @JvmOverloads constructor(
                 }
                 is SetCompressionPacket -> {
                     compressionThreshold = it.threshold
+                    enableCompression = true
+                    logger.debug("Set compression: ${it.threshold}")
                 }
             }
         }
@@ -277,8 +313,8 @@ class ProtocolSession @JvmOverloads constructor(
      */
     @JvmOverloads
     fun registerDefaults(clear: Boolean = true) {
-        if (clear) {
-            incomingPackets.clear()
+            if (clear) {
+                incomingPackets.clear()
             outgoingPackets.clear()
         }
         // from client
@@ -322,6 +358,7 @@ class ProtocolSession @JvmOverloads constructor(
                 server[0x0E] = ServerChatPacket::class.java
                 server[0x1B] = ServerDisconnectPacket::class.java
                 server[0x21] = ServerKeepAlivePacket::class.java
+                server[0x25] = ServerJoinGamePacket::class.java
             }
         }
     }
@@ -362,8 +399,10 @@ class ProtocolSession @JvmOverloads constructor(
      * NOTE: [logger]'s level is required to be at DEBUG
      */
     fun wiretap(): ProtocolSession {
-        on<PacketReceivedEvent<Packet>>()
-            .subscribe { logger.debug("[$side]: ${it.javaClass.simpleName}") }
+        on<PacketReceivedEvent>()
+            .subscribe { (packet) -> logger.debug("[$side - RECEIVED]: ${packet.javaClass.simpleName}") }
+        on<PacketSentEvent>()
+            .subscribe { (packet) -> logger.debug("[$side - SENT]: ${packet.javaClass.simpleName}") }
         return this
     }
 
@@ -391,20 +430,22 @@ class ProtocolSession @JvmOverloads constructor(
     fun getIncomingId(packet: Packet) =
         incomingPackets.keys.elementAtOrElse(incomingPackets.values.indexOf(packet::class.java)) { (packet as? RawPacket)?.id }
 
-    fun send(packet: Packet) {
+    fun send(packet: Packet): ChannelFuture? {
         val e = PacketSendingEvent(packet)
         sink.next(e)
         //TODO: Fix the issue with this being non-blocking
         if (!e.isCancelled)
-            channel.writeAndFlush(packet)
+            return channel.writeAndFlush(packet)
                 .addListener { sink.next(PacketSentEvent(packet)) }
+        return null
     }
 
     fun disconnect(reason: String) {
+        logger.debug("Disconnected: $reason")
         if (channel.isOpen) {
             val m = msg(reason)
             send(if (subProtocol == SubProtocol.LOGIN) LoginDisconnectPacket(m) else ServerDisconnectPacket(m))
-            channel.disconnect()
+                ?.addListener { channel.disconnect() }
         }
     }
 

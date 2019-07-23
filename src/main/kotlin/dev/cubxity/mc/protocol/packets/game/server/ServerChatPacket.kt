@@ -1,8 +1,8 @@
 package dev.cubxity.mc.protocol.packets.game.server
 
 import dev.cubxity.mc.protocol.ProtocolVersion
-import dev.cubxity.mc.protocol.data.MagicRegistry
-import dev.cubxity.mc.protocol.data.enum.MessageType
+import dev.cubxity.mc.protocol.data.magic.MagicRegistry
+import dev.cubxity.mc.protocol.data.magic.MessageType
 import dev.cubxity.mc.protocol.entities.Message
 import dev.cubxity.mc.protocol.net.NetInput
 import dev.cubxity.mc.protocol.net.NetOutput
