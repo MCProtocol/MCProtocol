@@ -42,6 +42,7 @@ fun client() {
         .block()!!
         .onDispose()
         .block() // Block until the client shuts down
+    Thread.sleep(100)
 }
 
 fun server() {

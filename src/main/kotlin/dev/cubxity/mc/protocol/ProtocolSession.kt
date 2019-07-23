@@ -313,8 +313,8 @@ class ProtocolSession @JvmOverloads constructor(
      */
     @JvmOverloads
     fun registerDefaults(clear: Boolean = true) {
-            if (clear) {
-                incomingPackets.clear()
+        if (clear) {
+            incomingPackets.clear()
             outgoingPackets.clear()
         }
         // from client
@@ -400,7 +400,7 @@ class ProtocolSession @JvmOverloads constructor(
      */
     fun wiretap(): ProtocolSession {
         on<PacketReceivedEvent>()
-            .subscribe { (packet) -> logger.debug("[$side - RECEIVED]: ${packet.javaClass.simpleName}") }
+            .subscribe { (packet) -> logger.debug("[$side - RECEIVED]: ${packet.javaClass.simpleName} ${if (packet is RawPacket) "id: ${packet.id}" else ""}") }
         on<PacketSentEvent>()
             .subscribe { (packet) -> logger.debug("[$side - SENT]: ${packet.javaClass.simpleName}") }
         return this

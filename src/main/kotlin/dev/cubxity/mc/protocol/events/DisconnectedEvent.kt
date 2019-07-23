@@ -1,9 +1,9 @@
 package dev.cubxity.mc.protocol.events
 
-import io.netty.channel.ChannelHandlerContext
+import reactor.netty.Connection
 
 /**
  * @author Cubxity
  * @since 7/22/2019
  */
-class DisconnectedEvent(val ctx: ChannelHandlerContext) : Event()
+class DisconnectedEvent(val connection: Connection) : Event()

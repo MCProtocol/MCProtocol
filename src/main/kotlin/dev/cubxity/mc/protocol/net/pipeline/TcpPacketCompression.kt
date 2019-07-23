@@ -59,7 +59,7 @@ class TcpPacketCompression(private val session: ProtocolSession) : ByteToMessage
             val buf = NetInput(buf)
             val size = buf.readVarInt()
             if (size == 0) {
-//                out.add(buf.readBytes(buf.available()))
+                out.add(buf.readBytes(buf.available()))
             } else {
                 val threshold = this.session.compressionThreshold
 

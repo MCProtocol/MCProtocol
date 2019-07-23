@@ -27,7 +27,7 @@ class MCClient @JvmOverloads constructor(
     val client = TcpClient.create()
         .host(host)
         .port(port)
-        .wiretap()
+//        .wiretap()
         .handle { i, o -> i.receive().then() }
         .doOnConnected {
             val channel = it.channel() as NioSocketChannel

@@ -12,9 +12,11 @@ class PacketEncryption(val key: Key) {
     val inCipher = Cipher.getInstance("AES/CFB8/NoPadding").apply { init(2, key, IvParameterSpec(key.encoded)) }!!
     val outCipher = Cipher.getInstance("AES/CFB8/NoPadding").apply { init(1, key, IvParameterSpec(key.encoded)) }!!
 
-    fun encrypt(input: ByteArray, output: ByteArray) = outCipher.update(input, 0, input.size, output)
+    fun decrypt(input: ByteArray, inputOffset: Int, inputLength: Int, output: ByteArray, outputOffset: Int) =
+        inCipher.update(input, inputOffset, inputLength, output, outputOffset)
 
-    fun decrypt(input: ByteArray, output: ByteArray) = inCipher.update(input, 0, input.size, output)
+    fun encrypt(input: ByteArray, inputOffset: Int, inputLength: Int, output: ByteArray, outputOffset: Int) =
+        this.outCipher.update(input, inputOffset, inputLength, output, outputOffset)
 
     fun getEncryptedSize(len: Int) = outCipher.getOutputSize(len)
 
