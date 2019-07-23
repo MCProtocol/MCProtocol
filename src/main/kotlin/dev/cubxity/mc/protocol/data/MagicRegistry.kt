@@ -5,6 +5,8 @@ import dev.cubxity.mc.protocol.data.enums.*
 import dev.cubxity.mc.protocol.data.enums.bossbar.EnumBossBarAction
 import dev.cubxity.mc.protocol.data.enums.bossbar.EnumBossBarColor
 import dev.cubxity.mc.protocol.data.enums.bossbar.EnumBossBarDivisions
+import dev.cubxity.mc.protocol.data.enums.game.EnumChatPosition
+import dev.cubxity.mc.protocol.data.enums.game.EnumDifficulty
 
 object MagicRegistry {
 
@@ -71,6 +73,12 @@ object MagicRegistry {
 
         for (i in EnumBossBarDivisions.values().indices)
             data[EnumBossBarDivisions.values()[i]] = i
+
+        for (i in EnumDifficulty.values().indices)
+            data[EnumDifficulty.values()[i]] = i
+
+        for (i in EnumChatPosition.values().indices)
+            data[EnumChatPosition.values()[i]] = i
 
         versionData[version] = data
     }

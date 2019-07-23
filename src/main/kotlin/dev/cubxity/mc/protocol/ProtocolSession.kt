@@ -10,8 +10,15 @@ import dev.cubxity.mc.protocol.packets.Packet
 import dev.cubxity.mc.protocol.packets.PassthroughPacket
 import dev.cubxity.mc.protocol.packets.game.server.ServerDisconnectPacket
 import dev.cubxity.mc.protocol.packets.game.server.ServerKeepAlivePacket
+import dev.cubxity.mc.protocol.packets.game.server.block.ServerBlockActionPacket
+import dev.cubxity.mc.protocol.packets.game.server.block.ServerBlockChangePacket
+import dev.cubxity.mc.protocol.packets.game.server.block.ServerMultiBlockChangePacket
+import dev.cubxity.mc.protocol.packets.game.server.entity.animation.ServerAnimationPacket
+import dev.cubxity.mc.protocol.packets.game.server.entity.animation.ServerBlockBreakAnimationPacket
 import dev.cubxity.mc.protocol.packets.game.server.entity.spawn.*
 import dev.cubxity.mc.protocol.packets.game.server.misc.ServerBossBarPacket
+import dev.cubxity.mc.protocol.packets.game.server.player.ServerChatMessagePacket
+import dev.cubxity.mc.protocol.packets.game.server.state.ServerDifficultyPacket
 import dev.cubxity.mc.protocol.packets.handshake.client.HandshakePacket
 import dev.cubxity.mc.protocol.packets.login.client.EncryptionResponsePacket
 import dev.cubxity.mc.protocol.packets.login.client.LoginPluginResponsePacket
@@ -250,13 +257,18 @@ class ProtocolSession @JvmOverloads constructor(
                 server[0x03] = ServerSpawnMobPacket::class.java
                 server[0x04] = ServerSpawnPaintingPacket::class.java
                 server[0x05] = ServerSpawnPlayerPacket::class.java
+
                 server[0x06] = ServerAnimationPacket::class.java
                 // TODO: Statistics packet
                 server[0x08] = ServerBlockBreakAnimationPacket::class.java
                 // TODO: Update Block Entity packet
                 server[0x0A] = ServerBlockActionPacket::class.java
                 server[0x0B] = ServerBlockChangePacket::class.java
+
                 server[0x0C] = ServerBossBarPacket::class.java
+                server[0x0D] = ServerDifficultyPacket::class.java
+                server[0x0E] = ServerChatMessagePacket::class.java
+                server[0x0F] = ServerMultiBlockChangePacket::class.java
 
                 server[0x1B] = ServerDisconnectPacket::class.java
                 server[0x21] = ServerKeepAlivePacket::class.java
