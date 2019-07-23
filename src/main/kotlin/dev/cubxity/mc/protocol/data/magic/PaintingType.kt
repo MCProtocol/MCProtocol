@@ -1,6 +1,6 @@
-package dev.cubxity.mc.protocol.data.enums
+package dev.cubxity.mc.protocol.data.magic
 
-enum class EnumPaintingType {
+enum class PaintingType {
 
     KEBAB,
     AZTEC,

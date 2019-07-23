@@ -1,10 +1,10 @@
 package dev.cubxity.mc.protocol.packets.game.server.misc
 
 import dev.cubxity.mc.protocol.ProtocolVersion
-import dev.cubxity.mc.protocol.data.MagicRegistry
 import dev.cubxity.mc.protocol.data.enums.bossbar.EnumBossBarAction
 import dev.cubxity.mc.protocol.data.enums.bossbar.EnumBossBarColor
 import dev.cubxity.mc.protocol.data.enums.bossbar.EnumBossBarDivisions
+import dev.cubxity.mc.protocol.data.magic.MagicRegistry
 import dev.cubxity.mc.protocol.entities.Message
 import dev.cubxity.mc.protocol.net.NetInput
 import dev.cubxity.mc.protocol.net.NetOutput

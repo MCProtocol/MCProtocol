@@ -1,8 +1,8 @@
 package dev.cubxity.mc.protocol.packets.game.server.state
 
 import dev.cubxity.mc.protocol.ProtocolVersion
-import dev.cubxity.mc.protocol.data.MagicRegistry
 import dev.cubxity.mc.protocol.data.enums.game.EnumDifficulty
+import dev.cubxity.mc.protocol.data.magic.MagicRegistry
 import dev.cubxity.mc.protocol.net.NetInput
 import dev.cubxity.mc.protocol.net.NetOutput
 import dev.cubxity.mc.protocol.packets.Packet

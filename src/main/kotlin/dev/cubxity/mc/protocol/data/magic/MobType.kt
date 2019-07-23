@@ -1,6 +1,6 @@
-package dev.cubxity.mc.protocol.data.enums
+package dev.cubxity.mc.protocol.data.magic
 
-enum class EnumMobType {
+enum class MobType {
 
     AREA_EFFECT_CLOUD,
     ARMOR_STAND,

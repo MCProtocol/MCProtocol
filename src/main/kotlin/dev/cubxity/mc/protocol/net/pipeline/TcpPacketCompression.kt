@@ -27,9 +27,13 @@ class TcpPacketCompression(private val session: ProtocolSession) : ByteToMessage
     private val buf = ByteArray(8192)
 
     override fun encode(ctx: ChannelHandlerContext, msg: ByteBuf, out: ByteBuf) {
+        if (!session.enableCompression) {
+            out.writeBytes(msg)
+            return
+        }
         val readable = msg.readableBytes()
         val output = NetOutput(out)
-        if (this.session.compressionThreshold?.let { readable < it } == true) {
+        if (readable < session.compressionThreshold) {
             output.writeVarInt(0)
             out.writeBytes(msg)
         } else {
@@ -47,13 +51,18 @@ class TcpPacketCompression(private val session: ProtocolSession) : ByteToMessage
     }
 
     override fun decode(ctx: ChannelHandlerContext, buf: ByteBuf, out: MutableList<Any>) {
+        if (!session.enableCompression) {
+            out.add(buf.readBytes(buf.readableBytes()))
+            return
+        }
+        
         if (buf.readableBytes() != 0) {
             val buf = NetInput(buf)
             val size = buf.readVarInt()
             if (size == 0) {
-                out.add(buf.readBytes(buf.available()))
+//                out.add(buf.readBytes(buf.available()))
             } else {
-                val threshold = this.session.compressionThreshold ?: return // Should never happen
+                val threshold = this.session.compressionThreshold
 
                 if (size < threshold) {
                     logger.error("Badly compressed packet: size of $size is below threshold of $threshold.")

@@ -9,7 +9,7 @@ import dev.cubxity.mc.protocol.net.NetOutput
  * @author Cubxity
  * @since 7/21/2019
  */
-class PassthroughPacket(val id: Int) : Packet() {
+class RawPacket(val id: Int) : Packet() {
     lateinit var bytes: ByteArray
 
     override fun read(buf: NetInput, target: ProtocolVersion) {
