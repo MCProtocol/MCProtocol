@@ -30,25 +30,29 @@ class TcpPacketCodec(val session: ProtocolSession) : ByteToMessageCodec<Packet>(
 
     override fun decode(ctx: ChannelHandlerContext, buf: ByteBuf, out: MutableList<Any>) {
         val initial = buf.readerIndex()
-        val buf = NetInput(buf)
-        val id = buf.readVarInt()
-        if (id == -1) {
-            buf.readerIndex(initial)
-            return
-        }
-
-        val packet = session.createIncomingPacketById(id)
-
+        val ni = NetInput(buf)
         try {
-            packet.read(buf, session.incomingVersion)
+            val id = ni.readVarInt()
+            if (id == -1) {
+                ni.readerIndex(initial)
+                return
+            }
+
+            val packet = session.createIncomingPacketById(id)
+
+            try {
+                packet.read(ni, session.incomingVersion)
+            } catch (e: Exception) {
+                logger.error("An error occurred whilst reading packet ${packet.javaClass.simpleName}", e)
+                return
+            }
+
+            if (buf.readableBytes() > 0)
+                logger.warn("Packet ${packet.javaClass.simpleName} was was not fully read")
+
+            out.add(packet)
         } catch (e: Exception) {
-            logger.error("An error occurred whilst reading packet ${packet.javaClass.simpleName}", e)
-            return
+            logger.error("Error occurred whilst decoding", e)
         }
-
-        if (buf.available() > 0)
-            logger.warn("Packet ${packet.javaClass.simpleName} was was not fully read")
-
-        out.add(packet)
     }
 }
