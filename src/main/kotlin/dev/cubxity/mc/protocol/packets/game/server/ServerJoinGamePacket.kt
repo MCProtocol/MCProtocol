@@ -27,7 +27,6 @@ class ServerJoinGamePacket @JvmOverloads constructor(
         val gm = buf.readUnsignedByte()
         hardcore = gm and 8 == 8
         gamemode = MagicRegistry.lookupKey(target, gm and -9)
-        gamemode = MagicRegistry.lookupKey(target, gamemode)
         dimension = MagicRegistry.lookupKey(target, buf.readInt())
         maxPlayers = buf.readUnsignedByte()
         levelType = MagicRegistry.lookupKey(target, buf.readString().toLowerCase())

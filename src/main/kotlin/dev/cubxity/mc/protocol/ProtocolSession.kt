@@ -15,6 +15,7 @@ import dev.cubxity.mc.protocol.events.*
 import dev.cubxity.mc.protocol.net.PacketEncryption
 import dev.cubxity.mc.protocol.packets.Packet
 import dev.cubxity.mc.protocol.packets.RawPacket
+import dev.cubxity.mc.protocol.packets.game.client.ClientKeepAlivePacket
 import dev.cubxity.mc.protocol.packets.game.server.ServerChatPacket
 import dev.cubxity.mc.protocol.packets.game.server.ServerDisconnectPacket
 import dev.cubxity.mc.protocol.packets.game.server.ServerJoinGamePacket
@@ -292,6 +293,12 @@ class ProtocolSession @JvmOverloads constructor(
                     disconnect("Login failed: Authentication error: " + e.message)
                 }
             }
+        on<PacketReceivedEvent>()
+            .filter { it.packet is ServerKeepAlivePacket }
+            .map { it.packet as ServerKeepAlivePacket }
+            .subscribe {
+                send(ClientKeepAlivePacket(it.time))
+            }
         syncListeners += {
             when (it) {
                 is LoginSuccessPacket -> {
@@ -359,6 +366,8 @@ class ProtocolSession @JvmOverloads constructor(
                 server[0x1B] = ServerDisconnectPacket::class.java
                 server[0x21] = ServerKeepAlivePacket::class.java
                 server[0x25] = ServerJoinGamePacket::class.java
+
+                client[0x0E] = ClientKeepAlivePacket::class.java
             }
         }
     }

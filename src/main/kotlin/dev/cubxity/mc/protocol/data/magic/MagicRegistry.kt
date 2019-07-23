@@ -85,7 +85,7 @@ object MagicRegistry {
 
     inline fun <reified T> lookupKey(version: ProtocolVersion, value: Any): T {
         val data = versionData[version]!!
-        return data.entries.first { it.value == value && it.key is T }.key as T
+        return data.entries.find { it.value == value && it.key is T }!!.key as T
     }
 
     inline fun <reified T> lookupValue(version: ProtocolVersion, key: Any) = versionData[version]!![key] as T

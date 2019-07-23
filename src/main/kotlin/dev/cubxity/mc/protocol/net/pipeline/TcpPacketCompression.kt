@@ -56,10 +56,10 @@ class TcpPacketCompression(private val session: ProtocolSession) : ByteToMessage
             return
         }
         if (buf.readableBytes() != 0) {
-            val buf = NetInput(buf)
-            val size = buf.readVarInt()
+            val ni = NetInput(buf)
+            val size = ni.readVarInt()
             if (size == 0) {
-                out.add(buf.readBytes(buf.available()))
+                out.add(buf.readBytes(buf.readableBytes()))
             } else {
                 val threshold = this.session.compressionThreshold
 
@@ -73,8 +73,8 @@ class TcpPacketCompression(private val session: ProtocolSession) : ByteToMessage
                     return
                 }
 
-                val bytes = ByteArray(buf.available())
-                buf.readBytes(bytes)
+                val bytes = ByteArray(buf.readableBytes())
+                ni.readBytes(bytes)
                 inflater.setInput(bytes)
                 val inflated = ByteArray(size)
                 inflater.inflate(inflated)
