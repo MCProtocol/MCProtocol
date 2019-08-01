@@ -13,6 +13,7 @@ import dev.cubxity.mc.protocol.entities.Message
 import dev.cubxity.mc.protocol.entities.SimplePosition
 import io.netty.buffer.ByteBuf
 import java.io.IOException
+import java.io.InputStream
 import java.nio.charset.Charset
 import java.util.*
 
@@ -62,7 +63,7 @@ class NetInput(val buf: ByteBuf) {
         return (value or (b and 0x7F shl size * 7)).toLong()
     }
 
-    fun readFloat() =buf.readFloat()
+    fun readFloat() = buf.readFloat()
     fun readDouble() = buf.readDouble()
 
     fun readBytes(length: Int): ByteArray {
@@ -207,6 +208,7 @@ class NetInput(val buf: ByteBuf) {
         val z = value shl 26 shr 38
         return SimplePosition(x.toDouble(), y.toDouble(), z.toDouble())
     }
+
     fun readRotation(): Rotation = Rotation(readFloat(), readFloat(), readFloat())
 
     fun readEntityMetadata(target: ProtocolVersion): Array<EntityMetadata> {

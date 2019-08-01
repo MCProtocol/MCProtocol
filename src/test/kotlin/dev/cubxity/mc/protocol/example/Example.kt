@@ -1,10 +1,12 @@
 package dev.cubxity.mc.protocol.example
 
+import com.google.gson.GsonBuilder
 import dev.cubxity.mc.protocol.ProtocolSession
 import dev.cubxity.mc.protocol.dsl.buildProtocol
 import dev.cubxity.mc.protocol.dsl.client
 import dev.cubxity.mc.protocol.dsl.server
 import dev.cubxity.mc.protocol.events.PacketReceivedEvent
+import dev.cubxity.mc.protocol.packets.RawPacket
 import dev.cubxity.mc.protocol.packets.game.client.ClientChatMessagePacket
 import dev.cubxity.mc.protocol.packets.game.server.ServerChatPacket
 import dev.cubxity.mc.protocol.packets.login.server.LoginSuccessPacket
@@ -25,6 +27,12 @@ fun client() {
                 wiretap()
 //                login(System.getProperty("username"), System.getProperty("password"))
                 offline("TestUser")
+
+                val gson = GsonBuilder().setPrettyPrinting().create()
+                on<PacketReceivedEvent>()
+                    .subscribe {
+                        println("Packet data: ${gson.toJson(if (it.packet is RawPacket) return@subscribe else it.packet)}")
+                    }
                 on<PacketReceivedEvent>()
                     .filter { it.packet is LoginSuccessPacket }
                     .next()
