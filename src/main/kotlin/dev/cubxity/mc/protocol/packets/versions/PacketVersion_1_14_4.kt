@@ -9,6 +9,7 @@ import dev.cubxity.mc.protocol.packets.game.server.entity.ServerEntityHeadLookPa
 import dev.cubxity.mc.protocol.packets.game.server.entity.ServerEntityLookPacket
 import dev.cubxity.mc.protocol.packets.game.server.entity.ServerEntityVelocityPacket
 import dev.cubxity.mc.protocol.packets.game.server.entity.player.ServerPlayerAbilitiesPacket
+import dev.cubxity.mc.protocol.packets.game.client.player.ClientPlayerPacket
 import dev.cubxity.mc.protocol.packets.game.server.entity.spawn.*
 import dev.cubxity.mc.protocol.packets.game.server.world.block.ServerMultiBlockChangePacket
 import dev.cubxity.mc.protocol.packets.login.client.EncryptionResponsePacket
@@ -20,7 +21,8 @@ class PacketVersion_1_14_4 : PacketVersion {
 
     override val clientPlay: Map<Int, Class<out Packet>> = mapOf(
         0x03 to ClientChatMessagePacket::class.java,
-        0x0F to ClientKeepAlivePacket::class.java
+        0x0F to ClientKeepAlivePacket::class.java,
+        0x14 to ClientPlayerPacket::class.java
     )
 
     override val serverPlay: Map<Int, Class<out Packet>> = mapOf(
