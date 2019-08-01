@@ -1,5 +1,15 @@
 package dev.cubxity.mc.protocol.net
 
+import com.github.steveice10.opennbt.NBTIO
+import dev.cubxity.mc.protocol.ProtocolVersion
+import dev.cubxity.mc.protocol.data.magic.Direction
+import dev.cubxity.mc.protocol.data.magic.MagicRegistry
+import dev.cubxity.mc.protocol.data.magic.MetadataType
+import dev.cubxity.mc.protocol.data.magic.Pose
+import dev.cubxity.mc.protocol.data.obj.EntityMetadata
+import dev.cubxity.mc.protocol.data.obj.Rotation
+import dev.cubxity.mc.protocol.data.obj.VillagerData
+import dev.cubxity.mc.protocol.entities.Message
 import dev.cubxity.mc.protocol.entities.SimplePosition
 import io.netty.buffer.ByteBuf
 import java.io.IOException
@@ -193,10 +203,51 @@ class NetInput(val buf: ByteBuf) {
     fun readPosition(): SimplePosition {
         val value = readLong()
         val x = value shr 38
-        val y = value shr 26 and 0xFFF
-        val z = value shl 38 shr 38
+        val y = value and 0xFFF
+        val z = value shl 26 shr 38
         return SimplePosition(x.toDouble(), y.toDouble(), z.toDouble())
     }
+    fun readRotation(): Rotation = Rotation(readFloat(), readFloat(), readFloat())
+
+    fun readEntityMetadata(target: ProtocolVersion): Array<EntityMetadata> {
+        var items = arrayOf<EntityMetadata>()
+
+        while (true) {
+            val id = readUnsignedByte()
+            if (id == 255) break
+
+            val typeId = readVarInt()
+            val type = MagicRegistry.lookupKey<MetadataType>(target, typeId)
+
+            val value: Any? = when (type) {
+                MetadataType.BYTE -> readByte()
+                MetadataType.VAR_INT -> readVarInt()
+                MetadataType.FLOAT -> readFloat()
+                MetadataType.STRING -> readString()
+                MetadataType.CHAT -> Message.fromJson(readString())
+                MetadataType.OPT_CHAT -> if (readBoolean()) Message.fromJson(readString()) else null
+                MetadataType.SLOT -> null
+                MetadataType.BOOLEAN -> readBoolean()
+                MetadataType.ROTATION -> readRotation()
+                MetadataType.POSITION -> readPosition()
+                MetadataType.OPT_POSITION -> if (readBoolean()) readPosition() else null
+                MetadataType.DIRECTION -> MagicRegistry.lookupKey<Direction>(target, readVarInt())
+                MetadataType.OPT_UUID -> if (readBoolean()) readUUID() else null
+                MetadataType.OPT_BLOCK_ID -> readVarInt()
+                MetadataType.NBT -> NBTIO.readTag(readString().byteInputStream())
+                // TODO: Add particle data
+                MetadataType.PARTICLE -> null
+                MetadataType.VILLAGER_DATA -> VillagerData(readVarInt(), readVarInt(), readVarInt())
+                MetadataType.OPT_VAR_INT -> if (readBoolean()) readVarInt() else null
+                MetadataType.POSE -> MagicRegistry.lookupKey<Pose>(target, readVarInt())
+            }
+
+            items += EntityMetadata(id, type, value)
+        }
+
+        return items
+    }
+
     fun available() = buf.readableBytes()
     fun readerIndex(i: Int) = buf.readerIndex(i)
 }

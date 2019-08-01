@@ -13,7 +13,7 @@ object MagicRegistry {
     private fun registerVersion(version: ProtocolVersion) {
         val data = mutableMapOf<Any, Any>()
 
-        data[GlobalEntityType.THUNDER_BOLT] = 1
+        data[GlobalEntityType.THUNDER_BOLT] = 0
 
         data[ObjectType.BOAT] = 1
         data[ObjectType.ITEM_STACK] = 2
@@ -75,10 +75,16 @@ object MagicRegistry {
         }
 
         for (i in PaintingType.values().indices)
-            data[MobType.values()[i]] = i
+            data[PaintingType.values()[i]] = i
 
         for (i in Direction.values().indices)
             data[Direction.values()[i]] = i
+
+        for (i in MetadataType.values().indices)
+            data[MetadataType.values()[i]] = i
+
+        for (i in Pose.values().indices)
+            data[Pose.values()[i]] = i
 
         versionData[version] = data
     }

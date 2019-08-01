@@ -23,7 +23,8 @@ data class Message @JvmOverloads constructor(
     var hoverEvent: HoverEvent? = null,
     var extra: MutableList<Message>? = null,
     var translate: String? = null,
-    var score: String? = null
+    var score: String? = null,
+    var with: MutableList<Message>? = null
 ) {
     companion object {
         private val mapper = jacksonObjectMapper()
@@ -84,6 +85,9 @@ data class Message @JvmOverloads constructor(
     }
 
     fun toJson() = mapper.writeValueAsString(this)
+
+    fun toText(): String = ((text ?: "") + (with?.joinToString(separator = "") { it.text ?: "" }
+        ?: "") + (extra?.joinToString(separator = "") { it.text ?: "" } ?: "")).replace("§[0-9a-flnmokr]", "")
 
     fun addExtra(extra: Message) {
         if (this.extra != null)

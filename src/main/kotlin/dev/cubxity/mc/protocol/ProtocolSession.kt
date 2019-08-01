@@ -6,6 +6,7 @@ import com.github.steveice10.mc.auth.exception.request.RequestException
 import com.github.steveice10.mc.auth.exception.request.ServiceUnavailableException
 import com.github.steveice10.mc.auth.service.AuthenticationService
 import com.github.steveice10.mc.auth.service.SessionService
+import dev.cubxity.mc.protocol.data.magic.Difficulity
 import dev.cubxity.mc.protocol.data.magic.Dimension
 import dev.cubxity.mc.protocol.data.magic.Gamemode
 import dev.cubxity.mc.protocol.data.magic.LevelType
@@ -15,6 +16,7 @@ import dev.cubxity.mc.protocol.events.*
 import dev.cubxity.mc.protocol.net.PacketEncryption
 import dev.cubxity.mc.protocol.packets.Packet
 import dev.cubxity.mc.protocol.packets.RawPacket
+import dev.cubxity.mc.protocol.packets.game.client.ClientChatMessagePacket
 import dev.cubxity.mc.protocol.packets.game.client.ClientKeepAlivePacket
 import dev.cubxity.mc.protocol.packets.game.server.ServerChatPacket
 import dev.cubxity.mc.protocol.packets.game.server.ServerDisconnectPacket
@@ -206,7 +208,8 @@ class ProtocolSession @JvmOverloads constructor(
                                                         false,
                                                         Dimension.OVERWORLD,
                                                         1,
-                                                        LevelType.DEFAULT
+                                                        LevelType.DEFAULT,
+                                                        8
                                                     )
                                                 )
                                                 launch {
@@ -363,11 +366,12 @@ class ProtocolSession @JvmOverloads constructor(
                 server[0x04] = ServerSpawnPaintingPacket::class.java
                 server[0x05] = ServerSpawnPlayerPacket::class.java
                 server[0x0E] = ServerChatPacket::class.java
-                server[0x1B] = ServerDisconnectPacket::class.java
-                server[0x21] = ServerKeepAlivePacket::class.java
+                server[0x1A] = ServerDisconnectPacket::class.java
+                server[0x20] = ServerKeepAlivePacket::class.java
                 server[0x25] = ServerJoinGamePacket::class.java
 
-                client[0x0E] = ClientKeepAlivePacket::class.java
+                client[0x03] = ClientChatMessagePacket::class.java
+                client[0x0F] = ClientKeepAlivePacket::class.java
             }
         }
     }
