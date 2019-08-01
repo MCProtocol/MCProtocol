@@ -80,6 +80,12 @@ object MagicRegistry {
         for (i in Direction.values().indices)
             data[Direction.values()[i]] = i
 
+        for (i in MetadataType.values().indices)
+            data[MetadataType.values()[i]] = i
+
+        for (i in Pose.values().indices)
+            data[Pose.values()[i]] = i
+
         versionData[version] = data
     }
 

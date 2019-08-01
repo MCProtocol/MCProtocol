@@ -29,6 +29,7 @@ dependencies {
     compile("ch.qos.logback:logback-classic:1.3.0-alpha4")
     compile("org.objenesis:objenesis:3.0.1")
     compile("com.github.Steveice10:MCAuthLib:1.0")
+    compile("com.github.Steveice10:OpenNBT:1.2")
 }
 
 tasks.withType<KotlinCompile> {

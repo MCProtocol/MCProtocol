@@ -3,12 +3,12 @@ package dev.cubxity.mc.protocol.packets.game.server.entity.spawn
 import dev.cubxity.mc.protocol.ProtocolVersion
 import dev.cubxity.mc.protocol.data.magic.MagicRegistry
 import dev.cubxity.mc.protocol.data.magic.MobType
+import dev.cubxity.mc.protocol.data.obj.EntityMetadata
 import dev.cubxity.mc.protocol.net.NetInput
 import dev.cubxity.mc.protocol.net.NetOutput
 import dev.cubxity.mc.protocol.packets.Packet
 import java.util.*
 
-// TODO: Handle metadata
 class ServerSpawnMobPacket(
     var entityId: Int,
     var entityUuid: UUID,
@@ -21,7 +21,8 @@ class ServerSpawnMobPacket(
     var headPitch: Float,
     var velocityX: Short,
     var velocityY: Short,
-    var velocityZ: Short
+    var velocityZ: Short,
+    var metadata: Array<EntityMetadata>
 ) : Packet() {
 
     override fun read(buf: NetInput, target: ProtocolVersion) {
@@ -37,6 +38,7 @@ class ServerSpawnMobPacket(
         velocityX = buf.readVelocity()
         velocityY = buf.readVelocity()
         velocityZ = buf.readVelocity()
+        metadata = buf.readEntityMetadata(target)
     }
 
     override fun write(out: NetOutput, target: ProtocolVersion) {
@@ -52,5 +54,6 @@ class ServerSpawnMobPacket(
         out.writeVelocity(velocityX)
         out.writeVelocity(velocityY)
         out.writeVelocity(velocityZ)
+        out.writeEntityMetadata(metadata, target)
     }
 }
