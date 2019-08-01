@@ -203,8 +203,8 @@ class NetInput(val buf: ByteBuf) {
     fun readPosition(): SimplePosition {
         val value = readLong()
         val x = value shr 38
-        val y = value shr 26 and 0xFFF
-        val z = value shl 38 shr 38
+        val y = value and 0xFFF
+        val z = value shl 26 shr 38
         return SimplePosition(x.toDouble(), y.toDouble(), z.toDouble())
     }
     fun readRotation(): Rotation = Rotation(readFloat(), readFloat(), readFloat())

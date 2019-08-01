@@ -78,7 +78,7 @@ class NetOutput(val buf: ByteBuf) {
         val x = position.x.toLong()
         val y = position.y.toLong()
         val z = position.z.toLong()
-        buf.writeLong(x and 0x3FFFFFF shl 38 or (y and 0xFFF shl 26) or (z and 0x3FFFFFF))
+        buf.writeLong(x and 0x3FFFFFF shl 38 or (z and 0x3FFFFFF shl 12) or (y and 0xFFF))
     }
     fun writeRotation(rotation: Rotation) {
         buf.writeFloat(rotation.pitch)

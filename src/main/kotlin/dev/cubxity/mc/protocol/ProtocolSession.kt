@@ -16,6 +16,7 @@ import dev.cubxity.mc.protocol.events.*
 import dev.cubxity.mc.protocol.net.PacketEncryption
 import dev.cubxity.mc.protocol.packets.Packet
 import dev.cubxity.mc.protocol.packets.RawPacket
+import dev.cubxity.mc.protocol.packets.game.client.ClientChatMessagePacket
 import dev.cubxity.mc.protocol.packets.game.client.ClientKeepAlivePacket
 import dev.cubxity.mc.protocol.packets.game.server.ServerChatPacket
 import dev.cubxity.mc.protocol.packets.game.server.ServerDisconnectPacket
@@ -369,7 +370,8 @@ class ProtocolSession @JvmOverloads constructor(
                 server[0x20] = ServerKeepAlivePacket::class.java
                 server[0x25] = ServerJoinGamePacket::class.java
 
-                client[0x0E] = ClientKeepAlivePacket::class.java
+                client[0x03] = ClientChatMessagePacket::class.java
+                client[0x0F] = ClientKeepAlivePacket::class.java
             }
         }
     }

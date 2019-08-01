@@ -28,6 +28,7 @@ class ServerSpawnMobPacket(
     override fun read(buf: NetInput, target: ProtocolVersion) {
         entityId = buf.readVarInt()
         entityUuid = buf.readUUID()
+//        println(buf.readVarInt())
         type = MagicRegistry.lookupKey(target, buf.readVarInt())
         x = buf.readDouble()
         y = buf.readDouble()
