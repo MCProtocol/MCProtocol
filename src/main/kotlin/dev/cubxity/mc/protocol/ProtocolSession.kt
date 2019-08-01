@@ -347,31 +347,15 @@ class ProtocolSession @JvmOverloads constructor(
                 client[0x00] = StatusQueryPacket::class.java
                 client[0x01] = StatusPingPacket::class.java
             }
+
             SubProtocol.LOGIN -> {
-                server[0x00] = LoginDisconnectPacket::class.java
-                server[0x01] = EncryptionRequestPacket::class.java
-                server[0x02] = LoginSuccessPacket::class.java
-                server[0x03] = SetCompressionPacket::class.java
-                server[0x04] = LoginPluginRequestPacket::class.java
-
-                client[0x00] = LoginStartPacket::class.java
-                client[0x01] = EncryptionResponsePacket::class.java
-                client[0x02] = LoginPluginResponsePacket::class.java
+                server.putAll(incomingVersion.version.serverLogin)
+                client.putAll(outgoingVersion.version.clientLogin)
             }
-            SubProtocol.GAME -> {
-                server[0x00] = ServerSpawnObjectPacket::class.java
-                server[0x01] = ServerSpawnExperienceOrbPacket::class.java
-                server[0x02] = ServerSpawnGlobalEntityPacket::class.java
-                server[0x03] = ServerSpawnMobPacket::class.java
-                server[0x04] = ServerSpawnPaintingPacket::class.java
-                server[0x05] = ServerSpawnPlayerPacket::class.java
-                server[0x0E] = ServerChatPacket::class.java
-                server[0x1A] = ServerDisconnectPacket::class.java
-                server[0x20] = ServerKeepAlivePacket::class.java
-                server[0x25] = ServerJoinGamePacket::class.java
 
-                client[0x03] = ClientChatMessagePacket::class.java
-                client[0x0F] = ClientKeepAlivePacket::class.java
+            SubProtocol.GAME -> {
+                server.putAll(incomingVersion.version.serverPlay)
+                client.putAll(outgoingVersion.version.clientPlay)
             }
         }
     }
