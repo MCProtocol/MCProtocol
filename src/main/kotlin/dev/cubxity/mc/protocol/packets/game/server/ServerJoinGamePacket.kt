@@ -1,10 +1,7 @@
 package dev.cubxity.mc.protocol.packets.game.server
 
 import dev.cubxity.mc.protocol.ProtocolVersion
-import dev.cubxity.mc.protocol.data.magic.Dimension
-import dev.cubxity.mc.protocol.data.magic.Gamemode
-import dev.cubxity.mc.protocol.data.magic.LevelType
-import dev.cubxity.mc.protocol.data.magic.MagicRegistry
+import dev.cubxity.mc.protocol.data.magic.*
 import dev.cubxity.mc.protocol.net.NetInput
 import dev.cubxity.mc.protocol.net.NetOutput
 import dev.cubxity.mc.protocol.packets.Packet
@@ -20,6 +17,7 @@ class ServerJoinGamePacket @JvmOverloads constructor(
     var dimension: Dimension,
     var maxPlayers: Int,
     var levelType: LevelType,
+    var viewDistance: Int,
     var reducedDebugInfo: Boolean = false
 ) : Packet() {
     override fun read(buf: NetInput, target: ProtocolVersion) {
@@ -30,6 +28,7 @@ class ServerJoinGamePacket @JvmOverloads constructor(
         dimension = MagicRegistry.lookupKey(target, buf.readInt())
         maxPlayers = buf.readUnsignedByte()
         levelType = MagicRegistry.lookupKey(target, buf.readString().toLowerCase())
+        viewDistance = buf.readVarInt()
         reducedDebugInfo = buf.readBoolean()
     }
 
@@ -42,6 +41,7 @@ class ServerJoinGamePacket @JvmOverloads constructor(
         out.writeInt(MagicRegistry.lookupValue(target, dimension))
         out.writeByte(this.maxPlayers)
         out.writeString(MagicRegistry.lookupValue(target, levelType))
+        out.writeVarInt(this.viewDistance)
         out.writeBoolean(this.reducedDebugInfo)
     }
 }

@@ -6,6 +6,7 @@ import com.github.steveice10.mc.auth.exception.request.RequestException
 import com.github.steveice10.mc.auth.exception.request.ServiceUnavailableException
 import com.github.steveice10.mc.auth.service.AuthenticationService
 import com.github.steveice10.mc.auth.service.SessionService
+import dev.cubxity.mc.protocol.data.magic.Difficulity
 import dev.cubxity.mc.protocol.data.magic.Dimension
 import dev.cubxity.mc.protocol.data.magic.Gamemode
 import dev.cubxity.mc.protocol.data.magic.LevelType
@@ -206,7 +207,8 @@ class ProtocolSession @JvmOverloads constructor(
                                                         false,
                                                         Dimension.OVERWORLD,
                                                         1,
-                                                        LevelType.DEFAULT
+                                                        LevelType.DEFAULT,
+                                                        8
                                                     )
                                                 )
                                                 launch {
@@ -359,12 +361,12 @@ class ProtocolSession @JvmOverloads constructor(
                 server[0x00] = ServerSpawnObjectPacket::class.java
                 server[0x01] = ServerSpawnExperienceOrbPacket::class.java
                 server[0x02] = ServerSpawnGlobalEntityPacket::class.java
-                server[0x03] = ServerSpawnMobPacket::class.java
+//                server[0x03] = ServerSpawnMobPacket::class.java
                 server[0x04] = ServerSpawnPaintingPacket::class.java
                 server[0x05] = ServerSpawnPlayerPacket::class.java
                 server[0x0E] = ServerChatPacket::class.java
-                server[0x1B] = ServerDisconnectPacket::class.java
-                server[0x21] = ServerKeepAlivePacket::class.java
+                server[0x1A] = ServerDisconnectPacket::class.java
+                server[0x20] = ServerKeepAlivePacket::class.java
                 server[0x25] = ServerJoinGamePacket::class.java
 
                 client[0x0E] = ClientKeepAlivePacket::class.java
