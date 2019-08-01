@@ -362,7 +362,7 @@ class ProtocolSession @JvmOverloads constructor(
                 server[0x00] = ServerSpawnObjectPacket::class.java
                 server[0x01] = ServerSpawnExperienceOrbPacket::class.java
                 server[0x02] = ServerSpawnGlobalEntityPacket::class.java
-//                server[0x03] = ServerSpawnMobPacket::class.java
+                server[0x03] = ServerSpawnMobPacket::class.java
                 server[0x04] = ServerSpawnPaintingPacket::class.java
                 server[0x05] = ServerSpawnPlayerPacket::class.java
                 server[0x0E] = ServerChatPacket::class.java

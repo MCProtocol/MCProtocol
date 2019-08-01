@@ -23,8 +23,8 @@ fun client() {
             buildProtocol(ProtocolSession.Side.CLIENT, con, ch) {
                 applyDefaults()
                 wiretap()
-//                login(System.getProperty("username"), System.getProperty("password"))
-                offline("TestUser")
+                login(System.getProperty("username"), System.getProperty("password"))
+//                offline("TestUser")
                 on<PacketReceivedEvent>()
                     .filter { it.packet is LoginSuccessPacket }
                     .next()

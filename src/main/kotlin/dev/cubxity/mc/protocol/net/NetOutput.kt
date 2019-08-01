@@ -120,4 +120,44 @@ class NetOutputStream(val output: NetOutput) : OutputStream() {
     override fun write(b: Int) {
         output.writeByte(b)
     }
+    fun writeRotation(rotation: Rotation) {
+        buf.writeFloat(rotation.pitch)
+        buf.writeFloat(rotation.yaw)
+        buf.writeFloat(rotation.roll)
+    }
+
+    fun writeEntityMetadata(data: Array<EntityMetadata>, target: ProtocolVersion) {
+        for (item in data) {
+            writeByte(item.id)
+            writeVarInt(MagicRegistry.lookupValue(target, item.type))
+
+            when (item.type) {
+                MetadataType.BYTE -> writeByte(item.value as Int)
+                MetadataType.VAR_INT -> writeVarInt(item.value as Int)
+                MetadataType.FLOAT -> writeFloat(item.value as Float)
+                MetadataType.STRING -> writeString(item.value as String)
+                MetadataType.CHAT -> writeString((item.value as Message).toJson())
+                MetadataType.OPT_CHAT -> writeString((item.value as Message).toJson())
+                MetadataType.BOOLEAN -> writeBoolean(item.value as Boolean)
+                MetadataType.ROTATION -> writeRotation(item.value as Rotation)
+                MetadataType.POSITION -> writePosition(item.value as SimplePosition)
+                MetadataType.OPT_POSITION -> writePosition(item.value as SimplePosition)
+                MetadataType.DIRECTION -> writeVarInt(MagicRegistry.lookupValue(target, item.value as Direction))
+                MetadataType.OPT_UUID -> writeUUID(item.value as UUID)
+                MetadataType.OPT_BLOCK_ID -> writeVarInt(item.value as Int)
+                MetadataType.NBT -> NBTIO.writeTag(NetOutputStream(this), item.value as CompoundTag)
+                // TODO: Add particle & slot data
+                else -> throw NullPointerException("No value to write: ${item.id}")
+            }
+        }
+
+        writeByte(255)
+    }
+}
+
+class NetOutputStream(val output: NetOutput) : OutputStream() {
+
+    override fun write(b: Int) {
+        output.writeByte(b)
+    }
 }
