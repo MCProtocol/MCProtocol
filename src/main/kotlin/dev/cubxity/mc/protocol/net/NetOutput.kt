@@ -119,6 +119,7 @@ class NetOutputStream(val output: NetOutput) : OutputStream() {
 
     override fun write(b: Int) {
         output.writeByte(b)
+        buf.writeLong(x and 0x3FFFFFF shl 38 or (z and 0x3FFFFFF shl 12) or (y and 0xFFF))
     }
     fun writeRotation(rotation: Rotation) {
         buf.writeFloat(rotation.pitch)
