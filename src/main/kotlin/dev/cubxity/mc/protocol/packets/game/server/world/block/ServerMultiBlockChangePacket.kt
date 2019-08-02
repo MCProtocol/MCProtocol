@@ -18,7 +18,7 @@ class ServerMultiBlockChangePacket(
 
         var readRecords = arrayOf<Record>()
 
-        for (i in 0..buf.readVarInt()) {
+        for (i in 0 until buf.readVarInt()) {
             val horizontalPosition = buf.readUnsignedByte()
 
             val worldX = (horizontalPosition shr 4 and 15) + chunkX * 16
