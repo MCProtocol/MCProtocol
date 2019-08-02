@@ -5,10 +5,10 @@ import dev.cubxity.mc.protocol.packets.PacketVersion
 import dev.cubxity.mc.protocol.packets.game.client.ClientChatMessagePacket
 import dev.cubxity.mc.protocol.packets.game.client.ClientKeepAlivePacket
 import dev.cubxity.mc.protocol.packets.game.client.ClientStatusPacket
-import dev.cubxity.mc.protocol.packets.game.server.*
-import dev.cubxity.mc.protocol.packets.game.server.entity.player.ServerPlayerAbilitiesPacket
 import dev.cubxity.mc.protocol.packets.game.client.player.ClientPlayerPacket
+import dev.cubxity.mc.protocol.packets.game.server.*
 import dev.cubxity.mc.protocol.packets.game.server.entity.*
+import dev.cubxity.mc.protocol.packets.game.server.entity.player.ServerPlayerAbilitiesPacket
 import dev.cubxity.mc.protocol.packets.game.server.entity.player.ServerPlayerPositionLookPacket
 import dev.cubxity.mc.protocol.packets.game.server.entity.player.ServerSetExperiencePacket
 import dev.cubxity.mc.protocol.packets.game.server.entity.player.ServerUpdateHealthPacket
@@ -51,6 +51,7 @@ class PacketVersion_1_14_4 : PacketVersion {
         0x2A to ServerEntityLookPacket::class.java,
         0x25 to ServerJoinGamePacket::class.java,
         0x31 to ServerPlayerAbilitiesPacket::class.java,
+        0x33 to ServerPlayerInfoPacket::class.java,
         0x35 to ServerPlayerPositionLookPacket::class.java,
         0x37 to ServerDestroyEntitiesPacket::class.java,
         0x3B to ServerEntityHeadLookPacket::class.java,

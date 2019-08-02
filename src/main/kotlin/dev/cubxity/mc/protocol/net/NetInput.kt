@@ -1,6 +1,7 @@
 package dev.cubxity.mc.protocol.net
 
 import com.github.steveice10.opennbt.NBTIO
+import com.github.steveice10.opennbt.tag.builtin.CompoundTag
 import dev.cubxity.mc.protocol.ProtocolVersion
 import dev.cubxity.mc.protocol.data.magic.Direction
 import dev.cubxity.mc.protocol.data.magic.MagicRegistry
@@ -13,8 +14,10 @@ import dev.cubxity.mc.protocol.entities.Message
 import dev.cubxity.mc.protocol.entities.SimplePosition
 import io.netty.buffer.ByteBuf
 import java.io.IOException
+import java.io.InputStream
 import java.nio.charset.Charset
 import java.util.*
+
 
 /**
  * https://wiki.vg/Protocol#Data_types
@@ -236,7 +239,7 @@ class NetInput(val buf: ByteBuf) {
                     MetadataType.DIRECTION -> MagicRegistry.lookupKey<Direction>(target, readVarInt())
                     MetadataType.OPT_UUID -> if (readBoolean()) readUUID() else null
                     MetadataType.OPT_BLOCK_ID -> readVarInt()
-                    MetadataType.NBT -> NBTIO.readTag(readString().byteInputStream())
+                    MetadataType.NBT -> readNbt()
                     // TODO: Add particle data
                     MetadataType.PARTICLE -> null
                     MetadataType.VILLAGER_DATA -> VillagerData(readVarInt(), readVarInt(), readVarInt())
@@ -253,6 +256,30 @@ class NetInput(val buf: ByteBuf) {
         return items
     }
 
+    fun readMessage() = Message.fromJson(readString())
+    fun readNbt(): CompoundTag? {
+        val b = readByte()
+        return if (b.toInt() == 0) {
+            null
+        } else {
+            NBTIO.readTag(NetInputStream(this, b)) as CompoundTag
+        }
+    }
+
     fun available() = buf.readableBytes()
     fun readerIndex(i: Int) = buf.readerIndex(i)
+}
+
+private class NetInputStream(private val `in`: NetInput, private val firstByte: Byte) : InputStream() {
+    private var readFirst: Boolean = false
+
+    @Throws(IOException::class)
+    override fun read(): Int {
+        if (!this.readFirst) {
+            this.readFirst = true
+            return this.firstByte.toInt()
+        } else {
+            return this.`in`.readUnsignedByte()
+        }
+    }
 }
