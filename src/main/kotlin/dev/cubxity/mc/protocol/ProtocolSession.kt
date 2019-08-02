@@ -6,7 +6,6 @@ import com.github.steveice10.mc.auth.exception.request.RequestException
 import com.github.steveice10.mc.auth.exception.request.ServiceUnavailableException
 import com.github.steveice10.mc.auth.service.AuthenticationService
 import com.github.steveice10.mc.auth.service.SessionService
-import dev.cubxity.mc.protocol.data.magic.Difficulity
 import dev.cubxity.mc.protocol.data.magic.Dimension
 import dev.cubxity.mc.protocol.data.magic.Gamemode
 import dev.cubxity.mc.protocol.data.magic.LevelType
@@ -16,18 +15,17 @@ import dev.cubxity.mc.protocol.events.*
 import dev.cubxity.mc.protocol.net.PacketEncryption
 import dev.cubxity.mc.protocol.packets.Packet
 import dev.cubxity.mc.protocol.packets.RawPacket
-import dev.cubxity.mc.protocol.packets.game.client.ClientChatMessagePacket
 import dev.cubxity.mc.protocol.packets.game.client.ClientKeepAlivePacket
-import dev.cubxity.mc.protocol.packets.game.server.ServerChatPacket
 import dev.cubxity.mc.protocol.packets.game.server.ServerDisconnectPacket
 import dev.cubxity.mc.protocol.packets.game.server.ServerJoinGamePacket
 import dev.cubxity.mc.protocol.packets.game.server.ServerKeepAlivePacket
-import dev.cubxity.mc.protocol.packets.game.server.entity.spawn.*
 import dev.cubxity.mc.protocol.packets.handshake.client.HandshakePacket
 import dev.cubxity.mc.protocol.packets.login.client.EncryptionResponsePacket
-import dev.cubxity.mc.protocol.packets.login.client.LoginPluginResponsePacket
 import dev.cubxity.mc.protocol.packets.login.client.LoginStartPacket
-import dev.cubxity.mc.protocol.packets.login.server.*
+import dev.cubxity.mc.protocol.packets.login.server.EncryptionRequestPacket
+import dev.cubxity.mc.protocol.packets.login.server.LoginDisconnectPacket
+import dev.cubxity.mc.protocol.packets.login.server.LoginSuccessPacket
+import dev.cubxity.mc.protocol.packets.login.server.SetCompressionPacket
 import dev.cubxity.mc.protocol.packets.status.client.StatusPingPacket
 import dev.cubxity.mc.protocol.packets.status.client.StatusQueryPacket
 import dev.cubxity.mc.protocol.packets.status.server.StatusPongPacket
@@ -201,9 +199,10 @@ class ProtocolSession @JvmOverloads constructor(
                                             ?.addListener {
                                                 subProtocol = SubProtocol.GAME
                                                 registerDefaults()
+
                                                 send(
                                                     ServerJoinGamePacket(
-                                                        0,
+                                                        69,
                                                         Gamemode.CREATIVE,
                                                         false,
                                                         Dimension.OVERWORLD,
@@ -212,7 +211,7 @@ class ProtocolSession @JvmOverloads constructor(
                                                         8
                                                     )
                                                 )
-                                                launch {
+                                                GlobalScope.launch {
                                                     var lastPing: Long
                                                     while (channel.isOpen) {
                                                         lastPing = System.currentTimeMillis()
