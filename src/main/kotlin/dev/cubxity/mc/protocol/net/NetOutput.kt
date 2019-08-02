@@ -12,7 +12,6 @@ import dev.cubxity.mc.protocol.entities.Message
 import dev.cubxity.mc.protocol.entities.SimplePosition
 import io.netty.buffer.ByteBuf
 import java.io.OutputStream
-import java.lang.Exception
 import java.util.*
 
 /**
@@ -113,6 +112,8 @@ class NetOutput(val buf: ByteBuf) {
 
         writeByte(255)
     }
+
+    fun writeMessage(m: Message) = writeString(m.toJson())
 }
 
 class NetOutputStream(val output: NetOutput) : OutputStream() {
