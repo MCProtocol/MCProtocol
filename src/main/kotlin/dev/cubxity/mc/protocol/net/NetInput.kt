@@ -13,7 +13,6 @@ import dev.cubxity.mc.protocol.entities.Message
 import dev.cubxity.mc.protocol.entities.SimplePosition
 import io.netty.buffer.ByteBuf
 import java.io.IOException
-import java.io.InputStream
 import java.nio.charset.Charset
 import java.util.*
 
@@ -215,36 +214,40 @@ class NetInput(val buf: ByteBuf) {
         var items = arrayOf<EntityMetadata>()
 
         while (true) {
-            val id = readUnsignedByte()
-            if (id == 255) break
+            try {
+                val id = readUnsignedByte()
+                if (id == 255) break
 
-            val typeId = readVarInt()
-            val type = MagicRegistry.lookupKey<MetadataType>(target, typeId)
+                val typeId = readVarInt()
+                val type = MagicRegistry.lookupKey<MetadataType>(target, typeId)
 
-            val value: Any? = when (type) {
-                MetadataType.BYTE -> readByte()
-                MetadataType.VAR_INT -> readVarInt()
-                MetadataType.FLOAT -> readFloat()
-                MetadataType.STRING -> readString()
-                MetadataType.CHAT -> Message.fromJson(readString())
-                MetadataType.OPT_CHAT -> if (readBoolean()) Message.fromJson(readString()) else null
-                MetadataType.SLOT -> null
-                MetadataType.BOOLEAN -> readBoolean()
-                MetadataType.ROTATION -> readRotation()
-                MetadataType.POSITION -> readPosition()
-                MetadataType.OPT_POSITION -> if (readBoolean()) readPosition() else null
-                MetadataType.DIRECTION -> MagicRegistry.lookupKey<Direction>(target, readVarInt())
-                MetadataType.OPT_UUID -> if (readBoolean()) readUUID() else null
-                MetadataType.OPT_BLOCK_ID -> readVarInt()
-                MetadataType.NBT -> NBTIO.readTag(readString().byteInputStream())
-                // TODO: Add particle data
-                MetadataType.PARTICLE -> null
-                MetadataType.VILLAGER_DATA -> VillagerData(readVarInt(), readVarInt(), readVarInt())
-                MetadataType.OPT_VAR_INT -> if (readBoolean()) readVarInt() else null
-                MetadataType.POSE -> MagicRegistry.lookupKey<Pose>(target, readVarInt())
+                val value: Any? = when (type) {
+                    MetadataType.BYTE -> readByte()
+                    MetadataType.VAR_INT -> readVarInt()
+                    MetadataType.FLOAT -> readFloat()
+                    MetadataType.STRING -> readString()
+                    MetadataType.CHAT -> Message.fromJson(readString())
+                    MetadataType.OPT_CHAT -> if (readBoolean()) Message.fromJson(readString()) else null
+                    MetadataType.SLOT -> null
+                    MetadataType.BOOLEAN -> readBoolean()
+                    MetadataType.ROTATION -> readRotation()
+                    MetadataType.POSITION -> readPosition()
+                    MetadataType.OPT_POSITION -> if (readBoolean()) readPosition() else null
+                    MetadataType.DIRECTION -> MagicRegistry.lookupKey<Direction>(target, readVarInt())
+                    MetadataType.OPT_UUID -> if (readBoolean()) readUUID() else null
+                    MetadataType.OPT_BLOCK_ID -> readVarInt()
+                    MetadataType.NBT -> NBTIO.readTag(readString().byteInputStream())
+                    // TODO: Add particle data
+                    MetadataType.PARTICLE -> null
+                    MetadataType.VILLAGER_DATA -> VillagerData(readVarInt(), readVarInt(), readVarInt())
+                    MetadataType.OPT_VAR_INT -> if (readBoolean()) readVarInt() else null
+                    MetadataType.POSE -> MagicRegistry.lookupKey<Pose>(target, readVarInt())
+                }
+
+                items += EntityMetadata(id, type, value)
+            } catch (e: Exception) {
+                break
             }
-
-            items += EntityMetadata(id, type, value)
         }
 
         return items

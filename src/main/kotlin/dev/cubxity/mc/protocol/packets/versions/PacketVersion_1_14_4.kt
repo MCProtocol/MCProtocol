@@ -4,13 +4,18 @@ import dev.cubxity.mc.protocol.packets.Packet
 import dev.cubxity.mc.protocol.packets.PacketVersion
 import dev.cubxity.mc.protocol.packets.game.client.ClientChatMessagePacket
 import dev.cubxity.mc.protocol.packets.game.client.ClientKeepAlivePacket
+import dev.cubxity.mc.protocol.packets.game.client.ClientStatusPacket
 import dev.cubxity.mc.protocol.packets.game.server.*
-import dev.cubxity.mc.protocol.packets.game.server.entity.ServerEntityHeadLookPacket
-import dev.cubxity.mc.protocol.packets.game.server.entity.ServerEntityLookPacket
-import dev.cubxity.mc.protocol.packets.game.server.entity.ServerEntityVelocityPacket
 import dev.cubxity.mc.protocol.packets.game.server.entity.player.ServerPlayerAbilitiesPacket
 import dev.cubxity.mc.protocol.packets.game.client.player.ClientPlayerPacket
+import dev.cubxity.mc.protocol.packets.game.server.entity.*
+import dev.cubxity.mc.protocol.packets.game.server.entity.player.ServerPlayerPositionLookPacket
+import dev.cubxity.mc.protocol.packets.game.server.entity.player.ServerSetExperiencePacket
+import dev.cubxity.mc.protocol.packets.game.server.entity.player.ServerUpdateHealthPacket
 import dev.cubxity.mc.protocol.packets.game.server.entity.spawn.*
+import dev.cubxity.mc.protocol.packets.game.server.world.ServerSpawnPositionPacket
+import dev.cubxity.mc.protocol.packets.game.server.world.ServerTimeUpdatePacket
+import dev.cubxity.mc.protocol.packets.game.server.world.block.ServerBlockChangePacket
 import dev.cubxity.mc.protocol.packets.game.server.world.block.ServerMultiBlockChangePacket
 import dev.cubxity.mc.protocol.packets.login.client.EncryptionResponsePacket
 import dev.cubxity.mc.protocol.packets.login.client.LoginPluginResponsePacket
@@ -21,6 +26,7 @@ class PacketVersion_1_14_4 : PacketVersion {
 
     override val clientPlay: Map<Int, Class<out Packet>> = mapOf(
         0x03 to ClientChatMessagePacket::class.java,
+        0x04 to ClientStatusPacket::class.java,
         0x0F to ClientKeepAlivePacket::class.java,
         0x14 to ClientPlayerPacket::class.java
     )
@@ -32,6 +38,7 @@ class PacketVersion_1_14_4 : PacketVersion {
         0x03 to ServerSpawnMobPacket::class.java,
         0x04 to ServerSpawnPaintingPacket::class.java,
         0x05 to ServerSpawnPlayerPacket::class.java,
+        0x0B to ServerBlockChangePacket::class.java,
         0x0D to ServerDifficultyPacket::class.java,
         0x0E to ServerChatPacket::class.java,
         0x0F to ServerMultiBlockChangePacket::class.java,
@@ -39,11 +46,21 @@ class PacketVersion_1_14_4 : PacketVersion {
         0x1A to ServerDisconnectPacket::class.java,
         0x18 to ServerPluginMessagePacket::class.java,
         0x20 to ServerKeepAlivePacket::class.java,
+        0x28 to ServerEntityRelativeMovePacket::class.java,
+        0x29 to ServerEntityLookAndRelativeMovePacket::class.java,
         0x2A to ServerEntityLookPacket::class.java,
         0x25 to ServerJoinGamePacket::class.java,
         0x31 to ServerPlayerAbilitiesPacket::class.java,
+        0x35 to ServerPlayerPositionLookPacket::class.java,
+        0x37 to ServerDestroyEntitiesPacket::class.java,
         0x3B to ServerEntityHeadLookPacket::class.java,
-        0x45 to ServerEntityVelocityPacket::class.java
+        0x43 to ServerEntityMetadataPacket::class.java,
+        0x45 to ServerEntityVelocityPacket::class.java,
+        0x47 to ServerSetExperiencePacket::class.java,
+        0x48 to ServerUpdateHealthPacket::class.java,
+        0x4D to ServerSpawnPositionPacket::class.java,
+        0x4E to ServerTimeUpdatePacket::class.java,
+        0x56 to ServerEntityTeleportPacket::class.java
     )
 
     override val clientLogin: Map<Int, Class<out Packet>> = mapOf(

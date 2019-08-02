@@ -20,7 +20,7 @@ class ServerTabCompletePacket(
 
         var readMatches = arrayOf<Match>()
 
-        for (i in 0..buf.readVarInt()) {
+        for (i in 0 until buf.readVarInt()) {
             val match = buf.readString()
             val hasTooltip = buf.readBoolean()
 
