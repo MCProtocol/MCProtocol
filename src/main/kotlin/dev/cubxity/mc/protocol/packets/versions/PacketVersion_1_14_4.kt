@@ -43,6 +43,7 @@ class PacketVersion_1_14_4 : PacketVersion {
         0x0E to ServerChatPacket::class.java,
         0x0F to ServerMultiBlockChangePacket::class.java,
         0x10 to ServerTabCompletePacket::class.java,
+        0x14 to ServerWindowItemsPacket::class.java,
         0x1A to ServerDisconnectPacket::class.java,
         0x18 to ServerPluginMessagePacket::class.java,
         0x20 to ServerKeepAlivePacket::class.java,

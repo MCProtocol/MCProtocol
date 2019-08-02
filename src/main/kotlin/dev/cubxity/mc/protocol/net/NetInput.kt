@@ -9,6 +9,7 @@ import dev.cubxity.mc.protocol.data.magic.MetadataType
 import dev.cubxity.mc.protocol.data.magic.Pose
 import dev.cubxity.mc.protocol.data.obj.EntityMetadata
 import dev.cubxity.mc.protocol.data.obj.Rotation
+import dev.cubxity.mc.protocol.data.obj.Slot
 import dev.cubxity.mc.protocol.data.obj.VillagerData
 import dev.cubxity.mc.protocol.entities.Message
 import dev.cubxity.mc.protocol.entities.SimplePosition
@@ -231,7 +232,7 @@ class NetInput(val buf: ByteBuf) {
                     MetadataType.STRING -> readString()
                     MetadataType.CHAT -> Message.fromJson(readString())
                     MetadataType.OPT_CHAT -> if (readBoolean()) Message.fromJson(readString()) else null
-                    MetadataType.SLOT -> null
+                    MetadataType.SLOT -> readSlot()
                     MetadataType.BOOLEAN -> readBoolean()
                     MetadataType.ROTATION -> readRotation()
                     MetadataType.POSITION -> readPosition()
@@ -264,6 +265,15 @@ class NetInput(val buf: ByteBuf) {
         } else {
             NBTIO.readTag(NetInputStream(this, b)) as CompoundTag
         }
+    }
+
+    fun readSlot(): Slot {
+        val present = readBoolean()
+
+        if (!present)
+            return Slot(false)
+
+        return Slot(true, readVarInt(), readByte().toInt(), readNbt())
     }
 
     fun available() = buf.readableBytes()

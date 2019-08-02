@@ -32,7 +32,7 @@ fun client() {
         .sessionFactory { con, ch ->
             buildProtocol(ProtocolSession.Side.CLIENT, con, ch) {
                 applyDefaults()
-                wiretap()
+//                wiretap()
 //                login(System.getProperty("username"), System.getProperty("password"))
                 offline("TestUser")
 
@@ -48,6 +48,7 @@ fun client() {
                             }
                         }
 
+                        logger.debug("[$side - RECEIVED]: ${it.packet.javaClass.simpleName} ${if (it.packet is RawPacket) "id: ${(it.packet as RawPacket).id}" else ""}")
                         println("Packet data: ${gson.toJson(if (it.packet is RawPacket) return@subscribe else it.packet)}")
                     }
 
