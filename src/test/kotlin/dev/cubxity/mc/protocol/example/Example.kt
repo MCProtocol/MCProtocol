@@ -3,14 +3,17 @@ package dev.cubxity.mc.protocol.example
 import com.google.gson.GsonBuilder
 import dev.cubxity.mc.protocol.ProtocolSession
 import dev.cubxity.mc.protocol.data.magic.ClientStatus
+import dev.cubxity.mc.protocol.data.magic.GameState
 import dev.cubxity.mc.protocol.dsl.buildProtocol
 import dev.cubxity.mc.protocol.dsl.client
 import dev.cubxity.mc.protocol.dsl.server
 import dev.cubxity.mc.protocol.events.PacketReceivedEvent
 import dev.cubxity.mc.protocol.packets.RawPacket
 import dev.cubxity.mc.protocol.packets.game.client.ClientStatusPacket
+import dev.cubxity.mc.protocol.packets.game.server.ServerChangeGameStatePacket
 import dev.cubxity.mc.protocol.packets.game.server.ServerChatPacket
 import dev.cubxity.mc.protocol.packets.game.server.entity.player.ServerUpdateHealthPacket
+import dev.cubxity.mc.protocol.packets.game.server.entity.spawn.ServerSpawnPlayerPacket
 import dev.cubxity.mc.protocol.packets.login.server.LoginSuccessPacket
 
 /**
@@ -93,6 +96,13 @@ fun server() {
             buildProtocol(ProtocolSession.Side.SERVER, con, ch) {
                 applyDefaults()
                 wiretap()
+
+                on<PacketReceivedEvent>()
+                    .filter { it.packet is ServerSpawnPlayerPacket }
+                    .map { it.packet as ServerSpawnPlayerPacket }
+                    .subscribe {
+                        ch.writeAndFlush(ServerChangeGameStatePacket(GameState.DEMO_MESSAGE, 0.0f))
+                    }
             }
         }
         .bind()

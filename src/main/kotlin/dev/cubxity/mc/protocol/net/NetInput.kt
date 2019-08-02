@@ -284,12 +284,10 @@ private class NetInputStream(private val `in`: NetInput, private val firstByte: 
     private var readFirst: Boolean = false
 
     @Throws(IOException::class)
-    override fun read(): Int {
-        if (!this.readFirst) {
-            this.readFirst = true
-            return this.firstByte.toInt()
-        } else {
-            return this.`in`.readUnsignedByte()
-        }
+    override fun read() = if (!this.readFirst) {
+        this.readFirst = true
+        this.firstByte.toInt()
+    } else {
+        this.`in`.readUnsignedByte()
     }
 }

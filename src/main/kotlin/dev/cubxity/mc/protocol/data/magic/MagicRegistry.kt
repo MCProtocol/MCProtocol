@@ -98,6 +98,9 @@ object MagicRegistry {
         for (i in PlayerAction.values().indices)
             data[PlayerAction.values()[i]] = i
 
+        for (i in GameState.values().indices)
+            data[GameState.values()[i]] = i
+
         versionData[version] = data
     }
 

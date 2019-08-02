@@ -1,0 +1,17 @@
+package dev.cubxity.mc.protocol.data.magic
+
+enum class GameState {
+
+    INVALID_BED,
+    END_RAINING,
+    BEGIN_RAINING,
+    CHANGE_GAMEMODE,
+    EXIT_END,
+    DEMO_MESSAGE,
+    ARROW_HITTING_PLAYER,
+    FADE_VALUE,
+    FADE_TIME,
+    PLAY_PUFFERFISH_STING_SOUND,
+    PLAY_ELDER_GUARDIAN_APPEARANCE
+
+}
