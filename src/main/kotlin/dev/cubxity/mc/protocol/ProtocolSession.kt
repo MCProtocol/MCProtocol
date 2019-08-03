@@ -6,7 +6,6 @@ import com.github.steveice10.mc.auth.exception.request.RequestException
 import com.github.steveice10.mc.auth.exception.request.ServiceUnavailableException
 import com.github.steveice10.mc.auth.service.AuthenticationService
 import com.github.steveice10.mc.auth.service.SessionService
-import dev.cubxity.mc.protocol.data.magic.Difficulity
 import dev.cubxity.mc.protocol.data.magic.Dimension
 import dev.cubxity.mc.protocol.data.magic.Gamemode
 import dev.cubxity.mc.protocol.data.magic.LevelType
@@ -18,10 +17,7 @@ import dev.cubxity.mc.protocol.packets.Packet
 import dev.cubxity.mc.protocol.packets.RawPacket
 import dev.cubxity.mc.protocol.packets.game.client.ClientChatMessagePacket
 import dev.cubxity.mc.protocol.packets.game.client.ClientKeepAlivePacket
-import dev.cubxity.mc.protocol.packets.game.server.ServerChatPacket
-import dev.cubxity.mc.protocol.packets.game.server.ServerDisconnectPacket
-import dev.cubxity.mc.protocol.packets.game.server.ServerJoinGamePacket
-import dev.cubxity.mc.protocol.packets.game.server.ServerKeepAlivePacket
+import dev.cubxity.mc.protocol.packets.game.server.*
 import dev.cubxity.mc.protocol.packets.game.server.entity.spawn.*
 import dev.cubxity.mc.protocol.packets.handshake.client.HandshakePacket
 import dev.cubxity.mc.protocol.packets.login.client.EncryptionResponsePacket
@@ -108,7 +104,7 @@ class ProtocolSession @JvmOverloads constructor(
     /**
      * Session access token
      */
-    lateinit var accessToken: String
+    var accessToken: String? = null
 
     /**
      * Session client token
@@ -285,7 +281,10 @@ class ProtocolSession @JvmOverloads constructor(
                 val serverHash =
                     BigInteger(CryptUtil.getServerIdHash(it.serverId, it.publicKey, key)).toString(16)
                 try {
-                    SessionService().joinServer(profile, accessToken, serverHash)
+                    if (accessToken != null) {
+                        SessionService().joinServer(profile, accessToken, serverHash)
+                    }
+
                     send(EncryptionResponsePacket(key, it.publicKey, it.verifyToken))
                     encryption = PacketEncryption(key)
                 } catch (e: ServiceUnavailableException) {
@@ -365,6 +364,7 @@ class ProtocolSession @JvmOverloads constructor(
                 server[0x03] = ServerSpawnMobPacket::class.java
                 server[0x04] = ServerSpawnPaintingPacket::class.java
                 server[0x05] = ServerSpawnPlayerPacket::class.java
+                server[0x06] = ServerAnimationPacket::class.java
                 server[0x0E] = ServerChatPacket::class.java
                 server[0x1A] = ServerDisconnectPacket::class.java
                 server[0x20] = ServerKeepAlivePacket::class.java
