@@ -18,6 +18,16 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+/*
+ * Copyright (c) 2018 - 2019 Cubixity, superblaubeere27 and KodingKing1
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
 package dev.cubxity.mc.protocol
 
 import com.github.steveice10.mc.auth.data.GameProfile
@@ -39,6 +49,7 @@ import dev.cubxity.mc.protocol.packets.game.client.ClientChatMessagePacket
 import dev.cubxity.mc.protocol.packets.game.client.ClientKeepAlivePacket
 import dev.cubxity.mc.protocol.packets.game.server.*
 import dev.cubxity.mc.protocol.packets.game.server.entity.spawn.*
+import dev.cubxity.mc.protocol.packets.game.server.world.ServerBlockChangePacket
 import dev.cubxity.mc.protocol.packets.handshake.client.HandshakePacket
 import dev.cubxity.mc.protocol.packets.login.client.EncryptionResponsePacket
 import dev.cubxity.mc.protocol.packets.login.client.LoginPluginResponsePacket
@@ -385,7 +396,19 @@ class ProtocolSession @JvmOverloads constructor(
                 server[0x04] = ServerSpawnPaintingPacket::class.java
                 server[0x05] = ServerSpawnPlayerPacket::class.java
                 server[0x06] = ServerAnimationPacket::class.java
+                server[0x07] = ServerStatisticsPacket::class.java
+                server[0x08] = ServerBlockBreakAnimationPacket::class.java
+                server[0x09] = ServerUpdateBlockEntity::class.java
+                server[0x0A] = ServerBlockActionPacket::class.java
+                server[0x0B] = ServerBlockChangePacket::class.java
+                server[0x0C] = ServerBossBarPacket::class.java
+                server[0x0D] = ServerServerDifficultyPacket::class.java
                 server[0x0E] = ServerChatPacket::class.java
+                server[0x0F] = ServerMultiBlockChangePacket::class.java
+                server[0x10] = ServerTabCompletePacket::class.java
+                // TODO Implement 0x11: Declare Commands
+                server[0x12] = ServerConfirmTransactionPacket::class.java
+                server[0x13] = ServerCloseWindowPacket::class.java
                 server[0x1A] = ServerDisconnectPacket::class.java
                 server[0x20] = ServerKeepAlivePacket::class.java
                 server[0x25] = ServerJoinGamePacket::class.java
