@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 - 2019 Cubixity, superblaubeere27 and KodingKing1
+ * Copyright (c) 2018 - 2019 Cubxity, superblaubeere27 and KodingKing1
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
  *
@@ -19,6 +19,7 @@ import dev.cubxity.mc.protocol.data.magic.MagicRegistry
 import dev.cubxity.mc.protocol.data.magic.MetadataType
 import dev.cubxity.mc.protocol.data.obj.EntityMetadata
 import dev.cubxity.mc.protocol.data.obj.Rotation
+import dev.cubxity.mc.protocol.data.obj.Slot
 import dev.cubxity.mc.protocol.entities.Message
 import dev.cubxity.mc.protocol.entities.SimplePosition
 import io.netty.buffer.ByteBuf
@@ -129,13 +130,13 @@ class NetOutput(val buf: ByteBuf) {
     fun writeMessage(m: Message) = writeString(m.toJson())
     fun writeNbt(nbt: Tag) = NBTIO.writeTag(NetOutputStream(this), nbt)
     fun writeSlot(data: Slot) {
-        writeBoolean(data.present)
+        writeBoolean(data.isPresent)
 
-        if (!data.present)
+        if (!data.isPresent)
             return
 
         writeVarInt(data.itemId ?: return)
-        writeByte(data.itemCount ?: return)
+        writeByte(data.count ?: return)
         writeNbt(data.nbt ?: return)
 
         fun writeNBTTag(nbtData: Tag) {
@@ -150,18 +151,19 @@ class NetOutput(val buf: ByteBuf) {
         fun writeSlot(slot: Slot) {
             if (slot.isPresent) {
                 writeBoolean(false)
-                writeVarInt(slot.itemId)
-                writeByte(slot.count)
-                writeNBTTag(slot.nbt)
+                slot.itemId?.let { writeVarInt(it) }
+                slot.count?.let { writeByte(it) }
+                slot.nbt?.let { writeNBTTag(it) }
             } else {
                 writeBoolean(false)
             }
         }
-}
+    }
 
-class NetOutputStream(val output: NetOutput) : OutputStream() {
+    class NetOutputStream(val output: NetOutput) : OutputStream() {
 
-    override fun write(b: Int) {
-        output.writeByte(b)
+        override fun write(b: Int) {
+            output.writeByte(b)
+        }
     }
 }
