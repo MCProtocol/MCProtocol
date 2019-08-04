@@ -8,19 +8,24 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package dev.cubxity.mc.protocol
+package dev.cubxity.mc.protocol.packets.game.client
 
-import dev.cubxity.mc.protocol.packets.PacketVersion
-import dev.cubxity.mc.protocol.packets.versions.PacketVersion_1_14_4
+import dev.cubxity.mc.protocol.ProtocolVersion
+import dev.cubxity.mc.protocol.data.magic.ClientStatus
+import dev.cubxity.mc.protocol.data.magic.MagicRegistry
+import dev.cubxity.mc.protocol.net.NetInput
+import dev.cubxity.mc.protocol.net.NetOutput
+import dev.cubxity.mc.protocol.packets.Packet
 
-/**
- * @author Cubxity
- * @since 7/20/2019
- */
-enum class ProtocolVersion(val id: Int, val version: PacketVersion) {
-    V1_8(48, PacketVersion_1_14_4()),
-    V1_9(107, PacketVersion_1_14_4()),
-    V1_10(210, PacketVersion_1_14_4()),
-    V1_13_2(404, PacketVersion_1_14_4()),
-    V1_14_4(498, PacketVersion_1_14_4()),
+class ClientStatusPacket(
+    var action: ClientStatus
+) : Packet() {
+
+    override fun read(buf: NetInput, target: ProtocolVersion) {
+        action = MagicRegistry.lookupKey(target, buf.readVarInt())
+    }
+
+    override fun write(out: NetOutput, target: ProtocolVersion) {
+        out.writeVarInt(MagicRegistry.lookupValue(target, action))
+    }
 }

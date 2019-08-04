@@ -8,45 +8,58 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package dev.cubxity.mc.protocol.packets.game.server.entity.spawn
+package dev.cubxity.mc.protocol.packets.game.server.world.block
 
 import dev.cubxity.mc.protocol.ProtocolVersion
-import dev.cubxity.mc.protocol.data.obj.EntityMetadata
+import dev.cubxity.mc.protocol.entities.SimplePosition
 import dev.cubxity.mc.protocol.net.NetInput
 import dev.cubxity.mc.protocol.net.NetOutput
 import dev.cubxity.mc.protocol.packets.Packet
-import java.util.*
 
-class ServerSpawnPlayerPacket(
-    var entityId: Int,
-    var playerUuid: UUID,
-    var x: Double,
-    var y: Double,
-    var z: Double,
-    var yaw: Float,
-    var pitch: Float,
-    var metadata: Array<EntityMetadata>
+class ServerMultiBlockChangePacket(
+    var chunkX: Int,
+    var chunkZ: Int,
+    var records: Array<Record>
 ) : Packet() {
 
     override fun read(buf: NetInput, target: ProtocolVersion) {
-        entityId = buf.readVarInt()
-        playerUuid = buf.readUUID()
-        x = buf.readDouble()
-        y = buf.readDouble()
-        z = buf.readDouble()
-        yaw = buf.readAngle()
-        pitch = buf.readAngle()
-        metadata = buf.readEntityMetadata(target)
+        chunkX = buf.readInt()
+        chunkZ = buf.readInt()
+
+        var readRecords = arrayOf<Record>()
+
+        for (i in 0 until buf.readVarInt()) {
+            val horizontalPosition = buf.readUnsignedByte()
+
+            val worldX = (horizontalPosition shr 4 and 15) + chunkX * 16
+            val worldZ = (horizontalPosition and 15) + chunkZ * 16
+            val worldY = buf.readUnsignedByte()
+
+            readRecords += Record(
+                horizontalPosition,
+                SimplePosition(worldX.toDouble(), worldY.toDouble(), worldZ.toDouble()),
+                buf.readVarInt()
+            )
+        }
+
+        records = readRecords
     }
 
     override fun write(out: NetOutput, target: ProtocolVersion) {
-        out.writeVarInt(entityId)
-        out.writeUUID(playerUuid)
-        out.writeDouble(x)
-        out.writeDouble(y)
-        out.writeDouble(z)
-        out.writeAngle(yaw)
-        out.writeAngle(pitch)
-        out.writeEntityMetadata(metadata, target)
+        out.writeInt(chunkX)
+        out.writeInt(chunkZ)
+        out.writeVarInt(records.size)
+
+        for (record in records) {
+            out.writeByte(record.horizontalPosition)
+            out.writeByte(record.position.y.toInt())
+            out.writeVarInt(record.blockId)
+        }
     }
+
+    data class Record(
+        val horizontalPosition: Int,
+        val position: SimplePosition,
+        val blockId: Int
+    )
 }

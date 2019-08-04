@@ -8,26 +8,6 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/*
- * Copyright (c) 2018 - 2019 Cubixity, superblaubeere27 and KodingKing1
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
-
-/*
- * Copyright (c) 2018 - 2019 Cubixity, superblaubeere27 and KodingKing1
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
-
 package dev.cubxity.mc.protocol.net
 
 import com.github.steveice10.opennbt.NBTIO
@@ -45,8 +25,10 @@ import dev.cubxity.mc.protocol.entities.Message
 import dev.cubxity.mc.protocol.entities.SimplePosition
 import io.netty.buffer.ByteBuf
 import java.io.IOException
+import java.io.InputStream
 import java.nio.charset.Charset
 import java.util.*
+
 
 /**
  * https://wiki.vg/Protocol#Data_types
@@ -94,7 +76,7 @@ class NetInput(val buf: ByteBuf) {
         return (value or (b and 0x7F shl size * 7)).toLong()
     }
 
-    fun readFloat() =buf.readFloat()
+    fun readFloat() = buf.readFloat()
     fun readDouble() = buf.readDouble()
 
     fun readBytes(length: Int): ByteArray {
@@ -239,62 +221,81 @@ class NetInput(val buf: ByteBuf) {
         val z = value shl 26 shr 38
         return SimplePosition(x.toDouble(), y.toDouble(), z.toDouble())
     }
+
     fun readRotation(): Rotation = Rotation(readFloat(), readFloat(), readFloat())
 
     fun readEntityMetadata(target: ProtocolVersion): Array<EntityMetadata> {
         var items = arrayOf<EntityMetadata>()
 
         while (true) {
-            val id = readUnsignedByte()
-            if (id == 255) break
+            try {
+                val id = readUnsignedByte()
+                if (id == 255) break
 
-            val typeId = readVarInt()
-            val type = MagicRegistry.lookupKey<MetadataType>(target, typeId)
+                val typeId = readVarInt()
+                val type = MagicRegistry.lookupKey<MetadataType>(target, typeId)
 
-            val value: Any? = when (type) {
-                MetadataType.BYTE -> readByte()
-                MetadataType.VAR_INT -> readVarInt()
-                MetadataType.FLOAT -> readFloat()
-                MetadataType.STRING -> readString()
-                MetadataType.CHAT -> Message.fromJson(readString())
-                MetadataType.OPT_CHAT -> if (readBoolean()) Message.fromJson(readString()) else null
-                MetadataType.SLOT -> null
-                MetadataType.BOOLEAN -> readBoolean()
-                MetadataType.ROTATION -> readRotation()
-                MetadataType.POSITION -> readPosition()
-                MetadataType.OPT_POSITION -> if (readBoolean()) readPosition() else null
-                MetadataType.DIRECTION -> MagicRegistry.lookupKey<Direction>(target, readVarInt())
-                MetadataType.OPT_UUID -> if (readBoolean()) readUUID() else null
-                MetadataType.OPT_BLOCK_ID -> readVarInt()
-                MetadataType.NBT -> NBTIO.readTag(readString().byteInputStream())
-                // TODO: Add particle data
-                MetadataType.PARTICLE -> null
-                MetadataType.VILLAGER_DATA -> VillagerData(readVarInt(), readVarInt(), readVarInt())
-                MetadataType.OPT_VAR_INT -> if (readBoolean()) readVarInt() else null
-                MetadataType.POSE -> MagicRegistry.lookupKey<Pose>(target, readVarInt())
+                val value: Any? = when (type) {
+                    MetadataType.BYTE -> readByte()
+                    MetadataType.VAR_INT -> readVarInt()
+                    MetadataType.FLOAT -> readFloat()
+                    MetadataType.STRING -> readString()
+                    MetadataType.CHAT -> Message.fromJson(readString())
+                    MetadataType.OPT_CHAT -> if (readBoolean()) Message.fromJson(readString()) else null
+                    MetadataType.SLOT -> readSlot()
+                    MetadataType.BOOLEAN -> readBoolean()
+                    MetadataType.ROTATION -> readRotation()
+                    MetadataType.POSITION -> readPosition()
+                    MetadataType.OPT_POSITION -> if (readBoolean()) readPosition() else null
+                    MetadataType.DIRECTION -> MagicRegistry.lookupKey<Direction>(target, readVarInt())
+                    MetadataType.OPT_UUID -> if (readBoolean()) readUUID() else null
+                    MetadataType.OPT_BLOCK_ID -> readVarInt()
+                    MetadataType.NBT -> readNbt()
+                    // TODO: Add particle data
+                    MetadataType.PARTICLE -> null
+                    MetadataType.VILLAGER_DATA -> VillagerData(readVarInt(), readVarInt(), readVarInt())
+                    MetadataType.OPT_VAR_INT -> if (readBoolean()) readVarInt() else null
+                    MetadataType.POSE -> MagicRegistry.lookupKey<Pose>(target, readVarInt())
+                }
+
+                items += EntityMetadata(id, type, value)
+            } catch (e: Exception) {
+                break
             }
-
-            items += EntityMetadata(id, type, value)
         }
 
         return items
     }
 
+    fun readMessage() = Message.fromJson(readString())
+
     fun available() = buf.readableBytes()
+
     fun readerIndex(i: Int) = buf.readerIndex(i)
-    fun readNBTTag(): Tag {
-        try {
-            return NBTIO.readTag(NetInputStream(this))
-        } catch (e: IOException) {
-            throw RuntimeException(e)
-        }
+
+    fun readNbt(): Tag {
+        val b = readByte()
+
+        return NBTIO.readTag(NetInputStream(this, b))
     }
 
     fun readSlot(): Slot {
         return if (!readBoolean()) {
             Slot()
         } else {
-            Slot(readVarInt(), readByte().toInt(), readNBTTag())
+            Slot(readVarInt(), readByte().toInt(), readNbt())
         }
+    }
+}
+
+private class NetInputStream(private val `in`: NetInput, private val firstByte: Byte) : InputStream() {
+    private var readFirst: Boolean = false
+
+    @Throws(IOException::class)
+    override fun read() = if (!this.readFirst) {
+        this.readFirst = true
+        this.firstByte.toInt()
+    } else {
+        this.`in`.readUnsignedByte()
     }
 }

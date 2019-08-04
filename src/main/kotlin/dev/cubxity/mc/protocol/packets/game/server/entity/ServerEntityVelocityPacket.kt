@@ -8,19 +8,31 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package dev.cubxity.mc.protocol
+package dev.cubxity.mc.protocol.packets.game.server.entity
 
-import dev.cubxity.mc.protocol.packets.PacketVersion
-import dev.cubxity.mc.protocol.packets.versions.PacketVersion_1_14_4
+import dev.cubxity.mc.protocol.ProtocolVersion
+import dev.cubxity.mc.protocol.net.NetInput
+import dev.cubxity.mc.protocol.net.NetOutput
+import dev.cubxity.mc.protocol.packets.Packet
 
-/**
- * @author Cubxity
- * @since 7/20/2019
- */
-enum class ProtocolVersion(val id: Int, val version: PacketVersion) {
-    V1_8(48, PacketVersion_1_14_4()),
-    V1_9(107, PacketVersion_1_14_4()),
-    V1_10(210, PacketVersion_1_14_4()),
-    V1_13_2(404, PacketVersion_1_14_4()),
-    V1_14_4(498, PacketVersion_1_14_4()),
+class ServerEntityVelocityPacket(
+    var entityId: Int,
+    var velocityX: Short,
+    var velocityY: Short,
+    var velocityZ: Short
+) : Packet() {
+
+    override fun read(buf: NetInput, target: ProtocolVersion) {
+        entityId = buf.readVarInt()
+        velocityX = buf.readShort()
+        velocityY = buf.readShort()
+        velocityZ = buf.readShort()
+    }
+
+    override fun write(out: NetOutput, target: ProtocolVersion) {
+        out.writeVarInt(entityId)
+        out.writeShort(velocityX)
+        out.writeShort(velocityY)
+        out.writeShort(velocityZ)
+    }
 }

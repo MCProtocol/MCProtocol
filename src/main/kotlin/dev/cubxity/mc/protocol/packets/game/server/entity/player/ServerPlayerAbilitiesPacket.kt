@@ -8,45 +8,55 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package dev.cubxity.mc.protocol.packets.game.server.entity.spawn
+package dev.cubxity.mc.protocol.packets.game.server.entity.player
 
 import dev.cubxity.mc.protocol.ProtocolVersion
-import dev.cubxity.mc.protocol.data.obj.EntityMetadata
 import dev.cubxity.mc.protocol.net.NetInput
 import dev.cubxity.mc.protocol.net.NetOutput
 import dev.cubxity.mc.protocol.packets.Packet
-import java.util.*
 
-class ServerSpawnPlayerPacket(
-    var entityId: Int,
-    var playerUuid: UUID,
-    var x: Double,
-    var y: Double,
-    var z: Double,
-    var yaw: Float,
-    var pitch: Float,
-    var metadata: Array<EntityMetadata>
+class ServerPlayerAbilitiesPacket(
+    var invincible: Boolean,
+    var canFly: Boolean,
+    var flying: Boolean,
+    var creative: Boolean,
+    var flySpeed: Float,
+    var walkSpeed: Float
 ) : Packet() {
 
     override fun read(buf: NetInput, target: ProtocolVersion) {
-        entityId = buf.readVarInt()
-        playerUuid = buf.readUUID()
-        x = buf.readDouble()
-        y = buf.readDouble()
-        z = buf.readDouble()
-        yaw = buf.readAngle()
-        pitch = buf.readAngle()
-        metadata = buf.readEntityMetadata(target)
+        val flags = buf.readByte().toInt()
+
+        invincible = flags and 1 > 0
+        canFly = flags and 2 > 0
+        flying = flags and 4 > 0
+        creative = flags and 8 > 0
+
+        flySpeed = buf.readFloat()
+        walkSpeed = buf.readFloat()
     }
 
     override fun write(out: NetOutput, target: ProtocolVersion) {
-        out.writeVarInt(entityId)
-        out.writeUUID(playerUuid)
-        out.writeDouble(x)
-        out.writeDouble(y)
-        out.writeDouble(z)
-        out.writeAngle(yaw)
-        out.writeAngle(pitch)
-        out.writeEntityMetadata(metadata, target)
+        var flags = 0
+
+        if (invincible) {
+            flags = flags or 1
+        }
+
+        if (canFly) {
+            flags = flags or 2
+        }
+
+        if (flying) {
+            flags = flags or 4
+        }
+
+        if (creative) {
+            flags = flags or 8
+        }
+
+        out.writeByte(flags)
+        out.writeFloat(flySpeed)
+        out.writeFloat(walkSpeed)
     }
 }

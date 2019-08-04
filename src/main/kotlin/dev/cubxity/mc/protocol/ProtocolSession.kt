@@ -36,9 +36,11 @@ import dev.cubxity.mc.protocol.packets.game.server.entity.spawn.*
 import dev.cubxity.mc.protocol.packets.game.server.world.ServerBlockChangePacket
 import dev.cubxity.mc.protocol.packets.handshake.client.HandshakePacket
 import dev.cubxity.mc.protocol.packets.login.client.EncryptionResponsePacket
-import dev.cubxity.mc.protocol.packets.login.client.LoginPluginResponsePacket
 import dev.cubxity.mc.protocol.packets.login.client.LoginStartPacket
-import dev.cubxity.mc.protocol.packets.login.server.*
+import dev.cubxity.mc.protocol.packets.login.server.EncryptionRequestPacket
+import dev.cubxity.mc.protocol.packets.login.server.LoginDisconnectPacket
+import dev.cubxity.mc.protocol.packets.login.server.LoginSuccessPacket
+import dev.cubxity.mc.protocol.packets.login.server.SetCompressionPacket
 import dev.cubxity.mc.protocol.packets.status.client.StatusPingPacket
 import dev.cubxity.mc.protocol.packets.status.client.StatusQueryPacket
 import dev.cubxity.mc.protocol.packets.status.server.StatusPongPacket
@@ -212,6 +214,7 @@ class ProtocolSession @JvmOverloads constructor(
                                             ?.addListener {
                                                 subProtocol = SubProtocol.GAME
                                                 registerDefaults()
+
                                                 send(
                                                     ServerJoinGamePacket(
                                                         0,
@@ -223,7 +226,7 @@ class ProtocolSession @JvmOverloads constructor(
                                                         8
                                                     )
                                                 )
-                                                launch {
+                                                GlobalScope.launch {
                                                     var lastPing: Long
                                                     while (channel.isOpen) {
                                                         lastPing = System.currentTimeMillis()
@@ -361,17 +364,12 @@ class ProtocolSession @JvmOverloads constructor(
                 client[0x00] = StatusQueryPacket::class.java
                 client[0x01] = StatusPingPacket::class.java
             }
-            SubProtocol.LOGIN -> {
-                server[0x00] = LoginDisconnectPacket::class.java
-                server[0x01] = EncryptionRequestPacket::class.java
-                server[0x02] = LoginSuccessPacket::class.java
-                server[0x03] = SetCompressionPacket::class.java
-                server[0x04] = LoginPluginRequestPacket::class.java
 
-                client[0x00] = LoginStartPacket::class.java
-                client[0x01] = EncryptionResponsePacket::class.java
-                client[0x02] = LoginPluginResponsePacket::class.java
+            SubProtocol.LOGIN -> {
+                server.putAll(incomingVersion.version.serverLogin)
+                client.putAll(outgoingVersion.version.clientLogin)
             }
+
             SubProtocol.GAME -> {
                 server[0x00] = ServerSpawnObjectPacket::class.java
                 server[0x01] = ServerSpawnExperienceOrbPacket::class.java
@@ -425,6 +423,8 @@ class ProtocolSession @JvmOverloads constructor(
 
                 client[0x03] = ClientChatMessagePacket::class.java
                 client[0x0F] = ClientKeepAlivePacket::class.java
+                server.putAll(incomingVersion.version.serverPlay)
+                client.putAll(outgoingVersion.version.clientPlay)
             }
         }
     }

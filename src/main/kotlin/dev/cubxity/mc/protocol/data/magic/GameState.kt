@@ -8,19 +8,20 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package dev.cubxity.mc.protocol
+package dev.cubxity.mc.protocol.data.magic
 
-import dev.cubxity.mc.protocol.packets.PacketVersion
-import dev.cubxity.mc.protocol.packets.versions.PacketVersion_1_14_4
+enum class GameState {
 
-/**
- * @author Cubxity
- * @since 7/20/2019
- */
-enum class ProtocolVersion(val id: Int, val version: PacketVersion) {
-    V1_8(48, PacketVersion_1_14_4()),
-    V1_9(107, PacketVersion_1_14_4()),
-    V1_10(210, PacketVersion_1_14_4()),
-    V1_13_2(404, PacketVersion_1_14_4()),
-    V1_14_4(498, PacketVersion_1_14_4()),
+    INVALID_BED,
+    END_RAINING,
+    BEGIN_RAINING,
+    CHANGE_GAMEMODE,
+    EXIT_END,
+    DEMO_MESSAGE,
+    ARROW_HITTING_PLAYER,
+    FADE_VALUE,
+    FADE_TIME,
+    PLAY_PUFFERFISH_STING_SOUND,
+    PLAY_ELDER_GUARDIAN_APPEARANCE
+
 }

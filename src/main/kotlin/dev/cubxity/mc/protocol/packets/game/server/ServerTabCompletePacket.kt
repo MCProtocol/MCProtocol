@@ -8,45 +8,55 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package dev.cubxity.mc.protocol.packets.game.server.entity.spawn
+package dev.cubxity.mc.protocol.packets.game.server
 
 import dev.cubxity.mc.protocol.ProtocolVersion
-import dev.cubxity.mc.protocol.data.obj.EntityMetadata
+import dev.cubxity.mc.protocol.entities.Message
 import dev.cubxity.mc.protocol.net.NetInput
 import dev.cubxity.mc.protocol.net.NetOutput
 import dev.cubxity.mc.protocol.packets.Packet
-import java.util.*
 
-class ServerSpawnPlayerPacket(
-    var entityId: Int,
-    var playerUuid: UUID,
-    var x: Double,
-    var y: Double,
-    var z: Double,
-    var yaw: Float,
-    var pitch: Float,
-    var metadata: Array<EntityMetadata>
+class ServerTabCompletePacket(
+    var id: Int,
+    var start: Int,
+    var length: Int,
+    var matches: Array<Match>
 ) : Packet() {
 
     override fun read(buf: NetInput, target: ProtocolVersion) {
-        entityId = buf.readVarInt()
-        playerUuid = buf.readUUID()
-        x = buf.readDouble()
-        y = buf.readDouble()
-        z = buf.readDouble()
-        yaw = buf.readAngle()
-        pitch = buf.readAngle()
-        metadata = buf.readEntityMetadata(target)
+        id = buf.readVarInt()
+        start = buf.readVarInt()
+        length = buf.readVarInt()
+
+        var readMatches = arrayOf<Match>()
+
+        for (i in 0 until buf.readVarInt()) {
+            val match = buf.readString()
+            val hasTooltip = buf.readBoolean()
+
+            readMatches += Match(match, hasTooltip, if (hasTooltip) Message.fromJson(buf.readString()) else null)
+        }
+
+        matches = readMatches
     }
 
     override fun write(out: NetOutput, target: ProtocolVersion) {
-        out.writeVarInt(entityId)
-        out.writeUUID(playerUuid)
-        out.writeDouble(x)
-        out.writeDouble(y)
-        out.writeDouble(z)
-        out.writeAngle(yaw)
-        out.writeAngle(pitch)
-        out.writeEntityMetadata(metadata, target)
+        out.writeVarInt(id)
+        out.writeVarInt(start)
+        out.writeVarInt(length)
+
+        for (match in matches) {
+            out.writeString(match.match)
+            out.writeBoolean(match.hasTooltip)
+
+            if (match.hasTooltip)
+                out.writeString(match.tooltip?.toJson() ?: "")
+        }
     }
+
+    data class Match(
+        val match: String,
+        val hasTooltip: Boolean,
+        val tooltip: Message?
+    )
 }
