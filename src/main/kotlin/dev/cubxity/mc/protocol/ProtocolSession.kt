@@ -45,16 +45,17 @@ import dev.cubxity.mc.protocol.events.*
 import dev.cubxity.mc.protocol.net.PacketEncryption
 import dev.cubxity.mc.protocol.packets.Packet
 import dev.cubxity.mc.protocol.packets.RawPacket
-import dev.cubxity.mc.protocol.packets.game.client.ClientChatMessagePacket
 import dev.cubxity.mc.protocol.packets.game.client.ClientKeepAlivePacket
 import dev.cubxity.mc.protocol.packets.game.server.*
 import dev.cubxity.mc.protocol.packets.game.server.entity.spawn.*
 import dev.cubxity.mc.protocol.packets.game.server.world.ServerBlockChangePacket
 import dev.cubxity.mc.protocol.packets.handshake.client.HandshakePacket
 import dev.cubxity.mc.protocol.packets.login.client.EncryptionResponsePacket
-import dev.cubxity.mc.protocol.packets.login.client.LoginPluginResponsePacket
 import dev.cubxity.mc.protocol.packets.login.client.LoginStartPacket
-import dev.cubxity.mc.protocol.packets.login.server.*
+import dev.cubxity.mc.protocol.packets.login.server.EncryptionRequestPacket
+import dev.cubxity.mc.protocol.packets.login.server.LoginDisconnectPacket
+import dev.cubxity.mc.protocol.packets.login.server.LoginSuccessPacket
+import dev.cubxity.mc.protocol.packets.login.server.SetCompressionPacket
 import dev.cubxity.mc.protocol.packets.status.client.StatusPingPacket
 import dev.cubxity.mc.protocol.packets.status.client.StatusQueryPacket
 import dev.cubxity.mc.protocol.packets.status.server.StatusPongPacket
@@ -228,6 +229,7 @@ class ProtocolSession @JvmOverloads constructor(
                                             ?.addListener {
                                                 subProtocol = SubProtocol.GAME
                                                 registerDefaults()
+
                                                 send(
                                                     ServerJoinGamePacket(
                                                         0,
@@ -239,7 +241,7 @@ class ProtocolSession @JvmOverloads constructor(
                                                         8
                                                     )
                                                 )
-                                                launch {
+                                                GlobalScope.launch {
                                                     var lastPing: Long
                                                     while (channel.isOpen) {
                                                         lastPing = System.currentTimeMillis()
@@ -377,44 +379,15 @@ class ProtocolSession @JvmOverloads constructor(
                 client[0x00] = StatusQueryPacket::class.java
                 client[0x01] = StatusPingPacket::class.java
             }
+
             SubProtocol.LOGIN -> {
-                server[0x00] = LoginDisconnectPacket::class.java
-                server[0x01] = EncryptionRequestPacket::class.java
-                server[0x02] = LoginSuccessPacket::class.java
-                server[0x03] = SetCompressionPacket::class.java
-                server[0x04] = LoginPluginRequestPacket::class.java
-
-                client[0x00] = LoginStartPacket::class.java
-                client[0x01] = EncryptionResponsePacket::class.java
-                client[0x02] = LoginPluginResponsePacket::class.java
+                server.putAll(incomingVersion.version.serverLogin)
+                client.putAll(outgoingVersion.version.clientLogin)
             }
-            SubProtocol.GAME -> {
-                server[0x00] = ServerSpawnObjectPacket::class.java
-                server[0x01] = ServerSpawnExperienceOrbPacket::class.java
-                server[0x02] = ServerSpawnGlobalEntityPacket::class.java
-                server[0x03] = ServerSpawnMobPacket::class.java
-                server[0x04] = ServerSpawnPaintingPacket::class.java
-                server[0x05] = ServerSpawnPlayerPacket::class.java
-                server[0x06] = ServerAnimationPacket::class.java
-                server[0x07] = ServerStatisticsPacket::class.java
-                server[0x08] = ServerBlockBreakAnimationPacket::class.java
-                server[0x09] = ServerUpdateBlockEntity::class.java
-                server[0x0A] = ServerBlockActionPacket::class.java
-                server[0x0B] = ServerBlockChangePacket::class.java
-                server[0x0C] = ServerBossBarPacket::class.java
-                server[0x0D] = ServerServerDifficultyPacket::class.java
-                server[0x0E] = ServerChatPacket::class.java
-                server[0x0F] = ServerMultiBlockChangePacket::class.java
-                server[0x10] = ServerTabCompletePacket::class.java
-                // TODO Implement 0x11: Declare Commands
-                server[0x12] = ServerConfirmTransactionPacket::class.java
-                server[0x13] = ServerCloseWindowPacket::class.java
-                server[0x1A] = ServerDisconnectPacket::class.java
-                server[0x20] = ServerKeepAlivePacket::class.java
-                server[0x25] = ServerJoinGamePacket::class.java
 
-                client[0x03] = ClientChatMessagePacket::class.java
-                client[0x0F] = ClientKeepAlivePacket::class.java
+            SubProtocol.GAME -> {
+                server.putAll(incomingVersion.version.serverPlay)
+                client.putAll(outgoingVersion.version.clientPlay)
             }
         }
     }

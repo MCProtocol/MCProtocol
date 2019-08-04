@@ -11,12 +11,12 @@
 package dev.cubxity.mc.protocol.packets.game.server.entity.spawn
 
 import dev.cubxity.mc.protocol.ProtocolVersion
+import dev.cubxity.mc.protocol.data.obj.EntityMetadata
 import dev.cubxity.mc.protocol.net.NetInput
 import dev.cubxity.mc.protocol.net.NetOutput
 import dev.cubxity.mc.protocol.packets.Packet
 import java.util.*
 
-// TODO: Write metadata handling
 class ServerSpawnPlayerPacket(
     var entityId: Int,
     var playerUuid: UUID,
@@ -24,7 +24,8 @@ class ServerSpawnPlayerPacket(
     var y: Double,
     var z: Double,
     var yaw: Float,
-    var pitch: Float
+    var pitch: Float,
+    var metadata: Array<EntityMetadata>
 ) : Packet() {
 
     override fun read(buf: NetInput, target: ProtocolVersion) {
@@ -35,6 +36,7 @@ class ServerSpawnPlayerPacket(
         z = buf.readDouble()
         yaw = buf.readAngle()
         pitch = buf.readAngle()
+        metadata = buf.readEntityMetadata(target)
     }
 
     override fun write(out: NetOutput, target: ProtocolVersion) {
@@ -45,5 +47,6 @@ class ServerSpawnPlayerPacket(
         out.writeDouble(z)
         out.writeAngle(yaw)
         out.writeAngle(pitch)
+        out.writeEntityMetadata(metadata, target)
     }
 }

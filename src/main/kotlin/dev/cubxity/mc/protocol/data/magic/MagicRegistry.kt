@@ -78,6 +78,12 @@ object MagicRegistry {
         data[LevelType.AMPLIFIED] = "amplified"
         data[LevelType.DEFAULT_1_1] = "default_1_1"
 
+        data[PositionElement.X] = 0x01
+        data[PositionElement.Y] = 0x02
+        data[PositionElement.Z] = 0x04
+        data[PositionElement.Y_ROT] = 0x08
+        data[PositionElement.X_ROT] = 0x10
+
         for (i in MobType.values().indices) {
             val enum = MobType.values()[i]
             val value = if (enum == MobType.SLIME) 67 else i
@@ -95,6 +101,15 @@ object MagicRegistry {
 
         for (i in Pose.values().indices)
             data[Pose.values()[i]] = i
+
+        for (i in ClientStatus.values().indices)
+            data[ClientStatus.values()[i]] = i
+
+        for (i in PlayerAction.values().indices)
+            data[PlayerAction.values()[i]] = i
+
+        for (i in GameState.values().indices)
+            data[GameState.values()[i]] = i
 
         versionData[version] = data
     }

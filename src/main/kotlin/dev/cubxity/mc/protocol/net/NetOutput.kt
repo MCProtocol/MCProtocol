@@ -29,6 +29,7 @@ import dev.cubxity.mc.protocol.data.magic.MagicRegistry
 import dev.cubxity.mc.protocol.data.magic.MetadataType
 import dev.cubxity.mc.protocol.data.obj.EntityMetadata
 import dev.cubxity.mc.protocol.data.obj.Rotation
+import dev.cubxity.mc.protocol.data.obj.Slot
 import dev.cubxity.mc.protocol.entities.Message
 import dev.cubxity.mc.protocol.entities.SimplePosition
 import io.netty.buffer.ByteBuf
@@ -101,6 +102,7 @@ class NetOutput(val buf: ByteBuf) {
         val z = position.z.toLong()
         buf.writeLong(x and 0x3FFFFFF shl 38 or (z and 0x3FFFFFF shl 12) or (y and 0xFFF))
     }
+
     fun writeRotation(rotation: Rotation) {
         buf.writeFloat(rotation.pitch)
         buf.writeFloat(rotation.yaw)
@@ -135,12 +137,25 @@ class NetOutput(val buf: ByteBuf) {
         writeByte(255)
     }
 
+    fun writeMessage(m: Message) = writeString(m.toJson())
+    fun writeNbt(nbt: Tag) = NBTIO.writeTag(NetOutputStream(this), nbt)
+    fun writeSlot(data: Slot) {
+        writeBoolean(data.present)
+
+        if (!data.present)
+            return
+
+        writeVarInt(data.itemId ?: return)
+        writeByte(data.itemCount ?: return)
+        writeNbt(data.nbt ?: return)
+
     fun writeNBTTag(nbtData: Tag) {
         try {
             NBTIO.writeTag(NetOutputStream(this), nbtData)
         } catch (e: IOException) {
             e.printStackTrace()
         }
+
     }
 }
 
