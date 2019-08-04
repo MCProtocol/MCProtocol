@@ -232,7 +232,7 @@ class ProtocolSession @JvmOverloads constructor(
 
                                                 send(
                                                     ServerJoinGamePacket(
-                                                        69,
+                                                        0,
                                                         Gamemode.CREATIVE,
                                                         false,
                                                         Dimension.OVERWORLD,
