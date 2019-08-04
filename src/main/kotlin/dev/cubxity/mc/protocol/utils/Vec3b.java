@@ -8,41 +8,37 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+package dev.cubxity.mc.protocol.utils;
 
-plugins {
-    kotlin("jvm") version "1.3.41"
-    id("io.spring.dependency-management") version "1.0.7.RELEASE"
-}
+public class Vec3b {
+    private byte x;
+    private byte y;
+    private byte z;
 
-group = "dev.cubxity.mc.protocol"
-version = "1.0"
-
-repositories {
-    mavenCentral()
-    maven { url = uri("https://repo.spring.io/milestone") }
-    maven { url = uri("https://jitpack.io") }
-}
-
-dependencyManagement {
-    imports {
-        mavenBom("io.projectreactor:reactor-bom:Californium-RELEASE")
+    public Vec3b(byte x, byte y, byte z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
     }
-}
 
-dependencies {
-    implementation(kotlin("stdlib-jdk8"))
-    compile("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.3.0-RC")
-    compile("io.projectreactor.kotlin:reactor-kotlin-extensions:1.0.0.M1")
-    compile("io.projectreactor.netty:reactor-netty")
-    compile("com.fasterxml.jackson.module:jackson-module-kotlin:2.9.+")
-    compile("ch.qos.logback:logback-classic:1.3.0-alpha4")
-    compile("org.objenesis:objenesis:3.0.1")
-    compile("com.github.Steveice10:MCAuthLib:1.0")
-    compile("com.github.Steveice10:OpenNBT:1.2")
-    compile("org.apache.commons:commons-lang3:3.9")
-}
+    public byte getX() {
+        return x;
+    }
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
+    public byte getY() {
+        return y;
+    }
+
+    public byte getZ() {
+        return z;
+    }
+
+    @Override
+    public String toString() {
+        return "Vec3f{" +
+                "x=" + x +
+                ", y=" + y +
+                ", z=" + z +
+                '}';
+    }
 }

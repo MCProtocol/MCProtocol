@@ -8,36 +8,6 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/*
- * Copyright (c) 2018 - 2019 Cubixity, superblaubeere27 and KodingKing1
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
-
-/*
- * Copyright (c) 2018 - 2019 Cubixity, superblaubeere27 and KodingKing1
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
-
-/*
- * Copyright (c) 2018 - 2019 Cubixity, superblaubeere27 and KodingKing1
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
-
 package dev.cubxity.mc.protocol
 
 import com.github.steveice10.mc.auth.data.GameProfile
@@ -58,6 +28,10 @@ import dev.cubxity.mc.protocol.packets.RawPacket
 import dev.cubxity.mc.protocol.packets.game.client.ClientChatMessagePacket
 import dev.cubxity.mc.protocol.packets.game.client.ClientKeepAlivePacket
 import dev.cubxity.mc.protocol.packets.game.server.*
+import dev.cubxity.mc.protocol.packets.game.server.entity.movement.ServerEntityLookAndRelativeMovePacket
+import dev.cubxity.mc.protocol.packets.game.server.entity.movement.ServerEntityLookPacket
+import dev.cubxity.mc.protocol.packets.game.server.entity.movement.ServerEntityPacket
+import dev.cubxity.mc.protocol.packets.game.server.entity.movement.ServerEntityRelativeMovePacket
 import dev.cubxity.mc.protocol.packets.game.server.entity.spawn.*
 import dev.cubxity.mc.protocol.packets.game.server.world.ServerBlockChangePacket
 import dev.cubxity.mc.protocol.packets.handshake.client.HandshakePacket
@@ -420,9 +394,34 @@ class ProtocolSession @JvmOverloads constructor(
                 server[0x12] = ServerConfirmTransactionPacket::class.java
                 server[0x13] = ServerCloseWindowPacket::class.java
                 server[0x14] = ServerWindowItemsPacket::class.java
+                server[0x15] = ServerWindowPropertyPacket::class.java
+                server[0x16] = ServerSetSlotPacket::class.java
+                server[0x17] = ServerSetCooldownPacket::class.java
+                // TODO: Implement 0x18: PluginMessage
+                server[0x19] = ServerNamedSoundEffectPacket::class.java
                 server[0x1A] = ServerDisconnectPacket::class.java
+                server[0x1B] = ServerEntityStatusPacket::class.java
+                server[0x1C] = ServerExplosionPacket::class.java
+                server[0x1D] = ServerUnloadChunkPacket::class.java
+                server[0x1E] = ServerChangeGameStatePacket::class.java
+                server[0x1F] = ServerOpenHorseWindowPacket::class.java
                 server[0x20] = ServerKeepAlivePacket::class.java
+                // TODO: Implement 0x21: Chunk Data
+                server[0x22] = ServerEffectPacket::class.java
+                server[0x23] = ServerParticlePacket::class.java
+                // TODO Implement 0x24: Update Light
                 server[0x25] = ServerJoinGamePacket::class.java
+                // TODO Implement 0x26: Map Data
+                // TODO Implement 0x27: Trade List
+                server[0x28] = ServerEntityRelativeMovePacket::class.java
+                server[0x29] = ServerEntityLookAndRelativeMovePacket::class.java
+                server[0x2A] = ServerEntityLookPacket::class.java
+                server[0x2B] = ServerEntityPacket::class.java
+                server[0x2C] = ServerVehicleMovePacket::class.java
+                server[0x2D] = ServerOpenBookPacket::class.java
+                server[0x2E] = ServerOpenWindowPacket::class.java
+                server[0x2F] = ServerOpenSignEditorPacket::class.java
+                server[0x30] = ServerCraftRecipeResponsePacket::class.java
 
                 client[0x03] = ClientChatMessagePacket::class.java
                 client[0x0F] = ClientKeepAlivePacket::class.java

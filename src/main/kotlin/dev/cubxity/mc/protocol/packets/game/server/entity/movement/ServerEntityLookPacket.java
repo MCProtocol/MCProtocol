@@ -8,41 +8,14 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+package dev.cubxity.mc.protocol.packets.game.server.entity.movement;
 
-plugins {
-    kotlin("jvm") version "1.3.41"
-    id("io.spring.dependency-management") version "1.0.7.RELEASE"
-}
+public class ServerEntityLookPacket extends ServerEntityPacket {
 
-group = "dev.cubxity.mc.protocol"
-version = "1.0"
-
-repositories {
-    mavenCentral()
-    maven { url = uri("https://repo.spring.io/milestone") }
-    maven { url = uri("https://jitpack.io") }
-}
-
-dependencyManagement {
-    imports {
-        mavenBom("io.projectreactor:reactor-bom:Californium-RELEASE")
+    public ServerEntityLookPacket(int entityId, float yaw, float pitch, boolean onGround) {
+        super(entityId, yaw, pitch, onGround);
+        this.pos = false;
+        this.rot = true;
     }
-}
 
-dependencies {
-    implementation(kotlin("stdlib-jdk8"))
-    compile("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.3.0-RC")
-    compile("io.projectreactor.kotlin:reactor-kotlin-extensions:1.0.0.M1")
-    compile("io.projectreactor.netty:reactor-netty")
-    compile("com.fasterxml.jackson.module:jackson-module-kotlin:2.9.+")
-    compile("ch.qos.logback:logback-classic:1.3.0-alpha4")
-    compile("org.objenesis:objenesis:3.0.1")
-    compile("com.github.Steveice10:MCAuthLib:1.0")
-    compile("com.github.Steveice10:OpenNBT:1.2")
-    compile("org.apache.commons:commons-lang3:3.9")
-}
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
 }
