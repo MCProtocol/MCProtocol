@@ -8,7 +8,7 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package dev.cubxity.mc.protocol.net
+package dev.cubxity.mc.protocol.net.io
 
 import com.github.steveice10.opennbt.NBTIO
 import com.github.steveice10.opennbt.tag.builtin.CompoundTag
@@ -22,6 +22,7 @@ import dev.cubxity.mc.protocol.data.obj.Rotation
 import dev.cubxity.mc.protocol.data.obj.Slot
 import dev.cubxity.mc.protocol.entities.Message
 import dev.cubxity.mc.protocol.entities.SimplePosition
+import dev.cubxity.mc.protocol.net.io.stream.NetOutputStream
 import io.netty.buffer.ByteBuf
 import java.io.IOException
 import java.io.OutputStream
@@ -33,41 +34,22 @@ import java.util.*
  * @author Cubxity
  * @since 7/20/2019
  */
-class NetOutput(val buf: ByteBuf) {
-    fun writeBoolean(b: Boolean) = buf.writeBoolean(b)
-    fun writeByte(b: Int) = buf.writeByte(b)
-    fun writeShort(s: Short) = buf.writeShort(s.toInt())
-    fun writeChar(c: Int) = buf.writeChar(c)
-    fun writeInt(i: Int) = buf.writeInt(i)
-
-    fun writeVarInt(i: Int) {
-        var i = i
-        while (i and 0x7F.inv() != 0) {
-            writeByte(i and 0x7F or 0x80)
-            i = i ushr 7
-        }
-        writeByte(i)
-    }
-
-    fun writeLong(l: Long) = buf.writeLong(l)
-
-    fun writeVarLong(l: Long) {
-        var l = l
-        while (l and 0x7F.inv() != 0L) {
-            writeByte((l and 0x7F).toInt() or 0x80)
-            l = l ushr 7
-        }
-
-        writeByte(l.toInt())
-    }
-
-    fun writeFloat(f: Float) = buf.writeFloat(f)
-    fun writeDouble(d: Double) = buf.writeDouble(d)
-    fun writeBytes(b: ByteArray) = buf.writeBytes(b)
-    fun writeBytes(b: ByteArray, length: Int) = buf.writeBytes(b, 0, length)
-    fun writeShorts(s: ShortArray) = s.forEach { writeShort(it) }
-    fun writeInts(i: IntArray) = i.forEach { writeInt(it) }
-    fun writeLongs(l: LongArray) = l.forEach { writeLong(it) }
+abstract class NetOutput {
+    abstract fun writeBoolean(b: Boolean): Any
+    abstract fun writeByte(b: Int): Any
+    abstract fun writeShort(s: Short): Any
+    abstract fun writeChar(c: Int): Any
+    abstract fun writeInt(i: Int): Any
+    abstract fun writeVarInt(i: Int): Any
+    abstract fun writeLong(l: Long): Any
+    abstract fun writeVarLong(l: Long): Any
+    abstract fun writeFloat(f: Float): Any
+    abstract fun writeDouble(d: Double): Any
+    abstract fun writeBytes(b: ByteArray): Any
+    abstract fun writeBytes(b: ByteArray, length: Int): Any
+    abstract fun writeShorts(s: ShortArray): Any
+    abstract fun writeInts(i: IntArray): Any
+    abstract fun writeLongs(l: LongArray): Any
 
     fun writeString(s: String) {
         val bytes = s.toByteArray(charset("UTF-8"))
@@ -85,18 +67,18 @@ class NetOutput(val buf: ByteBuf) {
     }
 
     fun writeAngle(angle: Float) = writeByte((angle * 256.0f / 360.0f).toInt())
-    fun writeVelocity(vel: Short) = buf.writeShort(vel * 8000)
+    fun writeVelocity(vel: Short) = writeShort((vel * 8000).toShort())
     fun writePosition(position: SimplePosition) {
         val x = position.x.toLong()
         val y = position.y.toLong()
         val z = position.z.toLong()
-        buf.writeLong(x and 0x3FFFFFF shl 38 or (z and 0x3FFFFFF shl 12) or (y and 0xFFF))
+        writeLong(x and 0x3FFFFFF shl 38 or (z and 0x3FFFFFF shl 12) or (y and 0xFFF))
     }
 
     fun writeRotation(rotation: Rotation) {
-        buf.writeFloat(rotation.pitch)
-        buf.writeFloat(rotation.yaw)
-        buf.writeFloat(rotation.roll)
+        writeFloat(rotation.pitch)
+        writeFloat(rotation.yaw)
+        writeFloat(rotation.roll)
     }
 
     fun writeEntityMetadata(data: Array<EntityMetadata>, target: ProtocolVersion) {
@@ -138,32 +120,5 @@ class NetOutput(val buf: ByteBuf) {
         writeVarInt(data.itemId ?: return)
         writeByte(data.count ?: return)
         writeNbt(data.nbt ?: return)
-
-        fun writeNBTTag(nbtData: Tag) {
-            try {
-                NBTIO.writeTag(NetOutputStream(this), nbtData)
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-
-        }
-
-        fun writeSlot(slot: Slot) {
-            if (slot.isPresent) {
-                writeBoolean(false)
-                slot.itemId?.let { writeVarInt(it) }
-                slot.count?.let { writeByte(it) }
-                slot.nbt?.let { writeNBTTag(it) }
-            } else {
-                writeBoolean(false)
-            }
-        }
-    }
-
-    class NetOutputStream(val output: NetOutput) : OutputStream() {
-
-        override fun write(b: Int) {
-            output.writeByte(b)
-        }
     }
 }

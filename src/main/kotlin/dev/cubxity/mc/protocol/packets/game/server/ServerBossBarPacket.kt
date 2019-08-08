@@ -15,8 +15,8 @@ import dev.cubxity.mc.protocol.data.obj.ChatComponent
 import dev.cubxity.mc.protocol.data.obj.bossbar.BossBarColor
 import dev.cubxity.mc.protocol.data.obj.bossbar.BossBarDivision
 import dev.cubxity.mc.protocol.data.obj.bossbar.actions.*
-import dev.cubxity.mc.protocol.net.NetInput
-import dev.cubxity.mc.protocol.net.NetOutput
+import dev.cubxity.mc.protocol.net.io.NetInput
+import dev.cubxity.mc.protocol.net.io.NetOutput
 import dev.cubxity.mc.protocol.packets.Packet
 import java.util.*
 

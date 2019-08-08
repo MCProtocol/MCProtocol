@@ -111,6 +111,12 @@ object MagicRegistry {
         for (i in GameState.values().indices)
             data[GameState.values()[i]] = i
 
+        for (i in SoundCategory.values().indices)
+            data[SoundCategory.values()[i]] = i
+
+        for (i in ModifierOperation.values().indices)
+            data[ModifierOperation.values()[i]] = i
+
         versionData[version] = data
     }
 

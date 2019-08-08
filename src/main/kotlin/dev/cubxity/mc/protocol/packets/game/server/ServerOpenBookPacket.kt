@@ -12,8 +12,8 @@ package dev.cubxity.mc.protocol.packets.game.server
 
 import dev.cubxity.mc.protocol.ProtocolVersion
 import dev.cubxity.mc.protocol.data.magic.EnumHand
-import dev.cubxity.mc.protocol.net.NetInput
-import dev.cubxity.mc.protocol.net.NetOutput
+import dev.cubxity.mc.protocol.net.io.NetInput
+import dev.cubxity.mc.protocol.net.io.NetOutput
 import dev.cubxity.mc.protocol.packets.Packet
 
 class ServerOpenBookPacket : Packet {

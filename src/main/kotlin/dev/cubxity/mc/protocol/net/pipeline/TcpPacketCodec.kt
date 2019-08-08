@@ -11,8 +11,10 @@
 package dev.cubxity.mc.protocol.net.pipeline
 
 import dev.cubxity.mc.protocol.ProtocolSession
-import dev.cubxity.mc.protocol.net.NetInput
-import dev.cubxity.mc.protocol.net.NetOutput
+import dev.cubxity.mc.protocol.net.io.NetInput
+import dev.cubxity.mc.protocol.net.io.NetOutput
+import dev.cubxity.mc.protocol.net.io.impl.buf.ByteBufNetInput
+import dev.cubxity.mc.protocol.net.io.impl.buf.ByteBufNetOutput
 import dev.cubxity.mc.protocol.packets.Packet
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
@@ -28,7 +30,7 @@ class TcpPacketCodec(val session: ProtocolSession) : ByteToMessageCodec<Packet>(
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     override fun encode(ctx: ChannelHandlerContext, packet: Packet, buf: ByteBuf) {
-        val out = NetOutput(buf)
+        val out = ByteBufNetOutput(buf)
         val id = session.getOutgoingId(packet)
         if (id == null) {
             logger.error("THIS SHOULD NEVER HAPPEN. ID not found for packet: ${packet.javaClass.simpleName}")
@@ -40,7 +42,7 @@ class TcpPacketCodec(val session: ProtocolSession) : ByteToMessageCodec<Packet>(
 
     override fun decode(ctx: ChannelHandlerContext, buf: ByteBuf, out: MutableList<Any>) {
         val initial = buf.readerIndex()
-        val ni = NetInput(buf)
+        val ni = ByteBufNetInput(buf)
         try {
             val id = ni.readVarInt()
             if (id == -1) {

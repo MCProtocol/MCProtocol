@@ -23,6 +23,8 @@ import dev.cubxity.mc.protocol.packets.game.server.entity.player.ServerPlayerPos
 import dev.cubxity.mc.protocol.packets.game.server.entity.player.ServerSetExperiencePacket
 import dev.cubxity.mc.protocol.packets.game.server.entity.player.ServerUpdateHealthPacket
 import dev.cubxity.mc.protocol.packets.game.server.entity.spawn.*
+import dev.cubxity.mc.protocol.packets.game.server.world.ServerChunkDataPacket
+import dev.cubxity.mc.protocol.packets.game.server.world.ServerSoundEffectPacket
 import dev.cubxity.mc.protocol.packets.game.server.world.ServerSpawnPositionPacket
 import dev.cubxity.mc.protocol.packets.game.server.world.ServerTimeUpdatePacket
 import dev.cubxity.mc.protocol.packets.game.server.world.block.ServerBlockChangePacket
@@ -60,6 +62,7 @@ class PacketVersion_1_14_4 : PacketVersion {
         0x1A to ServerDisconnectPacket::class.java,
         0x1E to ServerChangeGameStatePacket::class.java,
         0x20 to ServerKeepAlivePacket::class.java,
+        0x21 to ServerChunkDataPacket::class.java,
         0x28 to ServerEntityRelativeMovePacket::class.java,
         0x29 to ServerEntityLookAndRelativeMovePacket::class.java,
         0x2A to ServerEntityLookPacket::class.java,
@@ -75,7 +78,9 @@ class PacketVersion_1_14_4 : PacketVersion {
         0x48 to ServerUpdateHealthPacket::class.java,
         0x4D to ServerSpawnPositionPacket::class.java,
         0x4E to ServerTimeUpdatePacket::class.java,
-        0x56 to ServerEntityTeleportPacket::class.java
+        0x51 to ServerSoundEffectPacket::class.java,
+        0x56 to ServerEntityTeleportPacket::class.java,
+        0x58 to ServerEntityPropertiesPacket::class.java
     )
 
     override val clientLogin: Map<Int, Class<out Packet>> = mapOf(

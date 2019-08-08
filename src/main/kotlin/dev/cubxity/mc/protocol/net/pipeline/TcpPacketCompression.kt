@@ -11,8 +11,10 @@
 package dev.cubxity.mc.protocol.net.pipeline
 
 import dev.cubxity.mc.protocol.ProtocolSession
-import dev.cubxity.mc.protocol.net.NetInput
-import dev.cubxity.mc.protocol.net.NetOutput
+import dev.cubxity.mc.protocol.net.io.NetInput
+import dev.cubxity.mc.protocol.net.io.NetOutput
+import dev.cubxity.mc.protocol.net.io.impl.buf.ByteBufNetInput
+import dev.cubxity.mc.protocol.net.io.impl.buf.ByteBufNetOutput
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.Unpooled
 import io.netty.channel.ChannelHandlerContext
@@ -42,7 +44,7 @@ class TcpPacketCompression(private val session: ProtocolSession) : ByteToMessage
             return
         }
         val readable = msg.readableBytes()
-        val output = NetOutput(out)
+        val output = ByteBufNetOutput(out)
         if (readable < session.compressionThreshold) {
             output.writeVarInt(0)
             out.writeBytes(msg)
@@ -66,7 +68,7 @@ class TcpPacketCompression(private val session: ProtocolSession) : ByteToMessage
             return
         }
         if (buf.readableBytes() != 0) {
-            val ni = NetInput(buf)
+            val ni = ByteBufNetInput(buf)
             val size = ni.readVarInt()
             if (size == 0) {
                 out.add(buf.readBytes(buf.readableBytes()))

@@ -15,8 +15,8 @@ import dev.cubxity.mc.protocol.data.obj.particle.AbstractParticleData
 import dev.cubxity.mc.protocol.data.obj.particle.BlockParticleData
 import dev.cubxity.mc.protocol.data.obj.particle.DustParticleData
 import dev.cubxity.mc.protocol.data.obj.particle.ItemParticleData
-import dev.cubxity.mc.protocol.net.NetInput
-import dev.cubxity.mc.protocol.net.NetOutput
+import dev.cubxity.mc.protocol.net.io.NetInput
+import dev.cubxity.mc.protocol.net.io.NetOutput
 import dev.cubxity.mc.protocol.packets.Packet
 
 class ServerParticlePacket : Packet {

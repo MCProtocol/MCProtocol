@@ -11,8 +11,8 @@
 package dev.cubxity.mc.protocol.packets
 
 import dev.cubxity.mc.protocol.ProtocolVersion
-import dev.cubxity.mc.protocol.net.NetInput
-import dev.cubxity.mc.protocol.net.NetOutput
+import dev.cubxity.mc.protocol.net.io.NetInput
+import dev.cubxity.mc.protocol.net.io.NetOutput
 
 /**
  * This packet does not serialize or deserialize anything
