@@ -8,21 +8,15 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package dev.cubxity.mc.protocol.data.obj.chunks.util
+package dev.cubxity.mc.protocol.data.magic
 
-import dev.cubxity.mc.protocol.ProtocolVersion
-import dev.cubxity.mc.protocol.data.obj.chunks.BlockState
-import dev.cubxity.mc.protocol.data.obj.chunks.palette.DirectPalette
-import dev.cubxity.mc.protocol.data.obj.chunks.palette.IndirectPalette
+enum class BlockFace {
 
+    BOTTOM,
+    TOP,
+    NORTH,
+    SOUTH,
+    WEST,
+    EAST
 
-const val totalNumberOfStates = 14
-const val chunkHeight = 256
-const val sectionHeight = 16
-const val sectionWidth = 16
-
-fun choosePalette(bitsPerBlock: Byte, target: ProtocolVersion) = when {
-    bitsPerBlock <= 4 -> IndirectPalette(4, target)
-    bitsPerBlock <= 8 -> IndirectPalette(bitsPerBlock, target)
-    else -> DirectPalette(target)
 }

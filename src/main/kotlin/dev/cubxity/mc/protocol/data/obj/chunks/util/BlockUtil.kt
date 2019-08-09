@@ -12,17 +12,11 @@ package dev.cubxity.mc.protocol.data.obj.chunks.util
 
 import dev.cubxity.mc.protocol.ProtocolVersion
 import dev.cubxity.mc.protocol.data.obj.chunks.BlockState
-import dev.cubxity.mc.protocol.data.obj.chunks.palette.DirectPalette
-import dev.cubxity.mc.protocol.data.obj.chunks.palette.IndirectPalette
 
+object BlockUtil {
 
-const val totalNumberOfStates = 14
-const val chunkHeight = 256
-const val sectionHeight = 16
-const val sectionWidth = 16
+    fun getGlobalPaletteIDFromState(state: BlockState) = state.id
+    fun getStateFromGlobalPaletteID(value: Int, target: ProtocolVersion) =
+        BlockState(value, target.registryManager.blockRegistry.get(value)?.name ?: "air")
 
-fun choosePalette(bitsPerBlock: Byte, target: ProtocolVersion) = when {
-    bitsPerBlock <= 4 -> IndirectPalette(4, target)
-    bitsPerBlock <= 8 -> IndirectPalette(bitsPerBlock, target)
-    else -> DirectPalette(target)
 }

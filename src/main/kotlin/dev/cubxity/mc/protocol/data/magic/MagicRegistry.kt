@@ -117,6 +117,12 @@ object MagicRegistry {
         for (i in ModifierOperation.values().indices)
             data[ModifierOperation.values()[i]] = i
 
+        for (i in BlockFace.values().indices)
+            data[BlockFace.values()[i]] = i
+
+        for (i in DiggingStatus.values().indices)
+            data[DiggingStatus.values()[i]] = i
+
         versionData[version] = data
     }
 

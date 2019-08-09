@@ -12,12 +12,11 @@ package dev.cubxity.mc.protocol.data.obj.chunks.palette
 
 import dev.cubxity.mc.protocol.ProtocolVersion
 import dev.cubxity.mc.protocol.data.obj.chunks.BlockState
-import dev.cubxity.mc.protocol.data.obj.chunks.util.getGlobalPaletteIDFromState
-import dev.cubxity.mc.protocol.data.obj.chunks.util.getStateFromGlobalPaletteID
+import dev.cubxity.mc.protocol.data.obj.chunks.util.BlockUtil
 import dev.cubxity.mc.protocol.net.io.NetInput
 import dev.cubxity.mc.protocol.net.io.NetOutput
 
-class IndirectPalette(var bpb: Byte, target: ProtocolVersion) : Palette(target) {
+class IndirectPalette(private var bpb: Byte, target: ProtocolVersion) : Palette(target) {
 
     private var idToState = hashMapOf<Int, BlockState>()
     private var stateToId = hashMapOf<BlockState, Int>()
@@ -30,7 +29,7 @@ class IndirectPalette(var bpb: Byte, target: ProtocolVersion) : Palette(target) 
         val length = data.readVarInt()
         for (id in 0 until length) {
             val stateId = data.readVarInt()
-            val state = getStateFromGlobalPaletteID(stateId, target)
+            val state = BlockUtil.getStateFromGlobalPaletteID(stateId, target) ?: continue
             idToState[id] = state
             stateToId[state] = id
         }
@@ -40,7 +39,7 @@ class IndirectPalette(var bpb: Byte, target: ProtocolVersion) : Palette(target) 
         data.writeVarInt(idToState.size)
         for (id in 0 until idToState.size) {
             val state = idToState[id]
-            val stateId = getGlobalPaletteIDFromState(state ?: continue)
+            val stateId = BlockUtil.getGlobalPaletteIDFromState(state ?: continue)
             data.writeVarInt(stateId)
         }
     }

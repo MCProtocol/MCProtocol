@@ -8,38 +8,20 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package dev.cubxity.mc.protocol.data.registries
+package dev.cubxity.mc.protocol.state.entity.impl
 
-import com.google.gson.Gson
-import com.google.gson.JsonParser
-import dev.cubxity.mc.protocol.ProtocolVersion
+import dev.cubxity.mc.protocol.data.magic.MobType
+import dev.cubxity.mc.protocol.state.entity.WorldEntity
+import java.util.*
 
-class Registry(version: ProtocolVersion, val id: String) {
-
-    private val gson = Gson()
-    private val parser = JsonParser()
-
-    private val entries = hashMapOf<Int, String>()
-
-    private var defaultEntry: String? = null
-//        private set
-
-    init {
-        try {
-            val stream = javaClass.getResourceAsStream("/versions/${version.simple}/reports/registries.json")
-            val text = stream.bufferedReader().readText()
-
-            val parsed = parser.parse(text).asJsonObject
-
-            val obj = parsed[id].asJsonObject
-            defaultEntry = if (obj.has("default")) obj["default"].asString else null
-
-            entries.putAll(obj["entries"].asJsonObject.entrySet().map { it.value.asJsonObject["protocol_id"].asInt to it.key })
-        } catch (e: Exception) {
-        }
-    }
-
-    fun getName(id: Int) = entries[id]
-    fun getId(name: String) = entries.entries.firstOrNull { it.value.equals(name, true) }?.key
-
-}
+open class WorldPlayerEntity(
+    id: Int,
+    x: Double,
+    y: Double,
+    z: Double,
+    onGround: Boolean,
+    headYaw: Float,
+    pitch: Float,
+    yaw: Float,
+    var uuid: UUID
+) : WorldEntity(MobType.PLAYER, id, x, y, z, onGround, headYaw, pitch, yaw)

@@ -8,14 +8,32 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package dev.cubxity.mc.protocol.packets.game.server.entity.movement
+package dev.cubxity.mc.protocol.state
 
-class ServerEntityLookPacket(entityId: Int, yaw: Float, pitch: Float, onGround: Boolean) :
-    ServerEntityPacket(entityId, yaw, pitch, onGround) {
+import dev.cubxity.mc.protocol.ProtocolSession
+import dev.cubxity.mc.protocol.data.magic.MessageType
+import dev.cubxity.mc.protocol.events.PacketReceivedEvent
+import dev.cubxity.mc.protocol.packets.game.server.ServerChatPacket
+import dev.cubxity.mc.protocol.state.world.ClientPlayer
+import dev.cubxity.mc.protocol.state.world.World
+
+class Tracker(val session: ProtocolSession) {
+
+    var world = World(session)
+    var player = ClientPlayer(this)
 
     init {
-        this.pos = false
-        this.rot = true
+        registerHooks()
+    }
+
+    private fun registerHooks() {
+        with (session) {
+            on<PacketReceivedEvent>()
+                .filter { it.packet is ServerChatPacket }
+                .map { it.packet as ServerChatPacket }
+                .filter { it.type != MessageType.NOTIFICATION }
+                .subscribe { sink.next(ChatMessageReceivedEvent(it.message, it.message.toText())) }
+        }
     }
 
 }

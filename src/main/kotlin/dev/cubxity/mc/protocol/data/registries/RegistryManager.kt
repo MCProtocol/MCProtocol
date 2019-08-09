@@ -11,10 +11,10 @@
 package dev.cubxity.mc.protocol.data.registries
 
 import dev.cubxity.mc.protocol.ProtocolVersion
+import dev.cubxity.mc.protocol.data.registries.impl.BlockRegistry
 
 class RegistryManager(target: ProtocolVersion) {
 
-    var itemRegistry: Registry = Registry(target, "minecraft:item")
-    var soundRegistry: Registry = Registry(target, "minecraft:sound_event")
+    var blockRegistry = BlockRegistry(target)
 
 }

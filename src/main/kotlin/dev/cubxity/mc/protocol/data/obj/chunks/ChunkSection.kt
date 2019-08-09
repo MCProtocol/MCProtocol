@@ -10,14 +10,16 @@
 
 package dev.cubxity.mc.protocol.data.obj.chunks
 
-import dev.cubxity.mc.protocol.entities.SimplePosition
+import dev.cubxity.mc.protocol.entities.BlockPosition
 
 class ChunkSection {
 
-    private val states = hashMapOf<SimplePosition, BlockState>()
+    private val states = hashMapOf<BlockPosition, BlockState>()
 
     fun setState(x: Int, y: Int, z: Int, state: BlockState) {
-        states[SimplePosition(x.toDouble(), y.toDouble(), z.toDouble())] = state
+        states[BlockPosition(x, y, z)] = state
     }
+
+    fun getState(x: Int, y: Int, z: Int): BlockState? = states[BlockPosition(x, y, z)]
 
 }

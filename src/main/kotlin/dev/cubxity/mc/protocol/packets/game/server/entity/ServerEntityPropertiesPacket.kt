@@ -35,7 +35,15 @@ class ServerEntityPropertiesPacket(
 
             val modifierCount = buf.readVarInt()
             for (j in 0 until modifierCount) {
-                modifiers += Modifier(buf.readUUID(), buf.readDouble(), MagicRegistry.lookupKey(target, buf.readByte()))
+                val uuid = buf.readUUID()
+                val amount = buf.readDouble()
+                val operation = buf.readByte().toInt()
+
+                modifiers += Modifier(
+                    uuid,
+                    amount,
+                    MagicRegistry.lookupKey(target, operation)
+                )
             }
 
             properties += Property(key, value, modifiers)

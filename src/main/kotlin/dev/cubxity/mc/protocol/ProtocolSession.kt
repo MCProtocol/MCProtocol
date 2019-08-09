@@ -28,10 +28,6 @@ import dev.cubxity.mc.protocol.packets.RawPacket
 import dev.cubxity.mc.protocol.packets.game.client.ClientChatMessagePacket
 import dev.cubxity.mc.protocol.packets.game.client.ClientKeepAlivePacket
 import dev.cubxity.mc.protocol.packets.game.server.*
-import dev.cubxity.mc.protocol.packets.game.server.entity.movement.ServerEntityLookAndRelativeMovePacket
-import dev.cubxity.mc.protocol.packets.game.server.entity.movement.ServerEntityLookPacket
-import dev.cubxity.mc.protocol.packets.game.server.entity.movement.ServerEntityPacket
-import dev.cubxity.mc.protocol.packets.game.server.entity.movement.ServerEntityRelativeMovePacket
 import dev.cubxity.mc.protocol.packets.game.server.entity.spawn.*
 import dev.cubxity.mc.protocol.packets.game.server.world.ServerBlockChangePacket
 import dev.cubxity.mc.protocol.packets.handshake.client.HandshakePacket
@@ -45,6 +41,7 @@ import dev.cubxity.mc.protocol.packets.status.client.StatusPingPacket
 import dev.cubxity.mc.protocol.packets.status.client.StatusQueryPacket
 import dev.cubxity.mc.protocol.packets.status.server.StatusPongPacket
 import dev.cubxity.mc.protocol.packets.status.server.StatusResponsePacket
+import dev.cubxity.mc.protocol.state.Tracker
 import dev.cubxity.mc.protocol.utils.CryptUtil
 import io.netty.channel.ChannelFuture
 import io.netty.channel.ChannelHandlerContext
@@ -411,10 +408,6 @@ class ProtocolSession @JvmOverloads constructor(
                 server[0x25] = ServerJoinGamePacket::class.java
                 // TODO Implement 0x26: Map Data
                 // TODO Implement 0x27: Trade List
-                server[0x28] = ServerEntityRelativeMovePacket::class.java
-                server[0x29] = ServerEntityLookAndRelativeMovePacket::class.java
-                server[0x2A] = ServerEntityLookPacket::class.java
-                server[0x2B] = ServerEntityPacket::class.java
                 server[0x2C] = ServerVehicleMovePacket::class.java
                 server[0x2D] = ServerOpenBookPacket::class.java
                 server[0x2E] = ServerOpenWindowPacket::class.java
@@ -471,6 +464,8 @@ class ProtocolSession @JvmOverloads constructor(
             .subscribe { (packet) -> logger.debug("[$side - SENT]: ${packet.javaClass.simpleName}") }
         return this
     }
+
+    fun tracker() = Tracker(this)
 
     inline fun <reified T : Event> on() =
         processor.publishOn(scheduler)

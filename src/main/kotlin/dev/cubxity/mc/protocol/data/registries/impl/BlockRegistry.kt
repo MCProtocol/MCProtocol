@@ -8,21 +8,45 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package dev.cubxity.mc.protocol.data.obj.chunks.util
+package dev.cubxity.mc.protocol.data.registries.impl
 
+import com.google.gson.Gson
 import dev.cubxity.mc.protocol.ProtocolVersion
-import dev.cubxity.mc.protocol.data.obj.chunks.BlockState
-import dev.cubxity.mc.protocol.data.obj.chunks.palette.DirectPalette
-import dev.cubxity.mc.protocol.data.obj.chunks.palette.IndirectPalette
 
+class BlockRegistry(target: ProtocolVersion) {
 
-const val totalNumberOfStates = 14
-const val chunkHeight = 256
-const val sectionHeight = 16
-const val sectionWidth = 16
+    private val gson = Gson()
+    private var elements = hashMapOf<Int, BlockEntry>()
 
-fun choosePalette(bitsPerBlock: Byte, target: ProtocolVersion) = when {
-    bitsPerBlock <= 4 -> IndirectPalette(4, target)
-    bitsPerBlock <= 8 -> IndirectPalette(bitsPerBlock, target)
-    else -> DirectPalette(target)
+    init {
+        try {
+            val stream = javaClass.getResourceAsStream("/versions/${target.simple}/blocks.json")
+            val text = stream.bufferedReader().readText()
+
+            val items = gson.fromJson(text, Array<BlockEntry>::class.java).map { it.id to it }.toMap()
+
+            items.forEach {
+                for (i in it.value.minStateId..it.value.maxStateId) {
+                    elements[i] = it.value
+                }
+            }
+        } catch (e: Exception) {
+        }
+    }
+
+    fun get(id: Int) = elements[id]
+
+    class BlockEntry(
+        val id: Int,
+        val displayName: String,
+        val name: String,
+        val hardness: Double,
+        val minStateId: Int,
+        val maxStateId: Int,
+        val drops: Array<Int>,
+        val diggable: Boolean,
+        val transparent: Boolean,
+        val stackSize: Int
+    )
+
 }

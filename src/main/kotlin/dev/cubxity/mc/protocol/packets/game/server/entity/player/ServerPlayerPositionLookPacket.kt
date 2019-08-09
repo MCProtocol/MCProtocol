@@ -34,6 +34,7 @@ class ServerPlayerPositionLookPacket(
         z = buf.readDouble()
         yaw = buf.readFloat()
         pitch = buf.readFloat()
+        relative = arrayOf()
 
         val flags = buf.readUnsignedByte()
         for (element in PositionElement.values()) {

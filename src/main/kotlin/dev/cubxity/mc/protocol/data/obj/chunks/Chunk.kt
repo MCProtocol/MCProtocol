@@ -10,8 +10,17 @@
 
 package dev.cubxity.mc.protocol.data.obj.chunks
 
+import kotlin.math.abs
+import kotlin.math.floor
+
 class Chunk {
 
+    var position = ChunkPosition(0, 0)
     val sections = hashMapOf<Int, ChunkSection>()
+
+    fun getState(x: Int, y: Int, z: Int): BlockState? {
+        val chunkY = floor(y / 16.0).toInt()
+        return sections[chunkY]?.getState(abs(x) % 16, abs(y) % 16, abs(z) % 16)
+    }
 
 }

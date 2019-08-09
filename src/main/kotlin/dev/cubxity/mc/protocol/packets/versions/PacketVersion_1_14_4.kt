@@ -15,7 +15,10 @@ import dev.cubxity.mc.protocol.packets.PacketVersion
 import dev.cubxity.mc.protocol.packets.game.client.ClientChatMessagePacket
 import dev.cubxity.mc.protocol.packets.game.client.ClientKeepAlivePacket
 import dev.cubxity.mc.protocol.packets.game.client.ClientStatusPacket
+import dev.cubxity.mc.protocol.packets.game.client.ClientTeleportConfirmPacket
+import dev.cubxity.mc.protocol.packets.game.client.player.ClientPlayerDiggingPacket
 import dev.cubxity.mc.protocol.packets.game.client.player.ClientPlayerPacket
+import dev.cubxity.mc.protocol.packets.game.client.player.ClientPlayerPositionLookPacket
 import dev.cubxity.mc.protocol.packets.game.server.*
 import dev.cubxity.mc.protocol.packets.game.server.entity.*
 import dev.cubxity.mc.protocol.packets.game.server.entity.player.ServerPlayerAbilitiesPacket
@@ -37,9 +40,12 @@ import dev.cubxity.mc.protocol.packets.login.server.*
 class PacketVersion_1_14_4 : PacketVersion {
 
     override val clientPlay: Map<Int, Class<out Packet>> = mapOf(
+        0x00 to ClientTeleportConfirmPacket::class.java,
         0x03 to ClientChatMessagePacket::class.java,
         0x04 to ClientStatusPacket::class.java,
         0x0F to ClientKeepAlivePacket::class.java,
+        0x12 to ClientPlayerPositionLookPacket::class.java,
+        0x1A to ClientPlayerDiggingPacket::class.java,
         0x14 to ClientPlayerPacket::class.java
     )
 
@@ -78,7 +84,7 @@ class PacketVersion_1_14_4 : PacketVersion {
         0x48 to ServerUpdateHealthPacket::class.java,
         0x4D to ServerSpawnPositionPacket::class.java,
         0x4E to ServerTimeUpdatePacket::class.java,
-        0x51 to ServerSoundEffectPacket::class.java,
+//        0x51 to ServerSoundEffectPacket::class.java,
         0x56 to ServerEntityTeleportPacket::class.java,
         0x58 to ServerEntityPropertiesPacket::class.java
     )

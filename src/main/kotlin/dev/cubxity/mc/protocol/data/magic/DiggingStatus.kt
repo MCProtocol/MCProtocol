@@ -8,20 +8,16 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package dev.cubxity.mc.protocol.packets.game.server.entity.movement
+package dev.cubxity.mc.protocol.data.magic
 
-class ServerEntityLookAndRelativeMovePacket(
-    entityId: Int,
-    x: Double,
-    y: Double,
-    z: Double,
-    yaw: Float,
-    pitch: Float,
-    onGround: Boolean
-) : ServerEntityPacket(entityId, x, y, z, yaw, pitch, onGround) {
+enum class DiggingStatus {
 
-    init {
-        this.pos = true
-        this.rot = true
-    }
+    STARTED_DIGGING,
+    CANCELLED_DIGGING,
+    FINISHED_DIGGING,
+    DROP_ITEM_STACK,
+    DROP_ITEM,
+    SHOOT_ARROW,
+    SWAP_ITEM
+
 }

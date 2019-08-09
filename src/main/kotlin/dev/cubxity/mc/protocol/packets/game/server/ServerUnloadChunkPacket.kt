@@ -15,16 +15,10 @@ import dev.cubxity.mc.protocol.net.io.NetInput
 import dev.cubxity.mc.protocol.net.io.NetOutput
 import dev.cubxity.mc.protocol.packets.Packet
 
-class ServerUnloadChunkPacket : Packet {
-    private var chunkX: Int = 0
-    private var chunkZ: Int = 0
-
-    constructor(chunkX: Int, chunkZ: Int) {
-        this.chunkX = chunkX
-        this.chunkZ = chunkZ
-    }
-
-    constructor()
+class ServerUnloadChunkPacket(
+    var chunkX: Int,
+    var chunkZ: Int
+) : Packet() {
 
     override fun read(buf: NetInput, target: ProtocolVersion) {
         chunkX = buf.readInt()

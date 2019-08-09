@@ -12,17 +12,16 @@ package dev.cubxity.mc.protocol.data.obj.chunks.palette
 
 import dev.cubxity.mc.protocol.ProtocolVersion
 import dev.cubxity.mc.protocol.data.obj.chunks.BlockState
-import dev.cubxity.mc.protocol.data.obj.chunks.util.getGlobalPaletteIDFromState
-import dev.cubxity.mc.protocol.data.obj.chunks.util.getStateFromGlobalPaletteID
+import dev.cubxity.mc.protocol.data.obj.chunks.util.BlockUtil
 import dev.cubxity.mc.protocol.net.io.NetInput
 import dev.cubxity.mc.protocol.net.io.NetOutput
 
 class DirectPalette(target: ProtocolVersion) : Palette(target) {
 
     override fun getIdForState(state: BlockState) =
-        getGlobalPaletteIDFromState(state)
+        BlockUtil.getGlobalPaletteIDFromState(state)
     override fun getStateForId(id: Int) =
-        getStateFromGlobalPaletteID(id, target)
+        BlockUtil.getStateFromGlobalPaletteID(id, target) ?: BlockState(0, "minecraft:air")
     override fun getBitsPerBlock() = 14.toByte()
 
     //    override fun getBitsPerBlock() = ceil(log2(totalNumberOfStates)).toByte()

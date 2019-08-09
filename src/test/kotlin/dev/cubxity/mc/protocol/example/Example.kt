@@ -26,6 +26,8 @@ import dev.cubxity.mc.protocol.packets.game.server.entity.player.ServerUpdateHea
 import dev.cubxity.mc.protocol.packets.game.server.entity.spawn.ServerSpawnPlayerPacket
 import dev.cubxity.mc.protocol.packets.game.server.world.ServerChunkDataPacket
 import dev.cubxity.mc.protocol.packets.login.server.LoginSuccessPacket
+import dev.cubxity.mc.protocol.state.ChatMessageReceivedEvent
+import java.io.File
 
 /**
  * @author Cubxity
@@ -50,21 +52,23 @@ fun client() {
 //                login(System.getProperty("username"), System.getProperty("password"))
                 offline("TestUser")
 
+                val tracker = tracker()
+
                 val gson = GsonBuilder().setPrettyPrinting().create()
 
-                on<PacketReceivedEvent>()
-                    .subscribe {
-                        if (it.packet is RawPacket) {
-                            val id = (it.packet as RawPacket).id
-
-                            if (id !in unknownPackets) {
-                                unknownPackets += id
-                            }
-                        }
-
-                        logger.debug("[$side - RECEIVED]: ${it.packet.javaClass.simpleName} ${if (it.packet is RawPacket) "id: ${(it.packet as RawPacket).id}" else ""}")
-                        println("Packet data: ${gson.toJson(if (it.packet is RawPacket || it.packet is ServerChunkDataPacket) return@subscribe else it.packet)}")
-                    }
+//                on<PacketReceivedEvent>()
+//                    .subscribe {
+//                        if (it.packet is RawPacket) {
+//                            val id = (it.packet as RawPacket).id
+//
+//                            if (id !in unknownPackets) {
+//                                unknownPackets += id
+//                            }
+//                        }
+//
+//                        logger.debug("[$side - RECEIVED]: ${it.packet.javaClass.simpleName} ${if (it.packet is RawPacket) "id: ${(it.packet as RawPacket).id}" else ""}")
+//                        println("Packet data: ${gson.toJson(if (it.packet is RawPacket || it.packet is ServerChunkDataPacket) return@subscribe else it.packet)}")
+//                    }
 
                 on<PacketReceivedEvent>()
                     .filter { it.packet is LoginSuccessPacket }

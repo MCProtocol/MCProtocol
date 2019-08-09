@@ -28,7 +28,7 @@ class ServerSoundEffectPacket(
 ) : Packet() {
 
     override fun read(buf: NetInput, target: ProtocolVersion) {
-        sound = target.registryManager.soundRegistry.getName(buf.readVarInt()) ?: return
+//        sound = target.registryManager.soundRegistry.getName(buf.readVarInt()) ?: return
         soundCategory = MagicRegistry.lookupKey(target, buf.readVarInt())
         x = buf.readInt() / 8.0
         y = buf.readInt() / 8.0
@@ -38,7 +38,7 @@ class ServerSoundEffectPacket(
     }
 
     override fun write(out: NetOutput, target: ProtocolVersion) {
-        out.writeVarInt(target.registryManager.soundRegistry.getId(sound) ?: return)
+//        out.writeVarInt(target.registryManager.soundRegistry.getId(sound) ?: return)
         out.writeVarInt(MagicRegistry.lookupValue(target, soundCategory))
         out.writeInt((x * 8).toInt())
         out.writeInt((y * 8).toInt())
