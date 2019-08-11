@@ -10,24 +10,46 @@
 
 package dev.cubxity.mc.protocol.packets.game.server
 
+
 import dev.cubxity.mc.protocol.ProtocolVersion
-import dev.cubxity.mc.protocol.data.magic.Difficulity
+import dev.cubxity.mc.protocol.data.obj.CombatEvent
+import dev.cubxity.mc.protocol.data.obj.EndCombatEvent
+import dev.cubxity.mc.protocol.data.obj.EnterCombatEvent
+import dev.cubxity.mc.protocol.data.obj.EntityDeadCombatEvent
 import dev.cubxity.mc.protocol.net.io.NetInput
 import dev.cubxity.mc.protocol.net.io.NetOutput
 import dev.cubxity.mc.protocol.packets.Packet
 
-class ServerDifficultyPacket(
-    var difficulty: Difficulity,
-    var difficultyLocked: Boolean
+class ServerCombatEventPacket(
+    var event: CombatEvent
 ) : Packet() {
 
     override fun read(buf: NetInput, target: ProtocolVersion) {
-        difficulty = Difficulity.values()[buf.readUnsignedByte()]
-        difficultyLocked = buf.readBoolean()
+        when (buf.readVarInt()) {
+            0 -> event = EnterCombatEvent()
+            1 -> event = EndCombatEvent(buf.readVarInt(), buf.readInt())
+            2 -> event = EntityDeadCombatEvent(buf.readVarInt(), buf.readInt(), buf.readMessage())
+        }
     }
 
     override fun write(out: NetOutput, target: ProtocolVersion) {
-        out.writeByte(difficulty.ordinal)
-        out.writeBoolean(difficultyLocked)
+        when (event) {
+            is EnterCombatEvent -> out.writeVarInt(0)
+            is EndCombatEvent -> {
+                val endCombatEvent = event as EndCombatEvent
+
+                out.writeVarInt(1)
+                out.writeVarInt(endCombatEvent.duration)
+                out.writeInt(endCombatEvent.entityId)
+            }
+            is EntityDeadCombatEvent -> {
+                val entityDeadEvent = event as EntityDeadCombatEvent
+
+                out.writeVarInt(2)
+                out.writeVarInt(entityDeadEvent.duration)
+                out.writeInt(entityDeadEvent.entityId)
+                out.writeMessage(entityDeadEvent.message)
+            }
+        }
     }
 }

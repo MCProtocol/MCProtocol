@@ -25,8 +25,6 @@ import dev.cubxity.mc.protocol.data.obj.VillagerData
 import dev.cubxity.mc.protocol.entities.Message
 import dev.cubxity.mc.protocol.entities.SimplePosition
 import dev.cubxity.mc.protocol.net.io.stream.NetInputStream
-import io.netty.buffer.ByteBuf
-import java.io.IOException
 import java.nio.charset.Charset
 import java.util.*
 
@@ -138,6 +136,17 @@ abstract class NetInput {
         } else {
             Slot(readVarInt(), readByte().toInt(), readNbt())
         }
+    }
+
+    fun <T> readVarArray(reader: () -> T): ArrayList<T> {
+        val recipeIdSize = readVarInt()
+        val shit: ArrayList<T> = ArrayList(recipeIdSize)
+
+        for (index in 0 until recipeIdSize) {
+            shit.add(reader())
+        }
+
+        return shit
     }
 
     abstract fun available(): Int

@@ -68,7 +68,7 @@ class World(session: ProtocolSession) {
                 .map { it.packet as ServerDifficultyPacket }
                 .subscribe {
                     difficulty = it.difficulty
-                    difficultyLocked = it.locked
+                    difficultyLocked = it.difficultyLocked
                 }
 
             on<PacketReceivedEvent>()

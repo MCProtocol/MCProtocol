@@ -23,9 +23,6 @@ import dev.cubxity.mc.protocol.data.obj.Slot
 import dev.cubxity.mc.protocol.entities.Message
 import dev.cubxity.mc.protocol.entities.SimplePosition
 import dev.cubxity.mc.protocol.net.io.stream.NetOutputStream
-import io.netty.buffer.ByteBuf
-import java.io.IOException
-import java.io.OutputStream
 import java.util.*
 
 /**
@@ -121,4 +118,13 @@ abstract class NetOutput {
         writeByte(data.count ?: return)
         writeNbt(data.nbt ?: return)
     }
+
+    fun <T> writeVarArray(values: ArrayList<T>, writer: (T) -> Unit) {
+        writeVarInt(values.size)
+
+        for (element in values) {
+            writer(element)
+        }
+    }
+
 }

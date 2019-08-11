@@ -11,23 +11,50 @@
 package dev.cubxity.mc.protocol.packets.game.server
 
 import dev.cubxity.mc.protocol.ProtocolVersion
-import dev.cubxity.mc.protocol.data.magic.Difficulity
+import dev.cubxity.mc.protocol.data.magic.UnlockRecipeAction
 import dev.cubxity.mc.protocol.net.io.NetInput
 import dev.cubxity.mc.protocol.net.io.NetOutput
 import dev.cubxity.mc.protocol.packets.Packet
 
-class ServerDifficultyPacket(
-    var difficulty: Difficulity,
-    var difficultyLocked: Boolean
+class ServerUnlockRecipesPacket(
+    var action: UnlockRecipeAction,
+    var craftingRecipeBookOpen: Boolean,
+    var craftingRecipeBookFilterActive: Boolean,
+    var smeltingRecipeBookOpen: Boolean,
+    var smeltingRecipeBookFilterActive: Boolean,
+    var recipeIds: ArrayList<String>,
+    var initRecipeIds: ArrayList<String>?
 ) : Packet() {
-
     override fun read(buf: NetInput, target: ProtocolVersion) {
-        difficulty = Difficulity.values()[buf.readUnsignedByte()]
-        difficultyLocked = buf.readBoolean()
+        action = UnlockRecipeAction.values()[buf.readVarInt()]
+
+        craftingRecipeBookOpen = buf.readBoolean()
+        craftingRecipeBookFilterActive = buf.readBoolean()
+        smeltingRecipeBookOpen = buf.readBoolean()
+        smeltingRecipeBookFilterActive = buf.readBoolean()
+
+        recipeIds = buf.readVarArray(buf::readString)
+
+
+        if (action == UnlockRecipeAction.INIT) {
+            initRecipeIds = buf.readVarArray(buf::readString)
+        }
+
     }
 
+
     override fun write(out: NetOutput, target: ProtocolVersion) {
-        out.writeByte(difficulty.ordinal)
-        out.writeBoolean(difficultyLocked)
+        out.writeVarInt(action.ordinal)
+
+        out.writeBoolean(craftingRecipeBookOpen)
+        out.writeBoolean(craftingRecipeBookFilterActive)
+        out.writeBoolean(smeltingRecipeBookOpen)
+        out.writeBoolean(smeltingRecipeBookFilterActive)
+
+        out.writeVarArray(recipeIds, out::writeString)
+
+        if (action == UnlockRecipeAction.INIT) {
+            out.writeVarArray(initRecipeIds!!, out::writeString)
+        }
     }
 }

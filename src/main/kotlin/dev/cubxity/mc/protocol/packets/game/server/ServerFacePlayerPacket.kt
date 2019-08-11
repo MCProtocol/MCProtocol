@@ -11,23 +11,45 @@
 package dev.cubxity.mc.protocol.packets.game.server
 
 import dev.cubxity.mc.protocol.ProtocolVersion
-import dev.cubxity.mc.protocol.data.magic.Difficulity
+import dev.cubxity.mc.protocol.data.magic.AimingLocation
 import dev.cubxity.mc.protocol.net.io.NetInput
 import dev.cubxity.mc.protocol.net.io.NetOutput
 import dev.cubxity.mc.protocol.packets.Packet
 
-class ServerDifficultyPacket(
-    var difficulty: Difficulity,
-    var difficultyLocked: Boolean
+class ServerFacePlayerPacket(
+    var aimingLocation: AimingLocation,
+    var targetX: Double,
+    var targetY: Double,
+    var targetZ: Double,
+    var isEntity: Boolean,
+    var entityId: Int?,
+    var entityAimingLocation: AimingLocation?
 ) : Packet() {
 
     override fun read(buf: NetInput, target: ProtocolVersion) {
-        difficulty = Difficulity.values()[buf.readUnsignedByte()]
-        difficultyLocked = buf.readBoolean()
+        aimingLocation = AimingLocation.values()[buf.readVarInt()]
+        targetX = buf.readDouble()
+        targetY = buf.readDouble()
+        targetZ = buf.readDouble()
+        isEntity = buf.readBoolean()
+
+        if (isEntity) {
+            entityId = buf.readVarInt()
+            entityAimingLocation = AimingLocation.values()[buf.readVarInt()]
+        }
     }
 
     override fun write(out: NetOutput, target: ProtocolVersion) {
-        out.writeByte(difficulty.ordinal)
-        out.writeBoolean(difficultyLocked)
+        out.writeVarInt(aimingLocation.ordinal)
+        out.writeDouble(targetX)
+        out.writeDouble(targetY)
+        out.writeDouble(targetZ)
+
+        out.writeBoolean(isEntity)
+
+        if (isEntity) {
+            out.writeVarInt(entityId!!)
+            out.writeVarInt(entityAimingLocation!!.ordinal)
+        }
     }
 }

@@ -27,9 +27,22 @@ import dev.cubxity.mc.protocol.packets.Packet
 import dev.cubxity.mc.protocol.packets.RawPacket
 import dev.cubxity.mc.protocol.packets.game.client.ClientChatMessagePacket
 import dev.cubxity.mc.protocol.packets.game.client.ClientKeepAlivePacket
+import dev.cubxity.mc.protocol.packets.game.client.ClientStatusPacket
+import dev.cubxity.mc.protocol.packets.game.client.ClientTeleportConfirmPacket
+import dev.cubxity.mc.protocol.packets.game.client.player.ClientPlayerDiggingPacket
+import dev.cubxity.mc.protocol.packets.game.client.player.ClientPlayerPacket
+import dev.cubxity.mc.protocol.packets.game.client.player.ClientPlayerPositionLookPacket
 import dev.cubxity.mc.protocol.packets.game.server.*
+import dev.cubxity.mc.protocol.packets.game.server.entity.*
+import dev.cubxity.mc.protocol.packets.game.server.entity.player.ServerPlayerAbilitiesPacket
+import dev.cubxity.mc.protocol.packets.game.server.entity.player.ServerPlayerPositionLookPacket
+import dev.cubxity.mc.protocol.packets.game.server.entity.player.ServerSetExperiencePacket
+import dev.cubxity.mc.protocol.packets.game.server.entity.player.ServerUpdateHealthPacket
 import dev.cubxity.mc.protocol.packets.game.server.entity.spawn.*
 import dev.cubxity.mc.protocol.packets.game.server.world.ServerBlockChangePacket
+import dev.cubxity.mc.protocol.packets.game.server.world.ServerChunkDataPacket
+import dev.cubxity.mc.protocol.packets.game.server.world.ServerSpawnPositionPacket
+import dev.cubxity.mc.protocol.packets.game.server.world.ServerTimeUpdatePacket
 import dev.cubxity.mc.protocol.packets.handshake.client.HandshakePacket
 import dev.cubxity.mc.protocol.packets.login.client.EncryptionResponsePacket
 import dev.cubxity.mc.protocol.packets.login.client.LoginStartPacket
@@ -381,7 +394,7 @@ class ProtocolSession @JvmOverloads constructor(
                 server[0x0A] = ServerBlockActionPacket::class.java
                 server[0x0B] = ServerBlockChangePacket::class.java
                 server[0x0C] = ServerBossBarPacket::class.java
-                server[0x0D] = ServerServerDifficultyPacket::class.java
+                server[0x0D] = ServerDifficultyPacket::class.java
                 server[0x0E] = ServerChatPacket::class.java
                 server[0x0F] = ServerMultiBlockChangePacket::class.java
                 server[0x10] = ServerTabCompletePacket::class.java
@@ -392,7 +405,7 @@ class ProtocolSession @JvmOverloads constructor(
                 server[0x15] = ServerWindowPropertyPacket::class.java
                 server[0x16] = ServerSetSlotPacket::class.java
                 server[0x17] = ServerSetCooldownPacket::class.java
-                // TODO: Implement 0x18: PluginMessage
+                server[0x18] = ServerPluginMessagePacket::class.java
                 server[0x19] = ServerNamedSoundEffectPacket::class.java
                 server[0x1A] = ServerDisconnectPacket::class.java
                 server[0x1B] = ServerEntityStatusPacket::class.java
@@ -401,21 +414,51 @@ class ProtocolSession @JvmOverloads constructor(
                 server[0x1E] = ServerChangeGameStatePacket::class.java
                 server[0x1F] = ServerOpenHorseWindowPacket::class.java
                 server[0x20] = ServerKeepAlivePacket::class.java
-                // TODO: Implement 0x21: Chunk Data
+                server[0x21] = ServerChunkDataPacket::class.java
                 server[0x22] = ServerEffectPacket::class.java
                 server[0x23] = ServerParticlePacket::class.java
                 // TODO Implement 0x24: Update Light
                 server[0x25] = ServerJoinGamePacket::class.java
                 // TODO Implement 0x26: Map Data
                 // TODO Implement 0x27: Trade List
+                server[0x28] = ServerEntityRelativeMovePacket::class.java
+                server[0x29] = ServerEntityLookAndRelativeMovePacket::class.java
+                server[0x2A] = ServerEntityLookPacket::class.java
+                server[0x2B] = ServerEntityPacket::class.java
                 server[0x2C] = ServerVehicleMovePacket::class.java
                 server[0x2D] = ServerOpenBookPacket::class.java
                 server[0x2E] = ServerOpenWindowPacket::class.java
                 server[0x2F] = ServerOpenSignEditorPacket::class.java
                 server[0x30] = ServerCraftRecipeResponsePacket::class.java
+                server[0x31] = ServerPlayerAbilitiesPacket::class.java
+                server[0x32] = ServerCombatEventPacket::class.java
+                server[0x33] = ServerPlayerInfoPacket::class.java
+                server[0x34] = ServerFacePlayerPacket::class.java
+                server[0x35] = ServerPlayerPositionLookPacket::class.java
+                server[0x36] = ServerUnlockRecipesPacket::class.java
+                server[0x37] = ServerDestroyEntitiesPacket::class.java
+                server[0x38] = ServerRemoveEntityEffectPacket::class.java
 
+                server[0x3B] = ServerEntityHeadLookPacket::class.java
+                server[0x43] = ServerEntityMetadataPacket::class.java
+                server[0x45] = ServerEntityVelocityPacket::class.java
+                server[0x47] = ServerSetExperiencePacket::class.java
+                server[0x48] = ServerUpdateHealthPacket::class.java
+                server[0x4D] = ServerSpawnPositionPacket::class.java
+                server[0x4E] = ServerTimeUpdatePacket::class.java
+//        server[0x51] = ServerSoundEffectPacket::class.java
+                server[0x56] = ServerEntityTeleportPacket::class.java
+                server[0x58] = ServerEntityPropertiesPacket::class.java
+
+                client[0x00] = ClientTeleportConfirmPacket::class.java
                 client[0x03] = ClientChatMessagePacket::class.java
+                client[0x04] = ClientStatusPacket::class.java
+
                 client[0x0F] = ClientKeepAlivePacket::class.java
+                client[0x12] = ClientPlayerPositionLookPacket::class.java
+                client[0x1A] = ClientPlayerDiggingPacket::class.java
+                client[0x14] = ClientPlayerPacket::class.java
+
                 server.putAll(incomingVersion.version.serverPlay)
                 client.putAll(outgoingVersion.version.clientPlay)
             }

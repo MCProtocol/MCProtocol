@@ -26,12 +26,10 @@ import dev.cubxity.mc.protocol.packets.game.server.entity.player.ServerPlayerPos
 import dev.cubxity.mc.protocol.packets.game.server.entity.player.ServerSetExperiencePacket
 import dev.cubxity.mc.protocol.packets.game.server.entity.player.ServerUpdateHealthPacket
 import dev.cubxity.mc.protocol.packets.game.server.entity.spawn.*
+import dev.cubxity.mc.protocol.packets.game.server.world.ServerBlockChangePacket
 import dev.cubxity.mc.protocol.packets.game.server.world.ServerChunkDataPacket
-import dev.cubxity.mc.protocol.packets.game.server.world.ServerSoundEffectPacket
 import dev.cubxity.mc.protocol.packets.game.server.world.ServerSpawnPositionPacket
 import dev.cubxity.mc.protocol.packets.game.server.world.ServerTimeUpdatePacket
-import dev.cubxity.mc.protocol.packets.game.server.world.block.ServerBlockChangePacket
-import dev.cubxity.mc.protocol.packets.game.server.world.block.ServerMultiBlockChangePacket
 import dev.cubxity.mc.protocol.packets.login.client.EncryptionResponsePacket
 import dev.cubxity.mc.protocol.packets.login.client.LoginPluginResponsePacket
 import dev.cubxity.mc.protocol.packets.login.client.LoginStartPacket
@@ -56,6 +54,7 @@ class PacketVersion_1_14_4 : PacketVersion {
         0x03 to ServerSpawnMobPacket::class.java,
         0x04 to ServerSpawnPaintingPacket::class.java,
         0x05 to ServerSpawnPlayerPacket::class.java,
+        0x06 to ServerAnimationPacket::class.java,
         0x0B to ServerBlockChangePacket::class.java,
         0x0D to ServerDifficultyPacket::class.java,
         0x0E to ServerChatPacket::class.java,
