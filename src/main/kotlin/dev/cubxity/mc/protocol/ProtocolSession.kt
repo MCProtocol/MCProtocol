@@ -438,12 +438,25 @@ class ProtocolSession @JvmOverloads constructor(
                 server[0x36] = ServerUnlockRecipesPacket::class.java
                 server[0x37] = ServerDestroyEntitiesPacket::class.java
                 server[0x38] = ServerRemoveEntityEffectPacket::class.java
-
+                server[0x39] = ServerResourcePackSendPacket::class.java
+                server[0x3A] = ServerRespawnPacket::class.java
                 server[0x3B] = ServerEntityHeadLookPacket::class.java
+                server[0x3C] = ServerSelectAdvancementTabPacket::class.java
+                // TODO Implement 0x3D: World Border
+                server[0x3E] = ServerCameraPacket::class.java
+                server[0x3F] = ServerHeldItemChangePacket::class.java
+                server[0x40] = ServerUpdateViewPositionPacket::class.java
+                server[0x40] = ServerUpdateViewPositionPacket::class.java
+                server[0x41] = ServerUpdateViewDistancePacket::class.java
+                server[0x42] = ServerDisplayScoreboardPacket::class.java
                 server[0x43] = ServerEntityMetadataPacket::class.java
+                server[0x44] = ServerAttachEntityPacket::class.java
                 server[0x45] = ServerEntityVelocityPacket::class.java
+                server[0x46] = ServerEntityEquipmentPacket::class.java
                 server[0x47] = ServerSetExperiencePacket::class.java
                 server[0x48] = ServerUpdateHealthPacket::class.java
+                server[0x49] = ServerScoreboardObjectivePacket::class.java
+
                 server[0x4D] = ServerSpawnPositionPacket::class.java
                 server[0x4E] = ServerTimeUpdatePacket::class.java
 //        server[0x51] = ServerSoundEffectPacket::class.java

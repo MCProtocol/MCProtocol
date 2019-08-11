@@ -8,13 +8,25 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package dev.cubxity.mc.protocol.data.magic
+package dev.cubxity.mc.protocol.exception;
 
-enum class EnumHand {
-    MAIN_HAND,
-    OFF_HAND,
-    ARMOR_BOOTS,
-    ARMOR_LEGGINS,
-    ARMOR_CHESTPLATE,
-    ARMOR_HELMET
+public class MalformedPacketException extends RuntimeException {
+    public MalformedPacketException() {
+    }
+
+    public MalformedPacketException(String message) {
+        super(message);
+    }
+
+    public MalformedPacketException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public MalformedPacketException(Throwable cause) {
+        super(cause);
+    }
+
+    public MalformedPacketException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
+    }
 }

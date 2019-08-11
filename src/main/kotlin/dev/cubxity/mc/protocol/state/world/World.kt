@@ -29,7 +29,6 @@ import dev.cubxity.mc.protocol.state.entity.impl.WorldPlayerEntity
 import kotlin.math.floor
 
 class World(session: ProtocolSession) {
-
     private val chunks = hashMapOf<ChunkPosition, Chunk>()
 
     val entities = hashMapOf<Int, WorldEntity>()

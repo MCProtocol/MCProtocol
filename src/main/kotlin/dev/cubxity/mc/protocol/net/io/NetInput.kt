@@ -24,6 +24,7 @@ import dev.cubxity.mc.protocol.data.obj.Slot
 import dev.cubxity.mc.protocol.data.obj.VillagerData
 import dev.cubxity.mc.protocol.entities.Message
 import dev.cubxity.mc.protocol.entities.SimplePosition
+import dev.cubxity.mc.protocol.exception.MalformedPacketException
 import dev.cubxity.mc.protocol.net.io.stream.NetInputStream
 import java.nio.charset.Charset
 import java.util.*
@@ -36,7 +37,6 @@ import java.util.*
  * @since 7/20/2019
  */
 abstract class NetInput {
-
     abstract fun readBoolean(): Boolean
     abstract fun readByte(): Byte
     abstract fun readUnsignedByte(): Int
@@ -62,8 +62,13 @@ abstract class NetInput {
     abstract fun readLongs(l: LongArray): Int
     abstract fun readLongs(l: LongArray, offset: Int, length: Int): Int
 
-    fun readString(): String {
+    fun readString(maxLength: Int = Int.MAX_VALUE): String {
         val length = this.readVarInt()
+
+        if (length > maxLength) {
+            throw MalformedPacketException("String length ($length) > maxLength ($maxLength)")
+        }
+
         val bytes = this.readBytes(length)
         return bytes.toString(Charset.forName("UTF-8"))
     }
@@ -72,7 +77,7 @@ abstract class NetInput {
     fun readAngle() = readByte() * 360 / 256f
     fun readVelocity() = (readShort() / 8000.0).toShort()
     fun readRotation() = Rotation(readFloat(), readFloat(), readFloat())
-    fun readMessage() = Message.fromJson(readString())
+    fun readMessage() = Message.fromJson(readString(32767))
 
     fun readPosition(): SimplePosition {
         val value = readLong()
