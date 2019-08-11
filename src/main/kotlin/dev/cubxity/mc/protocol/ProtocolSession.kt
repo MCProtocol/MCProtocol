@@ -39,10 +39,7 @@ import dev.cubxity.mc.protocol.packets.game.server.entity.player.ServerPlayerPos
 import dev.cubxity.mc.protocol.packets.game.server.entity.player.ServerSetExperiencePacket
 import dev.cubxity.mc.protocol.packets.game.server.entity.player.ServerUpdateHealthPacket
 import dev.cubxity.mc.protocol.packets.game.server.entity.spawn.*
-import dev.cubxity.mc.protocol.packets.game.server.world.ServerBlockChangePacket
-import dev.cubxity.mc.protocol.packets.game.server.world.ServerChunkDataPacket
-import dev.cubxity.mc.protocol.packets.game.server.world.ServerSpawnPositionPacket
-import dev.cubxity.mc.protocol.packets.game.server.world.ServerTimeUpdatePacket
+import dev.cubxity.mc.protocol.packets.game.server.world.*
 import dev.cubxity.mc.protocol.packets.handshake.client.HandshakePacket
 import dev.cubxity.mc.protocol.packets.login.client.EncryptionResponsePacket
 import dev.cubxity.mc.protocol.packets.login.client.LoginStartPacket
@@ -456,12 +453,24 @@ class ProtocolSession @JvmOverloads constructor(
                 server[0x47] = ServerSetExperiencePacket::class.java
                 server[0x48] = ServerUpdateHealthPacket::class.java
                 server[0x49] = ServerScoreboardObjectivePacket::class.java
-
+                server[0x4A] = ServerSetPassengersPacket::class.java
+                // TODO Implement 0x4B: Teams
+                server[0x4C] = ServerUpdateScorePacket::class.java
                 server[0x4D] = ServerSpawnPositionPacket::class.java
                 server[0x4E] = ServerTimeUpdatePacket::class.java
-//        server[0x51] = ServerSoundEffectPacket::class.java
+                // TODO Implement 0x4F: Title
+                server[0x50] = ServerEntitySoundEffectPacket::class.java
+                server[0x51] = ServerSoundEffectPacket::class.java
+                server[0x52] = ServerStopSoundPacket::class.java
+                server[0x53] = ServerPlayerListHeaderAndFooterPacket::class.java
+                server[0x54] = ServerNBTQueryResponsePacket::class.java
+                server[0x55] = ServerCollectItemPacket::class.java
                 server[0x56] = ServerEntityTeleportPacket::class.java
+                // TODO Implement 0x57: Advancements
                 server[0x58] = ServerEntityPropertiesPacket::class.java
+                server[0x59] = ServerEntityEffectPacket::class.java
+                // TODO Implement 0x5A: Declare Recipes
+                // TODO Implement 0x5B: Tags
 
                 client[0x00] = ClientTeleportConfirmPacket::class.java
                 client[0x03] = ClientChatMessagePacket::class.java
