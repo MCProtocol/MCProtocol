@@ -36,13 +36,7 @@ class ServerAdvancementsPacket(
             advancements[buf.readString()] = readAdvancement(buf)
         }
 
-        val toBeRemovedAdvancementNumber = buf.readVarInt()
-
-        toBeRemovedAdvancements = ArrayList(toBeRemovedAdvancementNumber)
-
-        for (i in 0 until toBeRemovedAdvancementNumber) {
-            toBeRemovedAdvancements.add(buf.readString())
-        }
+        toBeRemovedAdvancements = buf.readVarArray { buf.readString() }
 
         progressMap = HashMap()
 
@@ -76,28 +70,11 @@ class ServerAdvancementsPacket(
         val parent = if (buf.readBoolean()) buf.readString() else null
         val display = if (buf.readBoolean()) readAdvancementDisplay(buf) else null
 
-        val criteriaNumber = buf.readVarInt()
-        val criteria = ArrayList<String>(criteriaNumber)
+        val criteria = buf.readVarArray { buf.readString() }
 
-        for (j in 0 until criteriaNumber) {
-            criteria.add(buf.readString())
-        }
+        val requirementArrays = buf.readVarArray { buf.readVarArray { buf.readString() } }
 
-        val requirementArrayNumber = buf.readVarInt()
-        val requirementArrays = ArrayList<ArrayList<String>>(requirementArrayNumber)
-
-        for (j in 0 until requirementArrayNumber) {
-            val requirementNumber = buf.readVarInt()
-            val requirements = ArrayList<String>(requirementNumber)
-
-            for (f in 0 until requirementNumber) {
-                requirements.add(buf.readString())
-            }
-
-            requirementArrays.add(requirements)
-        }
-        val advancement = Advancement(parent, display, criteria, requirementArrays)
-        return advancement
+        return Advancement(parent, display, criteria, requirementArrays)
     }
 
     private fun readAdvancementDisplay(buf: NetInput): AdvancementDisplay {

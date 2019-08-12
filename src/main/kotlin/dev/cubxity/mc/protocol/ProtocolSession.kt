@@ -453,7 +453,7 @@ class ProtocolSession @JvmOverloads constructor(
                 server[0x48] = ServerUpdateHealthPacket::class.java
                 server[0x49] = ServerScoreboardObjectivePacket::class.java
                 server[0x4A] = ServerSetPassengersPacket::class.java
-                // TODO Implement 0x4B: Teams
+                server[0x4B] = ServerTeamsPacket::class.java
                 server[0x4C] = ServerUpdateScorePacket::class.java
                 server[0x4D] = ServerSpawnPositionPacket::class.java
                 server[0x4E] = ServerTimeUpdatePacket::class.java
