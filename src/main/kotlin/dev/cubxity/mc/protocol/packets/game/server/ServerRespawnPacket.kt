@@ -24,14 +24,14 @@ class ServerRespawnPacket(
 ) : Packet() {
     override fun read(buf: NetInput, target: ProtocolVersion) {
         dimension = Dimension.values()[buf.readVarInt()]
-        gamemode = Gamemode.values()[buf.readVarInt()]
+        gamemode = Gamemode.values()[buf.readUnsignedByte()]
         levelType = buf.readString(16)
     }
 
 
     override fun write(out: NetOutput, target: ProtocolVersion) {
         out.writeVarInt(dimension.ordinal)
-        out.writeVarInt(gamemode.ordinal)
+        out.writeByte(gamemode.ordinal)
         out.writeString(levelType)
     }
 }
