@@ -20,6 +20,7 @@ import dev.cubxity.mc.protocol.data.magic.MetadataType
 import dev.cubxity.mc.protocol.data.obj.EntityMetadata
 import dev.cubxity.mc.protocol.data.obj.Rotation
 import dev.cubxity.mc.protocol.data.obj.Slot
+import dev.cubxity.mc.protocol.data.obj.chunks.BlockState
 import dev.cubxity.mc.protocol.entities.Message
 import dev.cubxity.mc.protocol.entities.SimplePosition
 import dev.cubxity.mc.protocol.net.io.stream.NetOutputStream
@@ -125,6 +126,10 @@ abstract class NetOutput {
         for (element in values) {
             writer(element)
         }
+    }
+
+    fun writeBlockState(state: BlockState) {
+        writeVarInt(state.id)
     }
 
 }

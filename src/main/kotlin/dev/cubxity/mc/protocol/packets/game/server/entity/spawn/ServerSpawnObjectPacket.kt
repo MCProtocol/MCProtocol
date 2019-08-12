@@ -11,7 +11,6 @@
 package dev.cubxity.mc.protocol.packets.game.server.entity.spawn
 
 import dev.cubxity.mc.protocol.ProtocolVersion
-import dev.cubxity.mc.protocol.data.magic.MagicRegistry
 import dev.cubxity.mc.protocol.data.magic.MobType
 import dev.cubxity.mc.protocol.net.io.NetInput
 import dev.cubxity.mc.protocol.net.io.NetOutput
@@ -36,7 +35,7 @@ class ServerSpawnObjectPacket(
     override fun read(buf: NetInput, target: ProtocolVersion) {
         entityId = buf.readVarInt()
         objectUuid = buf.readUUID()
-        type = MagicRegistry.lookupKey(target, buf.readVarInt()) ?: return
+        type = MobType.values()[buf.readVarInt()]
         x = buf.readDouble()
         y = buf.readDouble()
         z = buf.readDouble()
@@ -51,7 +50,7 @@ class ServerSpawnObjectPacket(
     override fun write(out: NetOutput, target: ProtocolVersion) {
         out.writeVarInt(entityId)
         out.writeUUID(objectUuid)
-        out.writeVarInt(MagicRegistry.lookupValue(target, type))
+        out.writeVarInt(type.ordinal)
         out.writeDouble(x)
         out.writeDouble(y)
         out.writeDouble(z)

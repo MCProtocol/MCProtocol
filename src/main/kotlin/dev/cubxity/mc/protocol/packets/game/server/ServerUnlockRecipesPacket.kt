@@ -33,11 +33,11 @@ class ServerUnlockRecipesPacket(
         smeltingRecipeBookOpen = buf.readBoolean()
         smeltingRecipeBookFilterActive = buf.readBoolean()
 
-        recipeIds = buf.readVarArray(buf::readString)
+        recipeIds = buf.readVarArray { buf.readString() }
 
 
         if (action == UnlockRecipeAction.INIT) {
-            initRecipeIds = buf.readVarArray(buf::readString)
+            initRecipeIds = buf.readVarArray { buf.readString() }
         }
 
     }
@@ -51,10 +51,10 @@ class ServerUnlockRecipesPacket(
         out.writeBoolean(smeltingRecipeBookOpen)
         out.writeBoolean(smeltingRecipeBookFilterActive)
 
-        out.writeVarArray(recipeIds, out::writeString)
+        out.writeVarArray(recipeIds) { v -> out.writeString(v) }
 
         if (action == UnlockRecipeAction.INIT) {
-            out.writeVarArray(initRecipeIds!!, out::writeString)
+            out.writeVarArray(initRecipeIds!!) { v -> out.writeString(v) }
         }
     }
 }

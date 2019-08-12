@@ -12,10 +12,10 @@ package dev.cubxity.mc.protocol.state
 
 import dev.cubxity.mc.protocol.ProtocolSession
 import dev.cubxity.mc.protocol.data.magic.MessageType
+import dev.cubxity.mc.protocol.data.obj.chunks.World
 import dev.cubxity.mc.protocol.events.PacketReceivedEvent
 import dev.cubxity.mc.protocol.packets.game.server.ServerChatPacket
 import dev.cubxity.mc.protocol.state.world.ClientPlayer
-import dev.cubxity.mc.protocol.state.world.World
 
 class Tracker(val session: ProtocolSession) {
 

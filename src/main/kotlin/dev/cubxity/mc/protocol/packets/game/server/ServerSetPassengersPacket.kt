@@ -22,12 +22,12 @@ class ServerSetPassengersPacket(
 ) : Packet() {
     override fun read(buf: NetInput, target: ProtocolVersion) {
         entityId = buf.readVarInt()
-        passengers = buf.readVarArray(buf::readVarInt)
+        passengers = buf.readVarArray { buf.readVarInt() }
     }
 
     override fun write(out: NetOutput, target: ProtocolVersion) {
         out.writeVarInt(entityId)
-        out.writeVarArray(passengers, out::writeVarInt)
+        out.writeVarArray(passengers) { v -> out.writeVarInt(v) }
     }
 
 }

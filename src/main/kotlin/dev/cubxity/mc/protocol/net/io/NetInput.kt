@@ -22,6 +22,7 @@ import dev.cubxity.mc.protocol.data.obj.EntityMetadata
 import dev.cubxity.mc.protocol.data.obj.Rotation
 import dev.cubxity.mc.protocol.data.obj.Slot
 import dev.cubxity.mc.protocol.data.obj.VillagerData
+import dev.cubxity.mc.protocol.data.obj.chunks.BlockState
 import dev.cubxity.mc.protocol.entities.Message
 import dev.cubxity.mc.protocol.entities.SimplePosition
 import dev.cubxity.mc.protocol.exception.MalformedPacketException
@@ -152,6 +153,10 @@ abstract class NetInput {
         }
 
         return shit
+    }
+
+    fun readBlockState(): BlockState {
+        return BlockState(readVarInt())
     }
 
     abstract fun available(): Int

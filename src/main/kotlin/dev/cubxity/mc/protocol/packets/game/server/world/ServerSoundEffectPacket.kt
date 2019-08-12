@@ -11,7 +11,6 @@
 package dev.cubxity.mc.protocol.packets.game.server.world
 
 import dev.cubxity.mc.protocol.ProtocolVersion
-import dev.cubxity.mc.protocol.data.magic.MagicRegistry
 import dev.cubxity.mc.protocol.data.magic.SoundCategory
 import dev.cubxity.mc.protocol.net.io.NetInput
 import dev.cubxity.mc.protocol.net.io.NetOutput
@@ -28,8 +27,10 @@ class ServerSoundEffectPacket(
 ) : Packet() {
 
     override fun read(buf: NetInput, target: ProtocolVersion) {
+        //hexdumpPacket(buf)
+        var available = buf.available()
 //        sound = target.registryManager.soundRegistry.getName(buf.readVarInt()) ?: return
-        soundCategory = MagicRegistry.lookupKey(target, buf.readVarInt())
+        soundCategory = SoundCategory.values()[buf.readVarInt()]
         x = buf.readInt() / 8.0
         y = buf.readInt() / 8.0
         z = buf.readInt() / 8.0
@@ -39,7 +40,7 @@ class ServerSoundEffectPacket(
 
     override fun write(out: NetOutput, target: ProtocolVersion) {
 //        out.writeVarInt(target.registryManager.soundRegistry.getId(sound) ?: return)
-        out.writeVarInt(MagicRegistry.lookupValue(target, soundCategory))
+        out.writeVarInt(soundCategory.ordinal)
         out.writeInt((x * 8).toInt())
         out.writeInt((y * 8).toInt())
         out.writeInt((z * 8).toInt())

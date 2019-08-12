@@ -8,27 +8,37 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package dev.cubxity.mc.protocol.data.obj.chunks.palette
+package dev.cubxity.mc.protocol.data.obj.chunks
 
-import dev.cubxity.mc.protocol.ProtocolVersion
-import dev.cubxity.mc.protocol.data.obj.chunks.BlockState
-import dev.cubxity.mc.protocol.data.obj.chunks.util.BlockUtil
-import dev.cubxity.mc.protocol.net.io.NetInput
-import dev.cubxity.mc.protocol.net.io.NetOutput
+import java.util.*
 
-class DirectPalette(target: ProtocolVersion) : Palette(target) {
+class ChunkLocation(val x: Int, val y: Int, val z: Int) {
 
-    override fun getIdForState(state: BlockState) =
-        BlockUtil.getGlobalPaletteIDFromState(state)
-    override fun getStateForId(id: Int) =
-        BlockUtil.getStateFromGlobalPaletteID(id, target) ?: BlockState(0, "minecraft:air")
-    override fun getBitsPerBlock() = 14.toByte()
+    constructor(blockLocation: BlockLocation) : this(
+        blockLocation.x shr 4,
+        blockLocation.y shr 4,
+        blockLocation.z shr 4
+    )
 
-    //    override fun getBitsPerBlock() = ceil(log2(totalNumberOfStates)).toByte()
+    override fun equals(o: Any?): Boolean {
+        if (this === o) return true
+        if (o == null || javaClass != o.javaClass) return false
+        val that = o as ChunkLocation?
 
-    override fun read(data: NetInput) {
+        return x == that!!.x &&
+                y == that.y &&
+                z == that.z
     }
 
-    override fun write(data: NetOutput) {
+    override fun hashCode(): Int {
+        return Objects.hash(x, y, z)
+    }
+
+    override fun toString(): String {
+        return "ChunkLocation{" +
+                "x=" + x +
+                ", y=" + y +
+                ", z=" + z +
+                '}'.toString()
     }
 }

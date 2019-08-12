@@ -11,7 +11,6 @@
 package dev.cubxity.mc.protocol.packets.game.server.entity.spawn
 
 import dev.cubxity.mc.protocol.ProtocolVersion
-import dev.cubxity.mc.protocol.data.magic.MagicRegistry
 import dev.cubxity.mc.protocol.data.magic.GlobalEntityType
 import dev.cubxity.mc.protocol.net.io.NetInput
 import dev.cubxity.mc.protocol.net.io.NetOutput
@@ -27,7 +26,7 @@ class ServerSpawnGlobalEntityPacket(
 
     override fun read(buf: NetInput, target: ProtocolVersion) {
         entityId = buf.readVarInt()
-        type = MagicRegistry.lookupKey(target, buf.readByte())
+        type = GlobalEntityType.values()[buf.readUnsignedByte()]
         x = buf.readDouble()
         y = buf.readDouble()
         z = buf.readDouble()
@@ -35,7 +34,7 @@ class ServerSpawnGlobalEntityPacket(
 
     override fun write(out: NetOutput, target: ProtocolVersion) {
         out.writeVarInt(entityId)
-        out.writeByte(MagicRegistry.lookupValue(target, type))
+        out.writeByte(type.ordinal)
         out.writeDouble(x)
         out.writeDouble(y)
         out.writeDouble(z)
