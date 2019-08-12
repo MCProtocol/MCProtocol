@@ -11,66 +11,27 @@
 package dev.cubxity.mc.protocol.packets.game.server
 
 import dev.cubxity.mc.protocol.ProtocolVersion
-import dev.cubxity.mc.protocol.data.obj.particle.AbstractParticleData
-import dev.cubxity.mc.protocol.data.obj.particle.BlockParticleData
-import dev.cubxity.mc.protocol.data.obj.particle.DustParticleData
-import dev.cubxity.mc.protocol.data.obj.particle.ItemParticleData
+import dev.cubxity.mc.protocol.data.obj.particle.Particle
 import dev.cubxity.mc.protocol.net.io.NetInput
 import dev.cubxity.mc.protocol.net.io.NetOutput
 import dev.cubxity.mc.protocol.packets.Packet
 
-class ServerParticlePacket : Packet {
-    var particleId: Int = 0
-        private set
-    var isLongDistance: Boolean = false
-        private set
-    var x: Float = 0.toFloat()
-        private set
-    var y: Float = 0.toFloat()
-        private set
-    var z: Float = 0.toFloat()
-        private set
-    var offsetX: Float = 0.toFloat()
-        private set
-    var offsetY: Float = 0.toFloat()
-    var offsetZ: Float = 0.toFloat()
-    var particleData: Float = 0.toFloat()
-        private set
-    var particleCount: Int = 0
-        private set
-    var data: AbstractParticleData? = null
-        private set
+class ServerParticlePacket(
+    var particle: Particle,
+    var isLongDistance: Boolean,
+    var x: Float,
+    var y: Float,
+    var z: Float,
+    var offsetX: Float,
+    var offsetY: Float,
+    var offsetZ: Float,
+    var particleData: Float,
+    var particleCount: Int
+) : Packet() {
 
-    constructor(
-        particleId: Int,
-        longDistance: Boolean,
-        x: Float,
-        y: Float,
-        z: Float,
-        offsetX: Float,
-        offsetY: Float,
-        offsetZ: Float,
-        particleData: Float,
-        particleCount: Int,
-        data: AbstractParticleData
-    ) {
-        this.particleId = particleId
-        this.isLongDistance = longDistance
-        this.x = x
-        this.y = y
-        this.z = z
-        this.offsetX = offsetX
-        this.offsetY = offsetY
-        this.offsetZ = offsetZ
-        this.particleData = particleData
-        this.particleCount = particleCount
-        this.data = data
-    }
-
-    constructor()
 
     override fun read(buf: NetInput, target: ProtocolVersion) {
-        particleId = buf.readInt()
+        val particleId = buf.readInt()
 
         isLongDistance = buf.readBoolean()
 
@@ -86,17 +47,11 @@ class ServerParticlePacket : Packet {
 
         particleCount = buf.readInt()
 
-        if (particleId == 3 || particleId == 20) {
-            data = BlockParticleData(buf.readVarInt())
-        } else if (particleId == 11) {
-            data = DustParticleData(buf.readFloat(), buf.readFloat(), buf.readFloat(), buf.readFloat())
-        } else if (particleId == 27) {
-            data = ItemParticleData(buf.readSlot())
-        }
+        particle = Particle(particleId, buf.readParticleData(particleId))
     }
 
     override fun write(out: NetOutput, target: ProtocolVersion) {
-        out.writeInt(particleId)
+        out.writeInt(particle.id)
 
         out.writeBoolean(isLongDistance)
 
@@ -112,27 +67,6 @@ class ServerParticlePacket : Packet {
 
         out.writeInt(particleCount)
 
-        if (particleId == 3 || particleId == 20) {
-            if (data is BlockParticleData) {
-                out.writeVarInt((data as BlockParticleData).blockState)
-            } else {
-                throw IllegalStateException("Data has to be of type BlockParticleData due to the particleId")
-            }
-        } else if (particleId == 11) {
-            if (data is DustParticleData) {
-                out.writeFloat((data as DustParticleData).red)
-                out.writeFloat((data as DustParticleData).green)
-                out.writeFloat((data as DustParticleData).blue)
-                out.writeFloat((data as DustParticleData).scale)
-            } else {
-                throw IllegalStateException("Data has to be of type DustParticleData due to the particleId")
-            }
-        } else if (particleId == 27) {
-            if (data is ItemParticleData) {
-                out.writeSlot((data as ItemParticleData).item)
-            } else {
-                throw IllegalStateException("Data has to be of type ItemParticleData due to the particleId")
-            }
-        }
+        out.writeParticleData(particle.id, particle.particleData)
     }
 }

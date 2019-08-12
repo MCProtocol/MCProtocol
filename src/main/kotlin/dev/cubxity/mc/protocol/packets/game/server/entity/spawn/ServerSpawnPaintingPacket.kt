@@ -11,7 +11,6 @@
 package dev.cubxity.mc.protocol.packets.game.server.entity.spawn
 
 import dev.cubxity.mc.protocol.ProtocolVersion
-import dev.cubxity.mc.protocol.data.magic.MagicRegistry
 import dev.cubxity.mc.protocol.data.magic.Direction
 import dev.cubxity.mc.protocol.data.magic.PaintingType
 import dev.cubxity.mc.protocol.entities.SimplePosition
@@ -31,16 +30,16 @@ class ServerSpawnPaintingPacket(
     override fun read(buf: NetInput, target: ProtocolVersion) {
         entityId = buf.readVarInt()
         entityUuid = buf.readUUID()
-        motive = MagicRegistry.lookupKey(target, buf.readVarInt())
+        motive = PaintingType.values()[buf.readVarInt()]
         location = buf.readPosition()
-        direction = MagicRegistry.lookupKey(target, buf.readByte())
+        direction = Direction.values()[buf.readByte().toInt()]
     }
 
     override fun write(out: NetOutput, target: ProtocolVersion) {
         out.writeVarInt(entityId)
         out.writeUUID(entityUuid)
-        out.writeVarInt(MagicRegistry.lookupValue(target, motive))
+        out.writeVarInt(motive.ordinal)
         out.writePosition(location)
-        out.writeByte(MagicRegistry.lookupValue(target, direction))
+        out.writeByte(direction.ordinal)
     }
 }

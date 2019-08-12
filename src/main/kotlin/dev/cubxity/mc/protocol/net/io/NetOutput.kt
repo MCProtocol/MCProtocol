@@ -21,6 +21,10 @@ import dev.cubxity.mc.protocol.data.obj.EntityMetadata
 import dev.cubxity.mc.protocol.data.obj.Rotation
 import dev.cubxity.mc.protocol.data.obj.Slot
 import dev.cubxity.mc.protocol.data.obj.chunks.BlockState
+import dev.cubxity.mc.protocol.data.obj.particle.AbstractParticleData
+import dev.cubxity.mc.protocol.data.obj.particle.BlockParticleData
+import dev.cubxity.mc.protocol.data.obj.particle.DustParticleData
+import dev.cubxity.mc.protocol.data.obj.particle.ItemParticleData
 import dev.cubxity.mc.protocol.entities.Message
 import dev.cubxity.mc.protocol.entities.SimplePosition
 import dev.cubxity.mc.protocol.net.io.stream.NetOutputStream
@@ -130,6 +134,35 @@ abstract class NetOutput {
 
     fun writeBlockState(state: BlockState) {
         writeVarInt(state.id)
+    }
+
+    fun writeParticleData(particleId: Int, data: AbstractParticleData?) {
+        when (particleId) {
+            3, 20 -> {
+                if (data is BlockParticleData) {
+                    writeVarInt(data.blockState)
+                } else {
+                    throw IllegalStateException("Data has to be of type BlockParticleData due to the particleId")
+                }
+            }
+            11 -> {
+                if (data is DustParticleData) {
+                    writeFloat(data.red)
+                    writeFloat(data.green)
+                    writeFloat(data.blue)
+                    writeFloat(data.scale)
+                } else {
+                    throw IllegalStateException("Data has to be of type DustParticleData due to the particleId")
+                }
+            }
+            27 -> {
+                if (data is ItemParticleData) {
+                    writeSlot(data.item)
+                } else {
+                    throw IllegalStateException("Data has to be of type ItemParticleData due to the particleId")
+                }
+            }
+        }
     }
 
 }

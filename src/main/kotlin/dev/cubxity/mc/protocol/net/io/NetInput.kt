@@ -23,6 +23,7 @@ import dev.cubxity.mc.protocol.data.obj.Rotation
 import dev.cubxity.mc.protocol.data.obj.Slot
 import dev.cubxity.mc.protocol.data.obj.VillagerData
 import dev.cubxity.mc.protocol.data.obj.chunks.BlockState
+import dev.cubxity.mc.protocol.data.obj.particle.*
 import dev.cubxity.mc.protocol.entities.Message
 import dev.cubxity.mc.protocol.entities.SimplePosition
 import dev.cubxity.mc.protocol.exception.MalformedPacketException
@@ -97,7 +98,7 @@ abstract class NetInput {
                 if (id == 255) break
 
                 val typeId = readVarInt()
-                val type = MagicRegistry.lookupKey<MetadataType>(target, typeId)
+                val type = MetadataType.values()[typeId]
 
                 val value: Any? = when (type) {
                     MetadataType.BYTE -> readByte()
@@ -115,8 +116,11 @@ abstract class NetInput {
                     MetadataType.OPT_UUID -> if (readBoolean()) readUUID() else null
                     MetadataType.OPT_BLOCK_ID -> readVarInt()
                     MetadataType.NBT -> readNbt()
-                    // TODO: Add particle data
-                    MetadataType.PARTICLE -> null
+                    MetadataType.PARTICLE -> {
+                        val particleId = readVarInt()
+
+                        Particle(particleId, readParticleData(particleId))
+                    }
                     MetadataType.VILLAGER_DATA -> VillagerData(readVarInt(), readVarInt(), readVarInt())
                     MetadataType.OPT_VAR_INT -> if (readBoolean()) readVarInt() else null
                     MetadataType.POSE -> MagicRegistry.lookupKey<Pose>(target, readVarInt())
@@ -160,4 +164,12 @@ abstract class NetInput {
     }
 
     abstract fun available(): Int
+    fun readParticleData(particleId: Int): AbstractParticleData? {
+        return when (particleId) {
+            3, 20 -> BlockParticleData(readVarInt())
+            11 -> DustParticleData(readFloat(), readFloat(), readFloat(), readFloat())
+            27 -> ItemParticleData(readSlot())
+            else -> null
+        }
+    }
 }

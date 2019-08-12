@@ -39,8 +39,15 @@ data class Message @JvmOverloads constructor(
     companion object {
         private val mapper = jacksonObjectMapper()
 
+
         @JvmStatic
-        fun fromJson(json: String): Message = mapper.readValue(json, Message::class.java)
+        fun fromJson(json: String): Message {
+            return try {
+                mapper.readValue(json, Message::class.java)
+            } catch (e: Exception) {
+                Message("Failed to read")
+            }
+        }
     }
 
     data class ClickEvent @JvmOverloads constructor(
