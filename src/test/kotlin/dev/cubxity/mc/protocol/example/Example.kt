@@ -11,6 +11,7 @@
 package dev.cubxity.mc.protocol.example
 
 import com.google.gson.GsonBuilder
+import dev.cubxity.mc.bot.bot
 import dev.cubxity.mc.protocol.ProtocolSession
 import dev.cubxity.mc.protocol.data.magic.ClientStatus
 import dev.cubxity.mc.protocol.data.magic.GameState
@@ -18,16 +19,12 @@ import dev.cubxity.mc.protocol.dsl.buildProtocol
 import dev.cubxity.mc.protocol.dsl.client
 import dev.cubxity.mc.protocol.dsl.server
 import dev.cubxity.mc.protocol.events.PacketReceivedEvent
-import dev.cubxity.mc.protocol.packets.RawPacket
 import dev.cubxity.mc.protocol.packets.game.client.ClientStatusPacket
 import dev.cubxity.mc.protocol.packets.game.server.ServerChangeGameStatePacket
 import dev.cubxity.mc.protocol.packets.game.server.ServerChatPacket
 import dev.cubxity.mc.protocol.packets.game.server.entity.player.ServerUpdateHealthPacket
 import dev.cubxity.mc.protocol.packets.game.server.entity.spawn.ServerSpawnPlayerPacket
-import dev.cubxity.mc.protocol.packets.game.server.world.ServerChunkDataPacket
 import dev.cubxity.mc.protocol.packets.login.server.LoginSuccessPacket
-import dev.cubxity.mc.protocol.state.ChatMessageReceivedEvent
-import java.io.File
 
 /**
  * @author Cubxity
@@ -52,7 +49,7 @@ fun client() {
 //                login(System.getProperty("username"), System.getProperty("password"))
                 offline("TestUser")
 
-                val tracker = tracker()
+                val tracker = bot()
 
                 val gson = GsonBuilder().setPrettyPrinting().create()
 

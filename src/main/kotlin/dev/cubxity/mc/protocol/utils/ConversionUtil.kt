@@ -8,9 +8,18 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package dev.cubxity.mc.protocol.state
+package dev.cubxity.mc.protocol.utils
 
-import dev.cubxity.mc.protocol.entities.Message
-import dev.cubxity.mc.protocol.events.Event
+import kotlin.math.PI
 
-class ChatMessageReceivedEvent(val message: Message, val raw: String) : Event()
+object ConversionUtil {
+
+    private const val toRad = PI / 180
+    private const val toDeg = 1 / toRad
+
+    fun toNotchianYaw(yaw: Float): Float = toDegrees(PI - yaw).toFloat()
+    fun toNotchianPitch(pitch: Float): Float = toDegrees((-pitch).toDouble()).toFloat()
+
+    private fun toDegrees(radians: Double) = toDeg * radians
+
+}

@@ -8,10 +8,13 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package dev.cubxity.mc.protocol.state.world
+package dev.cubxity.mc.bot.world
 
+import dev.cubxity.mc.bot.entity.WorldEntity
+import dev.cubxity.mc.bot.entity.impl.WorldPlayerEntity
 import dev.cubxity.mc.protocol.ProtocolSession
 import dev.cubxity.mc.protocol.data.magic.Difficulity
+import dev.cubxity.mc.protocol.data.magic.MobType
 import dev.cubxity.mc.protocol.data.obj.chunks.BlockState
 import dev.cubxity.mc.protocol.data.obj.chunks.Chunk
 import dev.cubxity.mc.protocol.data.obj.chunks.ChunkPosition
@@ -24,8 +27,9 @@ import dev.cubxity.mc.protocol.packets.game.server.entity.spawn.ServerSpawnMobPa
 import dev.cubxity.mc.protocol.packets.game.server.entity.spawn.ServerSpawnPlayerPacket
 import dev.cubxity.mc.protocol.packets.game.server.world.ServerChunkDataPacket
 import dev.cubxity.mc.protocol.packets.game.server.world.ServerTimeUpdatePacket
-import dev.cubxity.mc.protocol.state.entity.WorldEntity
-import dev.cubxity.mc.protocol.state.entity.impl.WorldPlayerEntity
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.math.floor
 
 class World(session: ProtocolSession) {
@@ -75,14 +79,16 @@ class World(session: ProtocolSession) {
                 .filter { it.packet is ServerSpawnPlayerPacket }
                 .map { it.packet as ServerSpawnPlayerPacket }
                 .subscribe {
-                    entities[it.entityId] = WorldPlayerEntity(it.entityId, it.x, it.y, it.z, false, 0f, it.pitch, it.yaw, it.playerUuid)
+                    entities[it.entityId] =
+                        WorldPlayerEntity(it.entityId, it.x, it.y, it.z, false, 0f, it.pitch, it.yaw, it.playerUuid)
                 }
 
             on<PacketReceivedEvent>()
                 .filter { it.packet is ServerSpawnMobPacket }
                 .map { it.packet as ServerSpawnMobPacket }
                 .subscribe {
-                    entities[it.entityId] = WorldEntity(it.type, it.entityId, it.x, it.y, it.z, false, 0f, it.pitch, it.yaw)
+                    entities[it.entityId] =
+                        WorldEntity(it.type, it.entityId, it.x, it.y, it.z, false, 0f, it.pitch, it.yaw)
                 }
 
             on<PacketReceivedEvent>()
@@ -107,12 +113,38 @@ class World(session: ProtocolSession) {
                 .map { it.packet as ServerEntityLookAndRelativeMovePacket }
                 .subscribe {
                     val entity = entities[it.entityId] ?: return@subscribe
-                    entity.x += it.deltaX
-                    entity.y += it.deltaY
-                    entity.z += it.deltaZ
+                    entity.x += it.deltaX / (128.0 * 32.0)
+                    entity.y += it.deltaY / (128.0 * 32.0)
+                    entity.z += it.deltaZ / (128.0 * 32.0)
                     entity.onGround = it.onGround
                     entity.pitch = it.pitch
                     entity.yaw = it.yaw
+                }
+
+            on<PacketReceivedEvent>()
+                .filter { it.packet is ServerEntityRelativeMovePacket }
+                .map { it.packet as ServerEntityRelativeMovePacket }
+                .subscribe {
+                    val entity = entities[it.entityId] ?: return@subscribe
+                    entity.x += it.deltaX / (128.0 * 32.0)
+                    entity.y += it.deltaY / (128.0 * 32.0)
+                    entity.z += it.deltaZ / (128.0 * 32.0)
+                    entity.onGround = it.onGround
+                }
+
+            on<PacketReceivedEvent>()
+                .filter { it.packet is ServerEntityVelocityPacket }
+                .map { it.packet as ServerEntityVelocityPacket }
+                .subscribe {
+                    val entity = entities[it.entityId] ?: return@subscribe
+
+                    entity.velX = it.velocityX.toDouble()
+                    entity.velY = it.velocityY.toDouble()
+                    entity.velZ = it.velocityZ.toDouble()
+
+                    entity.x += entity.velX
+                    entity.y += entity.velY
+                    entity.z += entity.velZ
                 }
 
             on<PacketReceivedEvent>()

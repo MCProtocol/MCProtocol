@@ -41,7 +41,6 @@ import dev.cubxity.mc.protocol.packets.status.client.StatusPingPacket
 import dev.cubxity.mc.protocol.packets.status.client.StatusQueryPacket
 import dev.cubxity.mc.protocol.packets.status.server.StatusPongPacket
 import dev.cubxity.mc.protocol.packets.status.server.StatusResponsePacket
-import dev.cubxity.mc.protocol.state.Tracker
 import dev.cubxity.mc.protocol.utils.CryptUtil
 import io.netty.channel.ChannelFuture
 import io.netty.channel.ChannelHandlerContext
@@ -464,8 +463,6 @@ class ProtocolSession @JvmOverloads constructor(
             .subscribe { (packet) -> logger.debug("[$side - SENT]: ${packet.javaClass.simpleName}") }
         return this
     }
-
-    fun tracker() = Tracker(this)
 
     inline fun <reified T : Event> on() =
         processor.publishOn(scheduler)

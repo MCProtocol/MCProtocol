@@ -8,27 +8,36 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package dev.cubxity.mc.protocol.state.world
+package dev.cubxity.mc.bot.world
 
+import dev.cubxity.mc.bot.Bot
+import dev.cubxity.mc.protocol.data.magic.MobType
 import dev.cubxity.mc.protocol.data.magic.PositionElement
 import dev.cubxity.mc.protocol.entities.SimplePosition
 import dev.cubxity.mc.protocol.events.PacketReceivedEvent
 import dev.cubxity.mc.protocol.packets.game.client.ClientChatMessagePacket
 import dev.cubxity.mc.protocol.packets.game.client.ClientTeleportConfirmPacket
+import dev.cubxity.mc.protocol.packets.game.client.player.ClientPlayerPositionLookPacket
 import dev.cubxity.mc.protocol.packets.game.server.entity.player.ServerPlayerPositionLookPacket
-import dev.cubxity.mc.protocol.state.Tracker
+import dev.cubxity.mc.protocol.utils.ConversionUtil
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlin.math.atan2
+import kotlin.math.sqrt
 
-class ClientPlayer(private val tracker: Tracker) {
+class ClientPlayer(private val bot: Bot) {
 
-    val session = tracker.session
+    val session = bot.session
 
     var position = SimplePosition(0.0, 0.0, 0.0)
     var pitch = 0.0f
     var yaw = 0.0f
     var onGround = true
+    var height = 1.74
 
     init {
-        with(tracker.session) {
+        with(bot.session) {
             on<PacketReceivedEvent>()
                 .filter { it.packet is ServerPlayerPositionLookPacket }
                 .map { it.packet as ServerPlayerPositionLookPacket }
@@ -46,4 +55,25 @@ class ClientPlayer(private val tracker: Tracker) {
     }
 
     fun chat(text: String) = session.send(ClientChatMessagePacket(text))
+
+    fun lookAt(pos: SimplePosition) {
+        val dx = pos.x - position.x
+        val dy = pos.y - position.y
+        val dz = pos.z - position.z
+
+        val yaw = atan2(-dx, -dz).toFloat()
+        val groundDistance = sqrt(dx * dx + dz * dz)
+        val pitch = atan2(dy, groundDistance).toFloat()
+
+        session.send(
+            ClientPlayerPositionLookPacket(
+                position.x,
+                position.y,
+                position.z,
+                ConversionUtil.toNotchianYaw(yaw),
+                ConversionUtil.toNotchianPitch(pitch),
+                onGround
+            )
+        )
+    }
 }

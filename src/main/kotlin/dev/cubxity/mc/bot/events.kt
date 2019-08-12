@@ -8,31 +8,9 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package dev.cubxity.mc.protocol.packets.game.server.entity
+package dev.cubxity.mc.bot
 
-import dev.cubxity.mc.protocol.ProtocolVersion
-import dev.cubxity.mc.protocol.net.io.NetInput
-import dev.cubxity.mc.protocol.net.io.NetOutput
-import dev.cubxity.mc.protocol.packets.Packet
+import dev.cubxity.mc.protocol.entities.Message
+import dev.cubxity.mc.protocol.events.Event
 
-class ServerEntityVelocityPacket(
-    var entityId: Int,
-    var velocityX: Short,
-    var velocityY: Short,
-    var velocityZ: Short
-) : Packet() {
-
-    override fun read(buf: NetInput, target: ProtocolVersion) {
-        entityId = buf.readVarInt()
-        velocityX = buf.readVelocity()
-        velocityY = buf.readVelocity()
-        velocityZ = buf.readVelocity()
-    }
-
-    override fun write(out: NetOutput, target: ProtocolVersion) {
-        out.writeVarInt(entityId)
-        out.writeVelocity(velocityX)
-        out.writeVelocity(velocityY)
-        out.writeVelocity(velocityZ)
-    }
-}
+class ChatMessageReceivedEvent(val message: Message, val raw: String) : Event()

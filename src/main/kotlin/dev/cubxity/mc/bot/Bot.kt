@@ -8,16 +8,16 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package dev.cubxity.mc.protocol.state
+package dev.cubxity.mc.bot
 
 import dev.cubxity.mc.protocol.ProtocolSession
 import dev.cubxity.mc.protocol.data.magic.MessageType
 import dev.cubxity.mc.protocol.events.PacketReceivedEvent
 import dev.cubxity.mc.protocol.packets.game.server.ServerChatPacket
-import dev.cubxity.mc.protocol.state.world.ClientPlayer
-import dev.cubxity.mc.protocol.state.world.World
+import dev.cubxity.mc.bot.world.ClientPlayer
+import dev.cubxity.mc.bot.world.World
 
-class Tracker(val session: ProtocolSession) {
+class Bot(val session: ProtocolSession) {
 
     var world = World(session)
     var player = ClientPlayer(this)
