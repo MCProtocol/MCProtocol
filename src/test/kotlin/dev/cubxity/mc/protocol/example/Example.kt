@@ -62,8 +62,17 @@ fun client() {
                                 unknownPackets += id
                             }
                         }*/
+                        if (it.packet is RawPacket) {
+                            logger.debug(
+                                "[$side - RECEIVED]: RawPacket id: ${String.format(
+                                    "0x%02X",
+                                    (it.packet as RawPacket).id
+                                )}"
+                            )
+                        }
 
-                        logger.debug("[$side - RECEIVED]: ${it.packet.javaClass.simpleName} ${if (it.packet is RawPacket) "id: ${(it.packet as RawPacket).id}" else ""}")
+//                        logger.debug("[$side - RECEIVED]: ${it.packet.javaClass.simpleName} ${if (it.packet is RawPacket) "id: ${(it.packet as RawPacket).id}" else ""}")
+//                        logger.debug("[$side - RECEIVED]: ${if (it.packet is RawPacket) "RawPacket: id: 0x${(it.packet as RawPacket).id.toString(16)}" else "${it.packet}"}")
                         //println("Packet data: ${gson.toJson(if (it.packet is RawPacket || it.packet is ServerChunkDataPacket) return@subscribe else it.packet)}")
                     }
 
