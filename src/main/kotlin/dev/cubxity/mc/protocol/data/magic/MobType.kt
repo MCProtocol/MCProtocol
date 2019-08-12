@@ -11,7 +11,6 @@
 package dev.cubxity.mc.protocol.data.magic
 
 enum class MobType {
-
     AREA_EFFECT_CLOUD,
     ARMOR_STAND,
     ARROW,

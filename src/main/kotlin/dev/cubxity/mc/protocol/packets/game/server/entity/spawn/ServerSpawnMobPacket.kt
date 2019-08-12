@@ -11,7 +11,6 @@
 package dev.cubxity.mc.protocol.packets.game.server.entity.spawn
 
 import dev.cubxity.mc.protocol.ProtocolVersion
-import dev.cubxity.mc.protocol.data.magic.MobType
 import dev.cubxity.mc.protocol.data.obj.EntityMetadata
 import dev.cubxity.mc.protocol.net.io.NetInput
 import dev.cubxity.mc.protocol.net.io.NetOutput
@@ -21,7 +20,7 @@ import java.util.*
 class ServerSpawnMobPacket(
     var entityId: Int,
     var entityUuid: UUID,
-    var type: MobType,
+    var type: Int,
     var x: Double,
     var y: Double,
     var z: Double,
@@ -37,7 +36,7 @@ class ServerSpawnMobPacket(
     override fun read(buf: NetInput, target: ProtocolVersion) {
         entityId = buf.readVarInt()
         entityUuid = buf.readUUID()
-        type = MobType.values()[buf.readVarInt()]
+        type = buf.readVarInt()
         x = buf.readDouble()
         y = buf.readDouble()
         z = buf.readDouble()
@@ -53,7 +52,7 @@ class ServerSpawnMobPacket(
     override fun write(out: NetOutput, target: ProtocolVersion) {
         out.writeVarInt(entityId)
         out.writeUUID(entityUuid)
-        out.writeVarInt(target.ordinal)
+        out.writeVarInt(entityId)
         out.writeDouble(x)
         out.writeDouble(y)
         out.writeDouble(z)

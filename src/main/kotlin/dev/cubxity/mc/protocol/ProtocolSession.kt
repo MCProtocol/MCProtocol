@@ -414,7 +414,7 @@ class ProtocolSession @JvmOverloads constructor(
                 server[0x21] = ServerChunkDataPacket::class.java
                 server[0x22] = ServerEffectPacket::class.java
                 server[0x23] = ServerParticlePacket::class.java
-                // TODO Implement 0x24: Update Light
+                server[0x24] = ServerUpdateLightPacket::class.java
                 server[0x25] = ServerJoinGamePacket::class.java
                 // TODO Implement 0x26: Map Data
                 // TODO Implement 0x27: Trade List
@@ -439,10 +439,9 @@ class ProtocolSession @JvmOverloads constructor(
                 server[0x3A] = ServerRespawnPacket::class.java
                 server[0x3B] = ServerEntityHeadLookPacket::class.java
                 server[0x3C] = ServerSelectAdvancementTabPacket::class.java
-                // TODO Implement 0x3D: World Border
+                server[0x3D] = ServerWorldBorderPacket::class.java
                 server[0x3E] = ServerCameraPacket::class.java
                 server[0x3F] = ServerHeldItemChangePacket::class.java
-                server[0x40] = ServerUpdateViewPositionPacket::class.java
                 server[0x40] = ServerUpdateViewPositionPacket::class.java
                 server[0x41] = ServerUpdateViewDistancePacket::class.java
                 server[0x42] = ServerDisplayScoreboardPacket::class.java
@@ -458,7 +457,7 @@ class ProtocolSession @JvmOverloads constructor(
                 server[0x4C] = ServerUpdateScorePacket::class.java
                 server[0x4D] = ServerSpawnPositionPacket::class.java
                 server[0x4E] = ServerTimeUpdatePacket::class.java
-                // TODO Implement 0x4F: Title
+                server[0x4F] = ServerTitlePacket::class.java
                 server[0x50] = ServerEntitySoundEffectPacket::class.java
                 server[0x51] = ServerSoundEffectPacket::class.java
                 server[0x52] = ServerStopSoundPacket::class.java

@@ -17,9 +17,9 @@ import dev.cubxity.mc.protocol.packets.Packet
 
 class ServerEntityLookAndRelativeMovePacket(
     var entityId: Int,
-    var deltaX: Short,
-    var deltaY: Short,
-    var deltaZ: Short,
+    var deltaX: Double,
+    var deltaY: Double,
+    var deltaZ: Double,
     var yaw: Float,
     var pitch: Float,
     var onGround: Boolean
@@ -27,9 +27,9 @@ class ServerEntityLookAndRelativeMovePacket(
 
     override fun read(buf: NetInput, target: ProtocolVersion) {
         entityId = buf.readVarInt()
-        deltaX = buf.readShort()
-        deltaY = buf.readShort()
-        deltaZ = buf.readShort()
+        deltaX = buf.readShort() / 4096.0
+        deltaY = buf.readShort() / 4096.0
+        deltaZ = buf.readShort() / 4096.0
         yaw = buf.readAngle()
         pitch = buf.readAngle()
         onGround = buf.readBoolean()
@@ -37,9 +37,9 @@ class ServerEntityLookAndRelativeMovePacket(
 
     override fun write(out: NetOutput, target: ProtocolVersion) {
         out.writeVarInt(entityId)
-        out.writeShort(deltaX)
-        out.writeShort(deltaY)
-        out.writeShort(deltaZ)
+        out.writeShort((deltaX * 4096).toShort())
+        out.writeShort((deltaY * 4096).toShort())
+        out.writeShort((deltaZ * 4096).toShort())
         out.writeAngle(yaw)
         out.writeAngle(pitch)
         out.writeBoolean(onGround)
