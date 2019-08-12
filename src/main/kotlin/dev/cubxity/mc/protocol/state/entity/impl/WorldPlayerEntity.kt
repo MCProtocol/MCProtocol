@@ -24,4 +24,4 @@ open class WorldPlayerEntity(
     pitch: Float,
     yaw: Float,
     var uuid: UUID
-) : WorldEntity(MobType.PLAYER, id, x, y, z, onGround, headYaw, pitch, yaw)
+) : WorldEntity(MobType.PLAYER.ordinal, id, x, y, z, onGround, headYaw, pitch, yaw)

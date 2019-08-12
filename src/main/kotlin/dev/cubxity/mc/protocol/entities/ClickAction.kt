@@ -12,42 +12,15 @@ package dev.cubxity.mc.protocol.entities
 
 import com.google.gson.annotations.SerializedName
 
-
-enum class ChatColor {
-    @SerializedName("black")
-    BLACK,
-    @SerializedName("dark_blue")
-    DARK_BLUE,
-    @SerializedName("dark_green")
-    DARK_GREEN,
-    @SerializedName("dark_aqua")
-    DARK_AQUA,
-    @SerializedName("dark_red")
-    DARK_RED,
-    @SerializedName("dark_purple")
-    DARK_PURPLE,
-    @SerializedName("gold")
-    GOLD,
-    @SerializedName("gray")
-    GRAY,
-    @SerializedName("dark_gray")
-    DARK_GRAY,
-    @SerializedName("blue")
-    BLUE,
-    @SerializedName("green")
-    GREEN,
-    @SerializedName("aqua")
-    AQUA,
-    @SerializedName("red")
-    RED,
-    @SerializedName("light_purple")
-    LIGHT_PURPLE,
-    @SerializedName("yellow")
-    YELLOW,
-    @SerializedName("white")
-    WHITE,
-    @SerializedName("reset")
-    RESET;
-
-    override fun toString() = name.toLowerCase()
+enum class ClickAction {
+    @SerializedName("open_url")
+    OPEN_URL,
+    @SerializedName("run_command")
+    RUN_COMMAND,
+    @SerializedName("twitch_user_info")
+    TWITCH_USER_INFO,
+    @SerializedName("suggest_command")
+    SUGGEST_COMMAND,
+    @SerializedName("change_page")
+    CHANGE_PAGE
 }

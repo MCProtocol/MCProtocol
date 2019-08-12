@@ -10,12 +10,11 @@
 
 package dev.cubxity.mc.protocol.state.entity
 
-import dev.cubxity.mc.protocol.data.magic.MobType
 import dev.cubxity.mc.protocol.data.obj.EntityMetadata
 import dev.cubxity.mc.protocol.packets.game.server.entity.ServerEntityPropertiesPacket
 
 open class WorldEntity(
-    val type: MobType,
+    val type: Int,
     var id: Int,
     var x: Double,
     var y: Double,

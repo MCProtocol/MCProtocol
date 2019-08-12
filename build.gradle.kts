@@ -36,7 +36,7 @@ dependencies {
     compile("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.3.0-RC")
     compile("io.projectreactor.kotlin:reactor-kotlin-extensions:1.0.0.M1")
     compile("io.projectreactor.netty:reactor-netty")
-    compile("com.fasterxml.jackson.module:jackson-module-kotlin:2.9.+")
+    //compile("com.google.code.gson:gson")
     compile("ch.qos.logback:logback-classic:1.3.0-alpha4")
     compile("org.objenesis:objenesis:3.0.1")
     compile("com.github.Steveice10:MCAuthLib:1.0")
