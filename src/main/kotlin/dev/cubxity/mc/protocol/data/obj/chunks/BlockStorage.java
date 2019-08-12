@@ -33,7 +33,7 @@ public class BlockStorage {
         this.blockCount = 0;
         this.bitsPerEntry = 4;
 
-        this.states = new ArrayList<BlockState>();
+        this.states = new ArrayList<>();
         this.states.add(AIR);
 
         this.storage = new FlexibleStorage(this.bitsPerEntry, 4096);
@@ -43,7 +43,7 @@ public class BlockStorage {
         this.blockCount = in.readShort();
         this.bitsPerEntry = in.readUnsignedByte();
 
-        this.states = new ArrayList<BlockState>();
+        this.states = new ArrayList<>();
         int stateCount = this.bitsPerEntry > 8 ? 0 : in.readVarInt();
         for (int i = 0; i < stateCount; i++) {
             this.states.add(in.readBlockState());

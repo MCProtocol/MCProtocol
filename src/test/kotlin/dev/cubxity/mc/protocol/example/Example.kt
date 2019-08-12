@@ -20,6 +20,7 @@ import dev.cubxity.mc.protocol.dsl.server
 import dev.cubxity.mc.protocol.events.PacketReceivedEvent
 import dev.cubxity.mc.protocol.packets.RawPacket
 import dev.cubxity.mc.protocol.packets.game.client.ClientStatusPacket
+import dev.cubxity.mc.protocol.packets.game.server.ServerAdvancementsPacket
 import dev.cubxity.mc.protocol.packets.game.server.ServerChangeGameStatePacket
 import dev.cubxity.mc.protocol.packets.game.server.ServerChatPacket
 import dev.cubxity.mc.protocol.packets.game.server.entity.player.ServerUpdateHealthPacket
@@ -71,7 +72,9 @@ fun client() {
                             )
                         }
 
-//                        logger.debug("[$side - RECEIVED]: ${it.packet.javaClass.simpleName} ${if (it.packet is RawPacket) "id: ${(it.packet as RawPacket).id}" else ""}")
+                        if (it.packet is ServerAdvancementsPacket) {
+                            logger.debug("[$side - RECEIVED]: ${it.packet}")
+                        }
 //                        logger.debug("[$side - RECEIVED]: ${if (it.packet is RawPacket) "RawPacket: id: 0x${(it.packet as RawPacket).id.toString(16)}" else "${it.packet}"}")
                         //println("Packet data: ${gson.toJson(if (it.packet is RawPacket || it.packet is ServerChunkDataPacket) return@subscribe else it.packet)}")
                     }
@@ -88,6 +91,9 @@ fun client() {
                     .map { it.packet as ServerChatPacket }
                     .subscribe {
                         println("Chat: ${it.message.toText()}")
+
+//                        println(tracker.world.getBlockIdAt(-32, 80, 3))
+                        tracker.world.dumpChunk(-2, 1)
                     }
 
                 on<PacketReceivedEvent>()

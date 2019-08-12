@@ -465,7 +465,7 @@ class ProtocolSession @JvmOverloads constructor(
                 server[0x54] = ServerNBTQueryResponsePacket::class.java
                 server[0x55] = ServerCollectItemPacket::class.java
                 server[0x56] = ServerEntityTeleportPacket::class.java
-                // TODO Implement 0x57: Advancements
+                server[0x57] = ServerAdvancementsPacket::class.java
                 server[0x58] = ServerEntityPropertiesPacket::class.java
                 server[0x59] = ServerEntityEffectPacket::class.java
                 // TODO Implement 0x5A: Declare Recipes

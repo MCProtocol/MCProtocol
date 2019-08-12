@@ -44,6 +44,7 @@ class ServerChunkDataPacket(
         blockEntities = arrayOf()
 
         val blockEntityCount = buf.readVarInt()
+
         for (i in 0 until blockEntityCount) {
             blockEntities += buf.readNbt() as CompoundTag
         }

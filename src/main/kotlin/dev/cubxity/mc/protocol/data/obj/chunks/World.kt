@@ -11,6 +11,7 @@
 package dev.cubxity.mc.protocol.data.obj.chunks
 
 import dev.cubxity.mc.protocol.ProtocolSession
+import dev.cubxity.mc.protocol.ProtocolVersion
 import dev.cubxity.mc.protocol.data.magic.Difficulity
 import dev.cubxity.mc.protocol.events.PacketReceivedEvent
 import dev.cubxity.mc.protocol.packets.game.server.ServerDifficultyPacket
@@ -23,7 +24,11 @@ import dev.cubxity.mc.protocol.packets.game.server.world.ServerTimeUpdatePacket
 import dev.cubxity.mc.protocol.state.entity.WorldEntity
 import org.slf4j.LoggerFactory
 import java.awt.Dimension
+import java.awt.image.BufferedImage
+import java.io.File
+import java.io.IOException
 import java.util.concurrent.ConcurrentHashMap
+import javax.imageio.ImageIO
 
 class World(session: ProtocolSession) {
     private val logger = LoggerFactory.getLogger("World")
@@ -253,45 +258,53 @@ class World(session: ProtocolSession) {
         }
     }
 
-//    fun dumpChunk(chunkX: Int, chunkZ: Int) {
-//        for (y in 0..255) {
-//            val image = BufferedImage(16 * 16, 16 * 16, BufferedImage.TYPE_INT_RGB)
-//
-//            val graphics = image.graphics
-//
-//            //            int y = 84;
-//
-//            for (x in 0..15) {
-//                for (z in 0..15) {
-//                    val id = getBlockIdAt((chunkX shl 4) + x, y, (chunkZ shl 4) + z)
-//
-//                    if (id != 0) {
-//                        var f = File("assets/minecraft/textures/block/" + BlockRegistry.BLOCK_NAME_MAP[id] + "_top.png")
-//
-//                        if (!f.exists()) {
-//                            f = File("assets/minecraft/textures/block/" + BlockRegistry.BLOCK_NAME_MAP[id] + ".png")
-//                        }
-//
-//                        try {
-//                            val img = ImageIO.read(f)
-//
-//                            graphics.drawImage(img, x * 16, z * 16, null)
-//
-//                        } catch (e: IOException) {
-//                            println("couldn't find " + f.name)
-//                        }
-//
-//                    }
-//                }
-//            }
-//
-//            try {
-//                ImageIO.write(image, "PNG", File("dump/$chunkX-$y-$chunkZ.png"))
-//            } catch (e: IOException) {
-//                e.printStackTrace()
-//            }
-//        }
-//    }
+    fun dumpChunk(chunkX: Int, chunkZ: Int) {
+        for (y in 0..255) {
+            val image = BufferedImage(16 * 16, 16 * 16, BufferedImage.TYPE_INT_RGB)
+
+            val graphics = image.graphics
+
+            //            int y = 84;
+
+            for (x in 0..15) {
+                for (z in 0..15) {
+                    val id = getBlockIdAt((chunkX * 16) + x, y, (chunkZ * 16) + z)
+
+                    if (id != 0) {
+                        var f = File(
+                            "F:\\Projects\\IntelliJ\\proxy\\assets\\" + ProtocolVersion.V1_14_4.registryManager.blockRegistry.get(
+                                id
+                            )!!.name + "_top.png"
+                        )
+
+                        if (!f.exists()) {
+                            f = File(
+                                "F:\\Projects\\IntelliJ\\proxy\\assets\\" + ProtocolVersion.V1_14_4.registryManager.blockRegistry.get(
+                                    id
+                                )!!.name + ".png"
+                            )
+                        }
+
+                        try {
+                            val img = ImageIO.read(f)
+
+                            graphics.drawImage(img, x * 16, z * 16, null)
+
+                        } catch (e: IOException) {
+                            println("couldn't find " + f.name)
+                        }
+
+                    }
+                }
+            }
+
+            try {
+                ImageIO.write(image, "PNG", File("A:\\dump\\$chunkX-$y-$chunkZ.png"))
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
+    }
 
     fun unloadChunkColumn(x: Int, z: Int) {
         for (y in 0..15) {

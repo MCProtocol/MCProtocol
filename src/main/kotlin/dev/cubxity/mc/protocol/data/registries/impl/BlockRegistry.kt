@@ -14,13 +14,12 @@ import com.google.gson.Gson
 import dev.cubxity.mc.protocol.ProtocolVersion
 
 class BlockRegistry(target: ProtocolVersion) {
-
     private val gson = Gson()
     private var elements = hashMapOf<Int, BlockEntry>()
 
     init {
         try {
-            val stream = javaClass.getResourceAsStream("/versions/${target.simple}/blocks.json")
+            val stream = javaClass.getResourceAsStream("/versions/${target.resourceName}/blocks.json")
             val text = stream.bufferedReader().readText()
 
             val items = gson.fromJson(text, Array<BlockEntry>::class.java).map { it.id to it }.toMap()
