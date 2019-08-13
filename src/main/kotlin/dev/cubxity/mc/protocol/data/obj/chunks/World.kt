@@ -104,7 +104,6 @@ class World(session: ProtocolSession) {
                         it.pitch,
                         it.yaw
                     )
-                    println("${it.entityId} -> ${entities[it.entityId]}")
                 }
 
             on<PacketReceivedEvent>()

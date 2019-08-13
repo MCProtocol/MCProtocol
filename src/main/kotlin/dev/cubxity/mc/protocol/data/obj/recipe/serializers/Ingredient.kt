@@ -8,30 +8,8 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package dev.cubxity.mc.protocol.packets
+package dev.cubxity.mc.protocol.data.obj.recipe.serializers
 
-import dev.cubxity.mc.protocol.ProtocolVersion
-import dev.cubxity.mc.protocol.net.io.NetInput
-import dev.cubxity.mc.protocol.net.io.NetOutput
+import dev.cubxity.mc.protocol.data.obj.Slot
 
-/**
- * This packet does not serialize or deserialize anything
- * @author Cubxity
- * @since 7/21/2019
- */
-class RawPacket(val id: Int) : Packet() {
-    lateinit var bytes: ByteArray
-
-    override fun read(buf: NetInput, target: ProtocolVersion) {
-        bytes = ByteArray(buf.available())
-        buf.readBytes(bytes)
-    }
-
-    override fun write(out: NetOutput, target: ProtocolVersion) {
-        out.writeBytes(bytes)
-    }
-
-    override fun toString(): String {
-        return "RawPacket id: ${String.format("0x%02X", id)}"
-    }
-}
+data class Ingredient(var items: ArrayList<Slot>)

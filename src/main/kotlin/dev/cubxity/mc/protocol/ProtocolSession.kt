@@ -465,7 +465,7 @@ class ProtocolSession @JvmOverloads constructor(
                 server[0x57] = ServerAdvancementsPacket::class.java
                 server[0x58] = ServerEntityPropertiesPacket::class.java
                 server[0x59] = ServerEntityEffectPacket::class.java
-                // TODO Implement 0x5A: Declare Recipes
+                server[0x5A] = ServerDeclareRecipesPacket::class.java
                 server[0x5B] = ServerTagsPacket::class.java
 
                 client[0x00] = ClientTeleportConfirmPacket::class.java
@@ -519,11 +519,11 @@ class ProtocolSession @JvmOverloads constructor(
      * This is used for debugging
      * NOTE: [logger]'s level is required to be at DEBUG
      */
-    fun wiretap(): ProtocolSession {
+    fun wiretap(filter: (Packet) -> Boolean = { true }): ProtocolSession {
         on<PacketReceivedEvent>()
-            .subscribe { (packet) -> logger.debug("[$side - RECEIVED]: ${if (packet is RawPacket) "RawPacket id: ${packet.id}" else "$packet"}") }
+            .subscribe { (packet) -> if (filter(packet)) logger.debug("[$side - RECEIVED]: ${if (packet is RawPacket) "RawPacket id: ${packet.id}" else "$packet"}") }
         on<PacketSentEvent>()
-            .subscribe { (packet) -> logger.debug("[$side - SENT]: ${packet.javaClass.simpleName}") }
+            .subscribe { (packet) -> if (filter(packet)) logger.debug("[$side - SENT]: ${packet.javaClass.simpleName}") }
         return this
     }
 
