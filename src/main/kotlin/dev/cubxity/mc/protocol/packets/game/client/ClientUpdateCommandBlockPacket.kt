@@ -8,50 +8,35 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package dev.cubxity.mc.protocol.packets.game.server.world
+package dev.cubxity.mc.protocol.packets.game.client
 
-import com.github.steveice10.opennbt.tag.builtin.CompoundTag
+
 import dev.cubxity.mc.protocol.ProtocolVersion
-import dev.cubxity.mc.protocol.data.obj.chunks.Chunk
-import dev.cubxity.mc.protocol.data.obj.chunks.ChunkPosition
-import dev.cubxity.mc.protocol.data.obj.chunks.util.ChunkUtil
+import dev.cubxity.mc.protocol.data.magic.CommandBlockMode
+import dev.cubxity.mc.protocol.entities.SimplePosition
 import dev.cubxity.mc.protocol.net.io.NetInput
 import dev.cubxity.mc.protocol.net.io.NetOutput
-import dev.cubxity.mc.protocol.net.io.impl.stream.StreamNetInput
 import dev.cubxity.mc.protocol.packets.Packet
 
-class ServerChunkDataPacket(
-    var chunkX: Int,
-    var chunkZ: Int,
-    var full: Boolean,
-    var bitMask: Int,
-    var heightMaps: CompoundTag,
-    var chunk: Chunk,
-    var blockEntities: Array<CompoundTag>
+class ClientUpdateCommandBlockPacket(
+    var location: SimplePosition,
+    var command: String,
+    var mode: CommandBlockMode,
+    var flags: Int
 ) : Packet() {
 
     override fun read(buf: NetInput, target: ProtocolVersion) {
-        chunkX = buf.readInt()
-        chunkZ = buf.readInt()
-        full = buf.readBoolean()
-        bitMask = buf.readVarInt()
-        heightMaps = buf.readNbt() as CompoundTag
-
-        val dataSize = buf.readVarInt()
-        val data = buf.readBytes(dataSize)
-
-        blockEntities = arrayOf()
-
-        val blockEntityCount = buf.readVarInt()
-        for (i in 0 until blockEntityCount) {
-            blockEntities += buf.readNbt() as CompoundTag
-        }
-
-        chunk = ChunkUtil.readChunkColumn(full, bitMask, StreamNetInput(data.inputStream()), target)
-        chunk.position = ChunkPosition(chunkX, chunkZ)
+        location = buf.readPosition()
+        command = buf.readString(32767)
+        mode = CommandBlockMode.values()[buf.readVarInt()]
+        flags = buf.readUnsignedByte()
     }
 
     override fun write(out: NetOutput, target: ProtocolVersion) {
-        TODO("Implement write")
+        out.writePosition(location)
+        out.writeString(command)
+        out.writeVarInt(mode.ordinal)
+        out.writeByte(flags)
     }
+
 }

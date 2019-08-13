@@ -493,8 +493,27 @@ class ProtocolSession @JvmOverloads constructor(
                 client[0x18] = ClientCraftRecipeRequestPacket::class.java
                 client[0x19] = ClientPlayerAbilitiesPacket::class.java
                 client[0x1A] = ClientPlayerDiggingPacket::class.java
+                client[0x1B] = ClientEntityActionPacket::class.java
+                client[0x1C] = ClientSteerVehiclePacket::class.java
+                client[0x1D] = ClientRecipeBookDataPacket::class.java
+                client[0x1E] = ClientNameItemPacket::class.java
+                client[0x1F] = ClientResourcePackStatusPacket::class.java
+                client[0x20] = ClientAdvancementTabPacket::class.java
+                client[0x21] = ClientSelectTradePacket::class.java
+                client[0x22] = ClientSetBeaconEffectPacket::class.java
+                client[0x23] = ClientHeldItemChangePacket::class.java
+                client[0x24] = ClientUpdateCommandBlockPacket::class.java
+                client[0x25] = ClientUpdateCommandMinecartPacket::class.java
+                client[0x26] = ClientCreativeInventoryActionPacket::class.java
+                client[0x27] = ClientUpdateJigsawBlockPacket::class.java
+                client[0x28] = ClientUpdateStructureBlockPacket::class.java
+                client[0x29] = ClientUpdateSignPacket::class.java
+                client[0x2A] = ClientAnimationPacket::class.java
+                client[0x2B] = ClientSpectatePacket::class.java
+                client[0x2C] = ClientPlayerBlockPlacementPacket::class.java
+                client[0x2D] = ClientUseItemPacket::class.java
 
-                client[0x14] = ClientPlayerPacket::class.java
+
 
                 server.putAll(incomingVersion.version.serverPlay)
                 client.putAll(outgoingVersion.version.clientPlay)

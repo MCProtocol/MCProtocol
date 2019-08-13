@@ -8,50 +8,46 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package dev.cubxity.mc.protocol.packets.game.server.world
+package dev.cubxity.mc.protocol.packets.game.client
 
-import com.github.steveice10.opennbt.tag.builtin.CompoundTag
+
 import dev.cubxity.mc.protocol.ProtocolVersion
-import dev.cubxity.mc.protocol.data.obj.chunks.Chunk
-import dev.cubxity.mc.protocol.data.obj.chunks.ChunkPosition
-import dev.cubxity.mc.protocol.data.obj.chunks.util.ChunkUtil
+import dev.cubxity.mc.protocol.data.magic.BlockFace
+import dev.cubxity.mc.protocol.data.magic.EnumHand
+import dev.cubxity.mc.protocol.entities.SimplePosition
 import dev.cubxity.mc.protocol.net.io.NetInput
 import dev.cubxity.mc.protocol.net.io.NetOutput
-import dev.cubxity.mc.protocol.net.io.impl.stream.StreamNetInput
 import dev.cubxity.mc.protocol.packets.Packet
 
-class ServerChunkDataPacket(
-    var chunkX: Int,
-    var chunkZ: Int,
-    var full: Boolean,
-    var bitMask: Int,
-    var heightMaps: CompoundTag,
-    var chunk: Chunk,
-    var blockEntities: Array<CompoundTag>
+class ClientPlayerBlockPlacementPacket(
+    var location: SimplePosition,
+    var face: BlockFace,
+    var hand: EnumHand,
+    var cursorPositionX: Float,
+    var cursorPositionY: Float,
+    var cursorPositionZ: Float
 ) : Packet() {
 
     override fun read(buf: NetInput, target: ProtocolVersion) {
-        chunkX = buf.readInt()
-        chunkZ = buf.readInt()
-        full = buf.readBoolean()
-        bitMask = buf.readVarInt()
-        heightMaps = buf.readNbt() as CompoundTag
+        location = buf.readPosition()
 
-        val dataSize = buf.readVarInt()
-        val data = buf.readBytes(dataSize)
+        face = BlockFace.values()[buf.readVarInt()]
+        hand = EnumHand.values()[buf.readVarInt()]
 
-        blockEntities = arrayOf()
-
-        val blockEntityCount = buf.readVarInt()
-        for (i in 0 until blockEntityCount) {
-            blockEntities += buf.readNbt() as CompoundTag
-        }
-
-        chunk = ChunkUtil.readChunkColumn(full, bitMask, StreamNetInput(data.inputStream()), target)
-        chunk.position = ChunkPosition(chunkX, chunkZ)
+        cursorPositionX = buf.readFloat()
+        cursorPositionY = buf.readFloat()
+        cursorPositionZ = buf.readFloat()
     }
 
     override fun write(out: NetOutput, target: ProtocolVersion) {
-        TODO("Implement write")
+        out.writePosition(location)
+
+        out.writeVarInt(face.ordinal)
+        out.writeVarInt(hand.ordinal)
+
+        out.writeFloat(cursorPositionX)
+        out.writeFloat(cursorPositionY)
+        out.writeFloat(cursorPositionZ)
     }
+
 }

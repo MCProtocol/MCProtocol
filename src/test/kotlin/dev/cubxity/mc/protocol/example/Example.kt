@@ -13,16 +13,18 @@ package dev.cubxity.mc.protocol.example
 import com.google.gson.GsonBuilder
 import dev.cubxity.mc.protocol.ProtocolSession
 import dev.cubxity.mc.protocol.data.magic.ClientStatus
+import dev.cubxity.mc.protocol.data.magic.EntityAction
 import dev.cubxity.mc.protocol.data.magic.GameState
 import dev.cubxity.mc.protocol.dsl.buildProtocol
 import dev.cubxity.mc.protocol.dsl.client
 import dev.cubxity.mc.protocol.dsl.server
 import dev.cubxity.mc.protocol.events.PacketReceivedEvent
-import dev.cubxity.mc.protocol.packets.RawPacket
+import dev.cubxity.mc.protocol.packets.game.client.ClientEntityActionPacket
 import dev.cubxity.mc.protocol.packets.game.client.ClientStatusPacket
 import dev.cubxity.mc.protocol.packets.game.server.ServerChangeGameStatePacket
 import dev.cubxity.mc.protocol.packets.game.server.ServerChatPacket
-import dev.cubxity.mc.protocol.packets.game.server.ServerTradeListPacket
+import dev.cubxity.mc.protocol.packets.game.server.ServerDeclareRecipesPacket
+import dev.cubxity.mc.protocol.packets.game.server.ServerJoinGamePacket
 import dev.cubxity.mc.protocol.packets.game.server.entity.player.ServerUpdateHealthPacket
 import dev.cubxity.mc.protocol.packets.game.server.entity.spawn.ServerSpawnPlayerPacket
 import dev.cubxity.mc.protocol.packets.login.server.LoginSuccessPacket
@@ -42,11 +44,14 @@ fun client() {
         println("Unknown packets are: ${unknownPackets.joinToString()}")
     })
 
+    var sneaking = false
+    var entityId = -1
+
     client("localhost")
         .sessionFactory { con, ch ->
             buildProtocol(ProtocolSession.Side.CLIENT, con, ch) {
                 applyDefaults()
-//                wiretap()
+                wiretap { it is ServerDeclareRecipesPacket }
 //                login(System.getProperty("username"), System.getProperty("password"))
                 offline("TestUser")
 
@@ -63,18 +68,6 @@ fun client() {
                                 unknownPackets += id
                             }
                         }*/
-                        if (it.packet is RawPacket) {
-                            logger.debug(
-                                "[$side - RECEIVED]: RawPacket id: ${String.format(
-                                    "0x%02X",
-                                    (it.packet as RawPacket).id
-                                )}"
-                            )
-                        }
-
-                        if (it.packet is ServerTradeListPacket) {
-                            logger.debug("[$side - RECEIVED]: ${it.packet}")
-                        }
 //                        logger.debug("[$side - RECEIVED]: ${if (it.packet is RawPacket) "RawPacket: id: 0x${(it.packet as RawPacket).id.toString(16)}" else "${it.packet}"}")
                         //println("Packet data: ${gson.toJson(if (it.packet is RawPacket || it.packet is ServerChunkDataPacket) return@subscribe else it.packet)}")
                     }
@@ -92,6 +85,15 @@ fun client() {
                     .subscribe {
                         println("Chat: ${it.message.toText()}")
 
+                        ch.writeAndFlush(
+                            ClientEntityActionPacket(
+                                entityId,
+                                if (sneaking) EntityAction.START_SNEAKING else EntityAction.STOP_SNEAKING,
+                                0
+                            )
+                        )
+                        sneaking = !sneaking
+
 //                        ch.writeAndFlush(ClientUseEntityPacket(3856, InteractionType.INTERACT, hand = EnumHand.MAIN_HAND))
 //                        println(tracker.world.getBlockIdAt(-32, 80, 3))
 //                        tracker.world.dumpChunk(-2, 1)
@@ -107,6 +109,12 @@ fun client() {
                             println("Player is dead, respawning.")
                             ch.writeAndFlush(ClientStatusPacket(ClientStatus.PERFORM_RESPAWN))
                         }
+                    }
+                on<PacketReceivedEvent>()
+                    .filter { it.packet is ServerJoinGamePacket }
+                    .map { it.packet as ServerJoinGamePacket }
+                    .subscribe {
+                        entityId = it.entityId
                     }
             }
         }
