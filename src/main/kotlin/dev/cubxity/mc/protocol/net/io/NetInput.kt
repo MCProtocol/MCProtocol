@@ -122,8 +122,8 @@ abstract class NetInput {
                         Particle(particleId, readParticleData(particleId))
                     }
                     MetadataType.VILLAGER_DATA -> VillagerData(readVarInt(), readVarInt(), readVarInt())
-                    MetadataType.OPT_VAR_INT -> if (readBoolean()) readVarInt() else null
-                    MetadataType.POSE -> MagicRegistry.lookupKey<Pose>(target, readVarInt())
+                    MetadataType.OPT_VAR_INT -> readOptional { readVarInt() }
+                    MetadataType.POSE -> Pose.values()[readVarInt()]
                 }
 
                 items += EntityMetadata(id, type, value)

@@ -17,14 +17,13 @@ import dev.cubxity.mc.protocol.ProtocolVersion
 import dev.cubxity.mc.protocol.data.magic.Direction
 import dev.cubxity.mc.protocol.data.magic.MagicRegistry
 import dev.cubxity.mc.protocol.data.magic.MetadataType
+import dev.cubxity.mc.protocol.data.magic.Pose
 import dev.cubxity.mc.protocol.data.obj.EntityMetadata
 import dev.cubxity.mc.protocol.data.obj.Rotation
 import dev.cubxity.mc.protocol.data.obj.Slot
+import dev.cubxity.mc.protocol.data.obj.VillagerData
 import dev.cubxity.mc.protocol.data.obj.chunks.BlockState
-import dev.cubxity.mc.protocol.data.obj.particle.AbstractParticleData
-import dev.cubxity.mc.protocol.data.obj.particle.BlockParticleData
-import dev.cubxity.mc.protocol.data.obj.particle.DustParticleData
-import dev.cubxity.mc.protocol.data.obj.particle.ItemParticleData
+import dev.cubxity.mc.protocol.data.obj.particle.*
 import dev.cubxity.mc.protocol.entities.Message
 import dev.cubxity.mc.protocol.entities.SimplePosition
 import dev.cubxity.mc.protocol.net.io.stream.NetOutputStream
@@ -103,12 +102,35 @@ abstract class NetOutput {
                 MetadataType.OPT_UUID -> writeUUID(item.value as UUID)
                 MetadataType.OPT_BLOCK_ID -> writeVarInt(item.value as Int)
                 MetadataType.NBT -> NBTIO.writeTag(NetOutputStream(this), item.value as CompoundTag)
-                // TODO: Add particle & slot data
-                else -> throw NullPointerException("No value to write: ${item.id}")
+                MetadataType.SLOT -> writeSlot(item.value as Slot)
+                MetadataType.PARTICLE -> {
+                    val id = (item.value as Particle).id
+
+                    writeVarInt(id)
+                    writeParticleData(id, item.value.particleData)
+                }
+                MetadataType.VILLAGER_DATA -> {
+                    val villagerData = item.value as VillagerData
+
+                    writeVarInt(villagerData.type)
+                    writeVarInt(villagerData.profession)
+                    writeVarInt(villagerData.level)
+                }
+                MetadataType.OPT_VAR_INT -> writeOptional((item.value as Int?)) { writeVarInt(it) }
+                MetadataType.POSE -> writeVarInt((item.value as Pose).ordinal)
             }
         }
 
         writeByte(255)
+    }
+
+    fun <T> writeOptional(v: T?, function: (T) -> Unit) {
+        if (v != null) {
+            writeBoolean(true)
+            function(v)
+        } else {
+            writeBoolean(false)
+        }
     }
 
     fun writeMessage(m: Message) = writeString(m.toJson())
