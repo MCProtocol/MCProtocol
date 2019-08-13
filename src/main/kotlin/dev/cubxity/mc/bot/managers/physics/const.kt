@@ -8,22 +8,17 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package dev.cubxity.mc.protocol.utils
+package dev.cubxity.mc.bot.managers.physics
 
-import kotlin.math.PI
-
-object ConversionUtil {
-
-    private const val toRad = PI / 180
-    private const val toDeg = 1 / toRad
-
-    fun toNotchianYaw(yaw: Float): Float = toDegrees(PI - yaw).toFloat()
-    fun toNotchianPitch(pitch: Float): Float = toDegrees((-pitch).toDouble()).toFloat()
-
-    fun fromNotchianYaw (yaw: Float) = MathUtil.euclideanMod(PI - toRadians(yaw), PI * 2).toFloat()
-    fun fromNotchianPitch (pitch: Float) = (MathUtil.euclideanMod(toRadians(-pitch) + PI, PI * 2) - PI).toFloat()
-
-    private fun toRadians(degrees: Float) = toRad * degrees
-    private fun toDegrees(radians: Double) = toDeg * radians
-
-}
+const val walkingAcceleration = 100.0
+const val sprintSpeed = 1.3
+const val epsilon = 0.000001
+const val groundFriction = 0.9
+const val maxGroundSpeed = 4.317
+const val maxPhysicsDeltaSeconds = 0.2
+const val waitTimeBeforeNewJump = 0.07
+const val jumpSpeed = 9.0
+const val gravity = 27.0
+const val terminalVelocity = 20.0
+const val playerApothem = 0.32
+const val playerHeight = 1.74

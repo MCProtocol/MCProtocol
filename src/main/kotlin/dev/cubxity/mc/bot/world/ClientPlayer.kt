@@ -11,6 +11,7 @@
 package dev.cubxity.mc.bot.world
 
 import dev.cubxity.mc.bot.Bot
+import dev.cubxity.mc.bot.managers.physics.PhysicsManager
 import dev.cubxity.mc.protocol.data.magic.MobType
 import dev.cubxity.mc.protocol.data.magic.PositionElement
 import dev.cubxity.mc.protocol.entities.SimplePosition
@@ -20,6 +21,7 @@ import dev.cubxity.mc.protocol.packets.game.client.ClientTeleportConfirmPacket
 import dev.cubxity.mc.protocol.packets.game.client.player.ClientPlayerPositionLookPacket
 import dev.cubxity.mc.protocol.packets.game.server.entity.player.ServerPlayerPositionLookPacket
 import dev.cubxity.mc.protocol.utils.ConversionUtil
+import dev.cubxity.mc.protocol.utils.Vec3d
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -30,11 +32,7 @@ class ClientPlayer(private val bot: Bot) {
 
     val session = bot.session
 
-    var position = SimplePosition(0.0, 0.0, 0.0)
-    var pitch = 0.0f
-    var yaw = 0.0f
-    var onGround = true
-    var height = 1.74
+    val physicsManager = PhysicsManager(bot)
 
     init {
         with(bot.session) {
@@ -42,12 +40,15 @@ class ClientPlayer(private val bot: Bot) {
                 .filter { it.packet is ServerPlayerPositionLookPacket }
                 .map { it.packet as ServerPlayerPositionLookPacket }
                 .subscribe {
-                    position.x = if (PositionElement.X in it.relative) position.x + it.x else it.x
-                    position.y = if (PositionElement.Y in it.relative) position.y + it.y else it.y
-                    position.z = if (PositionElement.Z in it.relative) position.z + it.z else it.z
+                    physicsManager.position.x = if (PositionElement.X in it.relative) physicsManager.position.x + it.x else it.x
+                    physicsManager.position.y = if (PositionElement.Y in it.relative) physicsManager.position.y + it.y else it.y
+                    physicsManager.position.z = if (PositionElement.Z in it.relative) physicsManager.position.z + it.z else it.z
 
-                    yaw = if (PositionElement.X_ROT in it.relative) pitch + it.pitch else it.pitch
-                    pitch = if (PositionElement.Y_ROT in it.relative) pitch + it.pitch else it.pitch
+                    val packetYaw = ConversionUtil.fromNotchianYaw(it.yaw)
+                    val packetPitch = ConversionUtil.fromNotchianPitch(it.pitch)
+
+                    physicsManager.yaw = if (PositionElement.X_ROT in it.relative) physicsManager.yaw + packetYaw else packetYaw
+                    physicsManager.pitch = if (PositionElement.Y_ROT in it.relative) physicsManager.pitch + packetPitch else packetPitch
 
                     send(ClientTeleportConfirmPacket(it.teleportId))
                 }
@@ -55,25 +56,4 @@ class ClientPlayer(private val bot: Bot) {
     }
 
     fun chat(text: String) = session.send(ClientChatMessagePacket(text))
-
-    fun lookAt(pos: SimplePosition) {
-        val dx = pos.x - position.x
-        val dy = pos.y - position.y
-        val dz = pos.z - position.z
-
-        val yaw = atan2(-dx, -dz).toFloat()
-        val groundDistance = sqrt(dx * dx + dz * dz)
-        val pitch = atan2(dy, groundDistance).toFloat()
-
-        session.send(
-            ClientPlayerPositionLookPacket(
-                position.x,
-                position.y,
-                position.z,
-                ConversionUtil.toNotchianYaw(yaw),
-                ConversionUtil.toNotchianPitch(pitch),
-                onGround
-            )
-        )
-    }
 }

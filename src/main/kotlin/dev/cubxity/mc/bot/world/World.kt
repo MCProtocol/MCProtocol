@@ -10,11 +10,11 @@
 
 package dev.cubxity.mc.bot.world
 
+import com.google.gson.GsonBuilder
+import dev.cubxity.mc.bot.Bot
 import dev.cubxity.mc.bot.entity.WorldEntity
 import dev.cubxity.mc.bot.entity.impl.WorldPlayerEntity
-import dev.cubxity.mc.protocol.ProtocolSession
 import dev.cubxity.mc.protocol.data.magic.Difficulity
-import dev.cubxity.mc.protocol.data.magic.MobType
 import dev.cubxity.mc.protocol.data.obj.chunks.BlockState
 import dev.cubxity.mc.protocol.data.obj.chunks.Chunk
 import dev.cubxity.mc.protocol.data.obj.chunks.ChunkPosition
@@ -27,12 +27,9 @@ import dev.cubxity.mc.protocol.packets.game.server.entity.spawn.ServerSpawnMobPa
 import dev.cubxity.mc.protocol.packets.game.server.entity.spawn.ServerSpawnPlayerPacket
 import dev.cubxity.mc.protocol.packets.game.server.world.ServerChunkDataPacket
 import dev.cubxity.mc.protocol.packets.game.server.world.ServerTimeUpdatePacket
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlin.math.floor
 
-class World(session: ProtocolSession) {
+class World(bot: Bot) {
 
     private val chunks = hashMapOf<ChunkPosition, Chunk>()
 
@@ -45,13 +42,19 @@ class World(session: ProtocolSession) {
     var difficultyLocked = false
 
     init {
-        with(session) {
+        with(bot.session) {
             on<PacketReceivedEvent>()
                 .filter { it.packet is ServerChunkDataPacket }
                 .map { it.packet as ServerChunkDataPacket }
                 .subscribe {
                     val pos = ChunkPosition(it.chunkX, it.chunkZ)
                     chunks[pos] = it.chunk
+
+                    val chunkX = floor(bot.player.physicsManager.position.x / 16.0).toInt()
+                    val chunkZ = floor(bot.player.physicsManager.position.z / 16.0).toInt()
+
+                    if (it.chunkX == chunkX && it.chunkZ == chunkZ)
+                        println(GsonBuilder().setPrettyPrinting().create().toJson(it.chunk))
                 }
 
             on<PacketReceivedEvent>()
@@ -168,6 +171,12 @@ class World(session: ProtocolSession) {
                     it.entities.forEach { i -> entities.remove(i) }
                 }
         }
+    }
+
+    fun isChunkLoaded(position: BlockPosition): Boolean {
+        val chunkX = floor(position.x / 16.0).toInt()
+        val chunkZ = floor(position.z / 16.0).toInt()
+        return chunks[ChunkPosition(chunkX, chunkZ)] != null
     }
 
     fun getBlockAt(position: BlockPosition): BlockState? {

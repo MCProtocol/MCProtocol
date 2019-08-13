@@ -10,20 +10,49 @@
 
 package dev.cubxity.mc.protocol.utils
 
-import kotlin.math.PI
+import kotlin.math.ceil
+import kotlin.math.floor
 
-object ConversionUtil {
+class Vec3d(var x: Double, var y: Double, var z: Double) {
 
-    private const val toRad = PI / 180
-    private const val toDeg = 1 / toRad
+    fun add(other: Vec3d): Vec3d {
+        x += other.x
+        y += other.y
+        z += other.z
 
-    fun toNotchianYaw(yaw: Float): Float = toDegrees(PI - yaw).toFloat()
-    fun toNotchianPitch(pitch: Float): Float = toDegrees((-pitch).toDouble()).toFloat()
+        return this
+    }
 
-    fun fromNotchianYaw (yaw: Float) = MathUtil.euclideanMod(PI - toRadians(yaw), PI * 2).toFloat()
-    fun fromNotchianPitch (pitch: Float) = (MathUtil.euclideanMod(toRadians(-pitch) + PI, PI * 2) - PI).toFloat()
+    fun scaled(scale: Double): Vec3d {
+        x *= scale
+        y *= scale
+        z *= scale
 
-    private fun toRadians(degrees: Float) = toRad * degrees
-    private fun toDegrees(radians: Double) = toDeg * radians
+        return this
+    }
+
+    fun floor(): Vec3d {
+        x = floor(x)
+        y = floor(y)
+        z = floor(z)
+
+        return this
+    }
+
+    fun ceil(): Vec3d {
+        x = ceil(x)
+        y = ceil(y)
+        z = ceil(z)
+
+        return this
+    }
+
+    override fun toString(): String {
+        return "Vec3d{" +
+                "x=" + x +
+                ", y=" + y +
+                ", z=" + z +
+                '}'.toString()
+    }
 
 }

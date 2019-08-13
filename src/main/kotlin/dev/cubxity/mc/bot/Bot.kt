@@ -19,7 +19,7 @@ import dev.cubxity.mc.bot.world.World
 
 class Bot(val session: ProtocolSession) {
 
-    var world = World(session)
+    var world = World(this)
     var player = ClientPlayer(this)
 
     init {

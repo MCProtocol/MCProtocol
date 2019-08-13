@@ -10,20 +10,7 @@
 
 package dev.cubxity.mc.protocol.utils
 
-import kotlin.math.PI
-
-object ConversionUtil {
-
-    private const val toRad = PI / 180
-    private const val toDeg = 1 / toRad
-
-    fun toNotchianYaw(yaw: Float): Float = toDegrees(PI - yaw).toFloat()
-    fun toNotchianPitch(pitch: Float): Float = toDegrees((-pitch).toDouble()).toFloat()
-
-    fun fromNotchianYaw (yaw: Float) = MathUtil.euclideanMod(PI - toRadians(yaw), PI * 2).toFloat()
-    fun fromNotchianPitch (pitch: Float) = (MathUtil.euclideanMod(toRadians(-pitch) + PI, PI * 2) - PI).toFloat()
-
-    private fun toRadians(degrees: Float) = toRad * degrees
-    private fun toDegrees(radians: Double) = toDeg * radians
-
-}
+data class BoundingBox(
+    var min: Vec3d,
+    var max: Vec3d
+)
