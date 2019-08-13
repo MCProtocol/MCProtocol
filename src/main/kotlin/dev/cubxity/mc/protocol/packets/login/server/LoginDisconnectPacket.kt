@@ -21,13 +21,11 @@ import dev.cubxity.mc.protocol.packets.Packet
  * @since 7/21/2019
  */
 class LoginDisconnectPacket(var chat: Message) : Packet() {
-    //TODO: Serializing into message object
-
     override fun read(buf: NetInput, target: ProtocolVersion) {
-        chat = Message.fromJson(buf.readString())
+        chat = buf.readMessage()
     }
 
     override fun write(out: NetOutput, target: ProtocolVersion) {
-        out.writeString(chat.toJson())
+        out.writeMessage(chat)
     }
 }
