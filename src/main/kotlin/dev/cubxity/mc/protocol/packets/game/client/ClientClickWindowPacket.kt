@@ -12,37 +12,36 @@ package dev.cubxity.mc.protocol.packets.game.client
 
 
 import dev.cubxity.mc.protocol.ProtocolVersion
-import dev.cubxity.mc.protocol.data.magic.ChatMode
-import dev.cubxity.mc.protocol.data.magic.EnumHand
+import dev.cubxity.mc.protocol.data.obj.Slot
 import dev.cubxity.mc.protocol.net.io.NetInput
 import dev.cubxity.mc.protocol.net.io.NetOutput
 import dev.cubxity.mc.protocol.packets.Packet
 
-class ClientClientSettingsPacket(
-    var locale: String,
-    var viewDistance: Int,
-    var chateMode: ChatMode,
-    var chatColors: Boolean,
-    var displayedSkinParts: Int,
-    var mainHand: EnumHand
+class ClientClickWindowPacket(
+    var windowId: Int,
+    var slot: Int,
+    var button: Int,
+    var actionNumber: Int,
+    var mode: Int,
+    var clickedItem: Slot
 ) : Packet() {
 
     override fun read(buf: NetInput, target: ProtocolVersion) {
-        locale = buf.readString(16)
-        viewDistance = buf.readUnsignedByte()
-        chateMode = ChatMode.values()[buf.readVarInt()]
-        chatColors = buf.readBoolean()
-        displayedSkinParts = buf.readUnsignedByte()
-        mainHand = EnumHand.values()[buf.readVarInt()]
+        windowId = buf.readUnsignedByte()
+        slot = buf.readShort().toInt()
+        button = buf.readByte().toInt()
+        actionNumber = buf.readShort().toInt()
+        mode = buf.readVarInt()
+        clickedItem = buf.readSlot()
     }
 
     override fun write(out: NetOutput, target: ProtocolVersion) {
-        out.writeString(locale)
-        out.writeByte(viewDistance)
-        out.writeVarInt(chateMode.ordinal)
-        out.writeBoolean(chatColors)
-        out.writeByte(displayedSkinParts)
-        out.writeVarInt(mainHand.ordinal)
+        out.writeByte(windowId)
+        out.writeShort(slot.toShort())
+        out.writeByte(button)
+        out.writeShort(actionNumber.toShort())
+        out.writeVarInt(mode)
+        out.writeSlot(clickedItem)
     }
 
 }

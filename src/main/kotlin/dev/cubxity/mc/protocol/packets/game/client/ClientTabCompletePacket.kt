@@ -12,37 +12,23 @@ package dev.cubxity.mc.protocol.packets.game.client
 
 
 import dev.cubxity.mc.protocol.ProtocolVersion
-import dev.cubxity.mc.protocol.data.magic.ChatMode
-import dev.cubxity.mc.protocol.data.magic.EnumHand
 import dev.cubxity.mc.protocol.net.io.NetInput
 import dev.cubxity.mc.protocol.net.io.NetOutput
 import dev.cubxity.mc.protocol.packets.Packet
 
-class ClientClientSettingsPacket(
-    var locale: String,
-    var viewDistance: Int,
-    var chateMode: ChatMode,
-    var chatColors: Boolean,
-    var displayedSkinParts: Int,
-    var mainHand: EnumHand
+class ClientTabCompletePacket(
+    var transactionId: Int,
+    var text: String
 ) : Packet() {
 
     override fun read(buf: NetInput, target: ProtocolVersion) {
-        locale = buf.readString(16)
-        viewDistance = buf.readUnsignedByte()
-        chateMode = ChatMode.values()[buf.readVarInt()]
-        chatColors = buf.readBoolean()
-        displayedSkinParts = buf.readUnsignedByte()
-        mainHand = EnumHand.values()[buf.readVarInt()]
+        transactionId = buf.readVarInt()
+        text = buf.readString(32500)
     }
 
     override fun write(out: NetOutput, target: ProtocolVersion) {
-        out.writeString(locale)
-        out.writeByte(viewDistance)
-        out.writeVarInt(chateMode.ordinal)
-        out.writeBoolean(chatColors)
-        out.writeByte(displayedSkinParts)
-        out.writeVarInt(mainHand.ordinal)
+        out.writeVarInt(transactionId)
+        out.writeString(text)
     }
 
 }

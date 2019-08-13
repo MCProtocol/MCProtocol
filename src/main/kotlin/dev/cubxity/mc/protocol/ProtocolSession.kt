@@ -473,6 +473,12 @@ class ProtocolSession @JvmOverloads constructor(
                 client[0x02] = ClientSetDifficultyPacket::class.java
                 client[0x03] = ClientChatMessagePacket::class.java
                 client[0x04] = ClientStatusPacket::class.java
+                client[0x05] = ClientClientSettingsPacket::class.java
+                client[0x06] = ClientTabCompletePacket::class.java
+                client[0x07] = ClientConfirmTransactionPacket::class.java
+                client[0x08] = ServerClickWindowButtonPacket::class.java
+                client[0x08] = ServerClickWindowButtonPacket::class.java
+                client[0x09] = ClientClickWindowPacket::class.java
 
                 client[0x0E] = ClientUseEntityPacket::class.java
                 client[0x0F] = ClientKeepAlivePacket::class.java
