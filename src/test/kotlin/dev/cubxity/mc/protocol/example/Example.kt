@@ -22,7 +22,7 @@ import dev.cubxity.mc.protocol.packets.RawPacket
 import dev.cubxity.mc.protocol.packets.game.client.ClientStatusPacket
 import dev.cubxity.mc.protocol.packets.game.server.ServerChangeGameStatePacket
 import dev.cubxity.mc.protocol.packets.game.server.ServerChatPacket
-import dev.cubxity.mc.protocol.packets.game.server.ServerTeamsPacket
+import dev.cubxity.mc.protocol.packets.game.server.ServerTradeListPacket
 import dev.cubxity.mc.protocol.packets.game.server.entity.player.ServerUpdateHealthPacket
 import dev.cubxity.mc.protocol.packets.game.server.entity.spawn.ServerSpawnPlayerPacket
 import dev.cubxity.mc.protocol.packets.login.server.LoginSuccessPacket
@@ -72,7 +72,7 @@ fun client() {
                             )
                         }
 
-                        if (it.packet is ServerTeamsPacket) {
+                        if (it.packet is ServerTradeListPacket) {
                             logger.debug("[$side - RECEIVED]: ${it.packet}")
                         }
 //                        logger.debug("[$side - RECEIVED]: ${if (it.packet is RawPacket) "RawPacket: id: 0x${(it.packet as RawPacket).id.toString(16)}" else "${it.packet}"}")
@@ -92,6 +92,7 @@ fun client() {
                     .subscribe {
                         println("Chat: ${it.message.toText()}")
 
+//                        ch.writeAndFlush(ClientUseEntityPacket(3856, InteractionType.INTERACT, hand = EnumHand.MAIN_HAND))
 //                        println(tracker.world.getBlockIdAt(-32, 80, 3))
 //                        tracker.world.dumpChunk(-2, 1)
                     }

@@ -25,10 +25,7 @@ import dev.cubxity.mc.protocol.events.*
 import dev.cubxity.mc.protocol.net.PacketEncryption
 import dev.cubxity.mc.protocol.packets.Packet
 import dev.cubxity.mc.protocol.packets.RawPacket
-import dev.cubxity.mc.protocol.packets.game.client.ClientChatMessagePacket
-import dev.cubxity.mc.protocol.packets.game.client.ClientKeepAlivePacket
-import dev.cubxity.mc.protocol.packets.game.client.ClientStatusPacket
-import dev.cubxity.mc.protocol.packets.game.client.ClientTeleportConfirmPacket
+import dev.cubxity.mc.protocol.packets.game.client.*
 import dev.cubxity.mc.protocol.packets.game.client.player.ClientPlayerDiggingPacket
 import dev.cubxity.mc.protocol.packets.game.client.player.ClientPlayerPacket
 import dev.cubxity.mc.protocol.packets.game.client.player.ClientPlayerPositionLookPacket
@@ -417,7 +414,7 @@ class ProtocolSession @JvmOverloads constructor(
                 server[0x24] = ServerUpdateLightPacket::class.java
                 server[0x25] = ServerJoinGamePacket::class.java
                 server[0x26] = ServerMapDataPacket::class.java
-                // TODO Implement 0x27: Trade List
+                server[0x27] = ServerTradeListPacket::class.java
                 server[0x28] = ServerEntityRelativeMovePacket::class.java
                 server[0x29] = ServerEntityLookAndRelativeMovePacket::class.java
                 server[0x2A] = ServerEntityLookPacket::class.java
@@ -475,6 +472,7 @@ class ProtocolSession @JvmOverloads constructor(
                 client[0x03] = ClientChatMessagePacket::class.java
                 client[0x04] = ClientStatusPacket::class.java
 
+                client[0x0E] = ClientUseEntityPacket::class.java
                 client[0x0F] = ClientKeepAlivePacket::class.java
                 client[0x12] = ClientPlayerPositionLookPacket::class.java
                 client[0x1A] = ClientPlayerDiggingPacket::class.java

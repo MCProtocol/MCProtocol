@@ -148,8 +148,8 @@ abstract class NetInput {
         }
     }
 
-    fun <T> readVarArray(reader: () -> T): ArrayList<T> {
-        val recipeIdSize = readVarInt()
+    fun <T> readVarArray(lengthReader: () -> Int = { readVarInt() }, reader: () -> T): ArrayList<T> {
+        val recipeIdSize = lengthReader()
         val shit: ArrayList<T> = ArrayList(recipeIdSize)
 
         for (index in 0 until recipeIdSize) {

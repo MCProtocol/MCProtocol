@@ -8,28 +8,8 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package dev.cubxity.mc.protocol.state.entity
+package dev.cubxity.mc.protocol.data.magic
 
-import dev.cubxity.mc.protocol.data.obj.EntityMetadata
-import dev.cubxity.mc.protocol.packets.game.server.entity.ServerEntityPropertiesPacket
-import java.util.*
-
-open class WorldEntity(
-    val type: Int,
-    var id: Int,
-    var x: Double,
-    var y: Double,
-    var z: Double,
-    var onGround: Boolean,
-    var pitch: Float,
-    var yaw: Float,
-    var headYaw: Float,
-    var properties: Array<ServerEntityPropertiesPacket.Property> = arrayOf(),
-    var metadata: Array<EntityMetadata> = arrayOf()
-) {
-    override fun toString(): String {
-        return "WorldEntity(type=$type, id=$id, x=$x, y=$y, z=$z, onGround=$onGround, pitch=$pitch, yaw=$yaw, headYaw=$headYaw, properties=${Arrays.toString(
-            properties
-        )}, metadata=${Arrays.toString(metadata)})"
-    }
+enum class InteractionType {
+    INTERACT, ATTACK, INTERACT_AT
 }
