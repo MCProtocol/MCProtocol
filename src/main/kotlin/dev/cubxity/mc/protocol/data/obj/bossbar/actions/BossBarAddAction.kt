@@ -10,13 +10,13 @@
 
 package dev.cubxity.mc.protocol.data.obj.bossbar.actions
 
-import dev.cubxity.mc.protocol.data.obj.ChatComponent
 import dev.cubxity.mc.protocol.data.obj.bossbar.BossBarColor
 import dev.cubxity.mc.protocol.data.obj.bossbar.BossBarDivision
+import dev.cubxity.mc.protocol.entities.Message
 import dev.cubxity.mc.protocol.packets.annotations.UnsignedByte
 
 class BossBarAddAction(
-    val title: ChatComponent,
+    val title: Message,
     val health: Float // From 0 to 1. Values greater than 1 do not crash a Notchian client, and start rendering part of a second health bar at around 1.5.
     ,
     val color: BossBarColor // Color ID (see below)

@@ -11,7 +11,6 @@
 package dev.cubxity.mc.protocol.packets.game.server
 
 import dev.cubxity.mc.protocol.ProtocolVersion
-import dev.cubxity.mc.protocol.data.obj.ChatComponent
 import dev.cubxity.mc.protocol.data.obj.bossbar.BossBarColor
 import dev.cubxity.mc.protocol.data.obj.bossbar.BossBarDivision
 import dev.cubxity.mc.protocol.data.obj.bossbar.actions.*
@@ -36,7 +35,7 @@ class ServerBossBarPacket : Packet {
 
         when (buf.readVarInt()) {
             0 -> action = BossBarAddAction(
-                ChatComponent(buf.readString()),
+                buf.readMessage(),
                 buf.readFloat(),
                 BossBarColor.values()[buf.readVarInt()],
                 BossBarDivision.values()[buf.readVarInt()],
@@ -45,7 +44,7 @@ class ServerBossBarPacket : Packet {
             1 -> action = BossBarRemoveAction()
             2 -> action = BossBarUpdateHealthAction(buf.readFloat())
             3 -> action =
-                BossBarUpdateTitleAction(ChatComponent(buf.readString()))
+                BossBarUpdateTitleAction(buf.readMessage())
             4 -> action = BossBarUpdateStyleAction(
                 BossBarColor.values()[buf.readVarInt()],
                 BossBarDivision.values()[buf.readVarInt()]
@@ -64,7 +63,7 @@ class ServerBossBarPacket : Packet {
 
                 val action = action as BossBarAddAction
 
-                out.writeString(action.title.json)
+                out.writeMessage(action.title)
                 out.writeFloat(action.health)
                 out.writeVarInt(action.color.ordinal)
                 out.writeVarInt(action.division.ordinal)
@@ -79,7 +78,7 @@ class ServerBossBarPacket : Packet {
             is BossBarUpdateTitleAction -> {
                 out.writeVarInt(3)
 
-                out.writeString((action as BossBarUpdateTitleAction).title.json)
+                out.writeMessage((action as BossBarUpdateTitleAction).title)
             }
             is BossBarUpdateStyleAction -> {
                 out.writeVarInt(4)
