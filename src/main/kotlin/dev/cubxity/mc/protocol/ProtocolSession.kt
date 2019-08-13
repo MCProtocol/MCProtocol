@@ -469,6 +469,8 @@ class ProtocolSession @JvmOverloads constructor(
                 server[0x5B] = ServerTagsPacket::class.java
 
                 client[0x00] = ClientTeleportConfirmPacket::class.java
+                client[0x01] = ClientQueryBlockNBTPacket::class.java
+                client[0x02] = ClientSetDifficultyPacket::class.java
                 client[0x03] = ClientChatMessagePacket::class.java
                 client[0x04] = ClientStatusPacket::class.java
 
