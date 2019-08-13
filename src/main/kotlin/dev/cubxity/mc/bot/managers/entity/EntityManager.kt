@@ -8,33 +8,23 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package dev.cubxity.mc.protocol.packets.game.server.world
+package dev.cubxity.mc.bot.managers.entity
 
-import dev.cubxity.mc.protocol.ProtocolVersion
-import dev.cubxity.mc.protocol.entities.SimplePosition
-import dev.cubxity.mc.protocol.net.io.NetInput
-import dev.cubxity.mc.protocol.net.io.NetOutput
-import dev.cubxity.mc.protocol.packets.Packet
+import dev.cubxity.mc.bot.Bot
+import dev.cubxity.mc.protocol.data.magic.Hand
+import dev.cubxity.mc.protocol.packets.game.client.ClientUseEntityPacket
+import dev.cubxity.mc.protocol.packets.game.client.player.ClientAnimationPacket
 
-class ServerBlockChangePacket : Packet {
-    private var location: SimplePosition? = null // Block Coordinates
-    private var blockId: Int =
-        0 // The new block state ID for the block as given in the global palette. See that section for more information.
+class EntityManager(private val bot: Bot) {
 
-    constructor(location: SimplePosition, blockId: Int) {
-        this.location = location
-        this.blockId = blockId
+    fun attack(id: Int, cb: () -> Unit = {}) {
+        bot.world.entities[id]?.let {
+            bot.player.physicsManager.lookAt(it.pos) {
+                bot.session.send(ClientAnimationPacket(Hand.MAIN_HAND))
+                bot.session.send(ClientUseEntityPacket(id, ClientUseEntityPacket.Type.ATTACK))
+                cb()
+            }
+        }
     }
 
-    constructor()
-
-    override fun read(buf: NetInput, target: ProtocolVersion) {
-        location = buf.readPosition()
-        blockId = buf.readVarInt()
-    }
-
-    override fun write(out: NetOutput, target: ProtocolVersion) {
-        out.writePosition(location!!)
-        out.writeVarInt(blockId)
-    }
 }

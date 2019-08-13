@@ -17,8 +17,10 @@ import dev.cubxity.mc.protocol.entities.SimplePosition
 import dev.cubxity.mc.protocol.packets.game.client.player.ClientPlayerPositionLookPacket
 import dev.cubxity.mc.protocol.utils.BoundingBox
 import dev.cubxity.mc.protocol.utils.ConversionUtil
+import dev.cubxity.mc.protocol.utils.MathUtil
 import dev.cubxity.mc.protocol.utils.Vec3d
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.*
@@ -40,8 +42,15 @@ class PhysicsManager(private val bot: Bot) {
     var position = SimplePosition(0.0, 0.0, 0.0)
     var vel = Vec3d(0.0, 0.0, 0.0)
     var onGround = true
+
     var pitch = 0.0f
     var yaw = 0.0f
+
+    private var prevYaw = 0.0f
+    private var targetYaw = 0.0f
+    private var yawChanged = true
+
+    private var lookJob: Job? = null
 
     init {
         GlobalScope.launch {
@@ -138,8 +147,6 @@ class PhysicsManager(private val bot: Bot) {
         val bbmay = boundingBox.max.y.toInt()
         val bbmaz = boundingBox.max.z.toInt()
 
-        println(boundingBox)
-
         if (vel.x != 0.0) {
             position.x += vel.x * deltaSeconds
             val blockX = floor(position.x + sign(vel.x) * playerApothem).toInt()
@@ -190,6 +197,20 @@ class PhysicsManager(private val bot: Bot) {
             timeSinceOnGround = 0.0
         }
 
+        var deltaYaw = MathUtil.euclideanMod((targetYaw - prevYaw).toDouble(), PI * 2)
+        deltaYaw = if (deltaYaw < 0)
+            (if (deltaYaw < -PI) deltaYaw + (PI * 2) else deltaYaw)
+        else (if (deltaYaw > PI) deltaYaw - (PI * 2) else deltaYaw)
+
+        val absDeltaYaw = abs(deltaYaw)
+        val maxDeltaYaw = deltaSeconds * yawSpeed
+        deltaYaw = if (absDeltaYaw > maxDeltaYaw) maxDeltaYaw * sign(deltaYaw) else deltaYaw
+
+        prevYaw = ((prevYaw + deltaYaw) % (PI * 2)).toFloat()
+        yaw = prevYaw
+
+        yawChanged = true
+
         bot.session.send(
             ClientPlayerPositionLookPacket(
                 position.x,
@@ -202,7 +223,9 @@ class PhysicsManager(private val bot: Bot) {
         )
     }
 
-    fun lookAt(position: SimplePosition) {
+    fun lookAt(position: SimplePosition, cb: () -> Unit = {}) {
+        lookJob?.cancel()
+
         val dx = position.x - this.position.x
         val dy = position.y - this.position.y
         val dz = position.z - this.position.z
@@ -211,8 +234,21 @@ class PhysicsManager(private val bot: Bot) {
         val groundDistance = sqrt(dx * dx + dz * dz)
         val pitch = atan2(dy, groundDistance).toFloat()
 
-        this.yaw = yaw
+        this.targetYaw = yaw
         this.pitch = pitch
+
+        yawChanged = false
+
+        lookJob = GlobalScope.launch {
+            while (true) {
+                delay(50)
+                val prev = this@PhysicsManager.prevYaw
+                if (abs((prev - this@PhysicsManager.targetYaw) % (PI * 2)) < 0.001 && yawChanged) {
+                    cb()
+                    return@launch
+                }
+            }
+        }
     }
 
     private fun collisionInRange(first: BlockPosition, second: BlockPosition): Boolean {

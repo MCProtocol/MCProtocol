@@ -10,7 +10,6 @@
 
 package dev.cubxity.mc.bot.world
 
-import com.google.gson.GsonBuilder
 import dev.cubxity.mc.bot.Bot
 import dev.cubxity.mc.bot.entity.WorldEntity
 import dev.cubxity.mc.bot.entity.impl.WorldPlayerEntity
@@ -18,6 +17,7 @@ import dev.cubxity.mc.protocol.data.magic.Difficulity
 import dev.cubxity.mc.protocol.data.obj.chunks.BlockState
 import dev.cubxity.mc.protocol.data.obj.chunks.Chunk
 import dev.cubxity.mc.protocol.data.obj.chunks.ChunkPosition
+import dev.cubxity.mc.protocol.data.obj.chunks.util.BlockUtil
 import dev.cubxity.mc.protocol.entities.BlockPosition
 import dev.cubxity.mc.protocol.entities.SimplePosition
 import dev.cubxity.mc.protocol.events.PacketReceivedEvent
@@ -28,6 +28,8 @@ import dev.cubxity.mc.protocol.packets.game.server.entity.spawn.ServerSpawnMobPa
 import dev.cubxity.mc.protocol.packets.game.server.entity.spawn.ServerSpawnPlayerPacket
 import dev.cubxity.mc.protocol.packets.game.server.world.ServerChunkDataPacket
 import dev.cubxity.mc.protocol.packets.game.server.world.ServerTimeUpdatePacket
+import dev.cubxity.mc.protocol.packets.game.server.world.block.ServerBlockChangePacket
+import dev.cubxity.mc.protocol.packets.game.server.world.block.ServerMultiBlockChangePacket
 import dev.cubxity.mc.protocol.utils.Vec3d
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.floor
@@ -52,18 +54,34 @@ class World(private val bot: Bot) {
                 .subscribe {
                     val pos = ChunkPosition(it.chunkX, it.chunkZ)
                     chunks[pos] = it.chunk
-
-                    val chunkX = floor(bot.player.physicsManager.position.x / 16.0).toInt()
-                    val chunkZ = floor(bot.player.physicsManager.position.z / 16.0).toInt()
-
-                    if (it.chunkX == chunkX && it.chunkZ == chunkZ)
-                        println(GsonBuilder().setPrettyPrinting().create().toJson(it.chunk))
                 }
 
             on<PacketReceivedEvent>()
                 .filter { it.packet is ServerUnloadChunkPacket }
                 .map { it.packet as ServerUnloadChunkPacket }
                 .subscribe { chunks.remove(ChunkPosition(it.chunkX, it.chunkZ)) }
+
+            on<PacketReceivedEvent>()
+                .filter { it.packet is ServerBlockChangePacket }
+                .map { it.packet as ServerBlockChangePacket }
+                .subscribe {
+                    setBlockAt(
+                        it.location.toBlockPosition(),
+                        BlockUtil.getStateFromGlobalPaletteID(it.blockId, bot.session.outgoingVersion)
+                    )
+                }
+
+            on<PacketReceivedEvent>()
+                .filter { it.packet is ServerMultiBlockChangePacket }
+                .map { it.packet as ServerMultiBlockChangePacket }
+                .subscribe {
+                    it.records.forEach { v ->
+                        setBlockAt(
+                            v.position.toBlockPosition(),
+                            BlockUtil.getStateFromGlobalPaletteID(v.blockId, bot.session.outgoingVersion)
+                        )
+                    }
+                }
 
             on<PacketReceivedEvent>()
                 .filter { it.packet is ServerTimeUpdatePacket }
@@ -86,7 +104,15 @@ class World(private val bot: Bot) {
                 .map { it.packet as ServerSpawnPlayerPacket }
                 .subscribe {
                     entities[it.entityId] =
-                        WorldPlayerEntity(it.entityId, SimplePosition(it.x, it.y, it.z), false, 0f, it.pitch, it.yaw, it.playerUuid)
+                        WorldPlayerEntity(
+                            it.entityId,
+                            SimplePosition(it.x, it.y, it.z),
+                            false,
+                            0f,
+                            it.pitch,
+                            it.yaw,
+                            it.playerUuid
+                        )
                 }
 
             on<PacketReceivedEvent>()
@@ -94,8 +120,10 @@ class World(private val bot: Bot) {
                 .map { it.packet as ServerSpawnMobPacket }
                 .subscribe {
                     entities[it.entityId] =
-                        WorldEntity(it.type, it.entityId, SimplePosition(it.x, it.y, it.z), Vec3d(0.0, 0.0, 0.0),
-                            false, 0f, it.pitch, it.yaw)
+                        WorldEntity(
+                            it.type, it.entityId, SimplePosition(it.x, it.y, it.z), Vec3d(0.0, 0.0, 0.0),
+                            false, 0f, it.pitch, it.yaw
+                        )
                 }
 
             on<PacketReceivedEvent>()
@@ -187,6 +215,12 @@ class World(private val bot: Bot) {
         val chunkX = floor(position.x / 16.0).toInt()
         val chunkZ = floor(position.z / 16.0).toInt()
         return chunks[ChunkPosition(chunkX, chunkZ)]?.getState(position.x, position.y, position.z)
+    }
+
+    fun setBlockAt(position: BlockPosition, blockState: BlockState) {
+        val chunkX = floor(position.x / 16.0).toInt()
+        val chunkZ = floor(position.z / 16.0).toInt()
+        chunks[ChunkPosition(chunkX, chunkZ)]?.setState(position.x, position.y, position.z, blockState)
     }
 
     fun findClosestEntity(radius: Int = 1, filter: (WorldEntity) -> Boolean = { true }): WorldEntity? {

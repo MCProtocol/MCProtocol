@@ -23,4 +23,9 @@ class Chunk {
         return sections[chunkY]?.getState(abs(x) % 16, abs(y) % 16, abs(z) % 16)
     }
 
+    fun setState(x: Int, y: Int, z: Int, state: BlockState) {
+        val chunkY = floor(y / 16.0).toInt()
+        sections[chunkY]?.setState(abs(x) % 16, abs(y) % 16, abs(z) % 16, state)
+    }
+
 }

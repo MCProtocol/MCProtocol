@@ -8,11 +8,28 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package dev.cubxity.mc.protocol.entities
+package dev.cubxity.mc.bot.managers.inventory
 
-import dev.cubxity.mc.protocol.utils.Vec3d
+import dev.cubxity.mc.protocol.data.obj.Slot
 
-data class SimplePosition(var x: Double, var y: Double, var z: Double) {
-    fun toVec3() = Vec3d(x, y, z)
-    fun toBlockPosition() = BlockPosition(x.toInt(), y.toInt(), z.toInt())
+class PlayerInventory {
+
+    private val slots = hashMapOf<Int, Slot>()
+
+    init {
+        for (i in 0..45) {
+            slots[i] = Slot(false)
+        }
+    }
+
+    fun set(id: Int, slot: Slot) {
+        slots[id] = slot
+    }
+
+    fun get(id: Int) = slots[id]
+
+    fun getHotbar(id: Int) = slots[36 + id]
+    fun getArmor(id: Int) = slots[5 + id]
+    fun getInventory(id: Int) = slots[9 + id]
+
 }

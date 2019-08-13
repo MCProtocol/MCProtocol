@@ -134,9 +134,9 @@ abstract class NetInput {
 
     fun readSlot(): Slot {
         return if (!readBoolean()) {
-            Slot()
+            Slot(false)
         } else {
-            Slot(readVarInt(), readByte().toInt(), readNbt())
+            Slot(true, readVarInt(), readByte().toInt(), readNbt())
         }
     }
 

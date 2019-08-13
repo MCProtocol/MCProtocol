@@ -11,26 +11,21 @@
 package dev.cubxity.mc.bot.world
 
 import dev.cubxity.mc.bot.Bot
+import dev.cubxity.mc.bot.managers.entity.EntityManager
+import dev.cubxity.mc.bot.managers.inventory.InventoryManager
 import dev.cubxity.mc.bot.managers.physics.PhysicsManager
 import dev.cubxity.mc.bot.managers.player.PlayerManager
 import dev.cubxity.mc.bot.managers.world.WorldManager
 import dev.cubxity.mc.protocol.data.magic.Hand
-import dev.cubxity.mc.protocol.data.magic.MobType
 import dev.cubxity.mc.protocol.data.magic.PositionElement
 import dev.cubxity.mc.protocol.entities.SimplePosition
 import dev.cubxity.mc.protocol.events.PacketReceivedEvent
 import dev.cubxity.mc.protocol.packets.game.client.ClientChatMessagePacket
 import dev.cubxity.mc.protocol.packets.game.client.ClientTeleportConfirmPacket
 import dev.cubxity.mc.protocol.packets.game.client.player.ClientAnimationPacket
-import dev.cubxity.mc.protocol.packets.game.client.player.ClientPlayerPositionLookPacket
+import dev.cubxity.mc.protocol.packets.game.server.ServerChatPacket
 import dev.cubxity.mc.protocol.packets.game.server.entity.player.ServerPlayerPositionLookPacket
 import dev.cubxity.mc.protocol.utils.ConversionUtil
-import dev.cubxity.mc.protocol.utils.Vec3d
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlin.math.atan2
-import kotlin.math.sqrt
 
 class ClientPlayer(private val bot: Bot) {
 
@@ -39,6 +34,8 @@ class ClientPlayer(private val bot: Bot) {
     val physicsManager = PhysicsManager(bot)
     val worldManager = WorldManager(bot)
     val playerManager = PlayerManager(bot)
+    val inventoryManager = InventoryManager(bot)
+    val entityManager = EntityManager(bot)
 
     var spawnPosition = SimplePosition(0.0, 0.0, 0.0)
 
@@ -48,17 +45,29 @@ class ClientPlayer(private val bot: Bot) {
                 .filter { it.packet is ServerPlayerPositionLookPacket }
                 .map { it.packet as ServerPlayerPositionLookPacket }
                 .subscribe {
-                    physicsManager.position.x = if (PositionElement.X in it.relative) physicsManager.position.x + it.x else it.x
-                    physicsManager.position.y = if (PositionElement.Y in it.relative) physicsManager.position.y + it.y else it.y
-                    physicsManager.position.z = if (PositionElement.Z in it.relative) physicsManager.position.z + it.z else it.z
+                    physicsManager.position.x =
+                        if (PositionElement.X in it.relative) physicsManager.position.x + it.x else it.x
+                    physicsManager.position.y =
+                        if (PositionElement.Y in it.relative) physicsManager.position.y + it.y else it.y
+                    physicsManager.position.z =
+                        if (PositionElement.Z in it.relative) physicsManager.position.z + it.z else it.z
 
                     val packetYaw = ConversionUtil.fromNotchianYaw(it.yaw)
                     val packetPitch = ConversionUtil.fromNotchianPitch(it.pitch)
 
-                    physicsManager.yaw = if (PositionElement.X_ROT in it.relative) physicsManager.yaw + packetYaw else packetYaw
-                    physicsManager.pitch = if (PositionElement.Y_ROT in it.relative) physicsManager.pitch + packetPitch else packetPitch
+                    physicsManager.yaw =
+                        if (PositionElement.X_ROT in it.relative) physicsManager.yaw + packetYaw else packetYaw
+                    physicsManager.pitch =
+                        if (PositionElement.Y_ROT in it.relative) physicsManager.pitch + packetPitch else packetPitch
 
                     send(ClientTeleportConfirmPacket(it.teleportId))
+                }
+
+            on<PacketReceivedEvent>()
+                .filter { it.packet is ServerChatPacket }
+                .subscribe {
+//                    println(GsonBuilder().setPrettyPrinting().create().toJson(this@ClientPlayer.inventoryManager.inventory))
+
                 }
         }
     }

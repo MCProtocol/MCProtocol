@@ -12,36 +12,4 @@ package dev.cubxity.mc.protocol.data.obj
 
 import com.github.steveice10.opennbt.tag.builtin.Tag
 
-class Slot {
-    var isPresent: Boolean = false
-        private set
-    var itemId: Int? = null
-    var count: Int? = null
-    var nbt: Tag? = null
-
-    constructor(itemId: Int, count: Int, nbt: Tag) {
-        this.isPresent = true
-        this.itemId = itemId
-        this.count = count
-        this.nbt = nbt
-    }
-
-    constructor() {
-        this.isPresent = false
-    }
-
-    override fun toString(): String {
-        return if (isPresent) {
-            "Slot{" +
-                    "present=" + isPresent +
-                    ", itemId=" + itemId +
-                    ", count=" + count +
-                    ", nbt=" + nbt +
-                    '}'.toString()
-        } else {
-            "Slot{" +
-                    "present=" + isPresent +
-                    '}'.toString()
-        }
-    }
-}
+data class Slot(var isPresent: Boolean, var itemId: Int = 0, var count: Int = 1, var nbt: Tag? = null)

@@ -12,10 +12,7 @@ package dev.cubxity.mc.protocol.packets.versions
 
 import dev.cubxity.mc.protocol.packets.Packet
 import dev.cubxity.mc.protocol.packets.PacketVersion
-import dev.cubxity.mc.protocol.packets.game.client.ClientChatMessagePacket
-import dev.cubxity.mc.protocol.packets.game.client.ClientKeepAlivePacket
-import dev.cubxity.mc.protocol.packets.game.client.ClientStatusPacket
-import dev.cubxity.mc.protocol.packets.game.client.ClientTeleportConfirmPacket
+import dev.cubxity.mc.protocol.packets.game.client.*
 import dev.cubxity.mc.protocol.packets.game.client.player.ClientAnimationPacket
 import dev.cubxity.mc.protocol.packets.game.client.player.ClientPlayerDiggingPacket
 import dev.cubxity.mc.protocol.packets.game.client.player.ClientPlayerPacket
@@ -44,10 +41,12 @@ class PacketVersion_1_14_4 : PacketVersion {
         0x00 to ClientTeleportConfirmPacket::class.java,
         0x03 to ClientChatMessagePacket::class.java,
         0x04 to ClientStatusPacket::class.java,
+        0x0E to ClientUseEntityPacket::class.java,
         0x0F to ClientKeepAlivePacket::class.java,
         0x12 to ClientPlayerPositionLookPacket::class.java,
         0x1A to ClientPlayerDiggingPacket::class.java,
         0x14 to ClientPlayerPacket::class.java,
+        0x23 to ClientHeldItemChangePacket::class.java,
         0x2A to ClientAnimationPacket::class.java
     )
 

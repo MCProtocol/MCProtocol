@@ -29,7 +29,6 @@ import dev.cubxity.mc.protocol.packets.game.client.ClientChatMessagePacket
 import dev.cubxity.mc.protocol.packets.game.client.ClientKeepAlivePacket
 import dev.cubxity.mc.protocol.packets.game.server.*
 import dev.cubxity.mc.protocol.packets.game.server.entity.spawn.*
-import dev.cubxity.mc.protocol.packets.game.server.world.ServerBlockChangePacket
 import dev.cubxity.mc.protocol.packets.handshake.client.HandshakePacket
 import dev.cubxity.mc.protocol.packets.login.client.EncryptionResponsePacket
 import dev.cubxity.mc.protocol.packets.login.client.LoginStartPacket
@@ -378,11 +377,9 @@ class ProtocolSession @JvmOverloads constructor(
                 server[0x08] = ServerBlockBreakAnimationPacket::class.java
                 server[0x09] = ServerUpdateBlockEntity::class.java
                 server[0x0A] = ServerBlockActionPacket::class.java
-                server[0x0B] = ServerBlockChangePacket::class.java
                 server[0x0C] = ServerBossBarPacket::class.java
                 server[0x0D] = ServerServerDifficultyPacket::class.java
                 server[0x0E] = ServerChatPacket::class.java
-                server[0x0F] = ServerMultiBlockChangePacket::class.java
                 server[0x10] = ServerTabCompletePacket::class.java
                 server[0x11] = ServerDeclareCommandsPacket::class.java
                 server[0x12] = ServerConfirmTransactionPacket::class.java
