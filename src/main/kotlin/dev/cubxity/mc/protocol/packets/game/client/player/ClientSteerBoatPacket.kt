@@ -10,35 +10,25 @@
 
 package dev.cubxity.mc.protocol.packets.game.client.player
 
+
 import dev.cubxity.mc.protocol.ProtocolVersion
 import dev.cubxity.mc.protocol.net.io.NetInput
 import dev.cubxity.mc.protocol.net.io.NetOutput
 import dev.cubxity.mc.protocol.packets.Packet
 
-class ClientPlayerPositionLookPacket(
-    var x: Double,
-    var y: Double,
-    var z: Double,
-    var yaw: Float,
-    var pitch: Float,
-    var onGround: Boolean
+class ClientSteerBoatPacket(
+    var leftPaddleTurning: Boolean,
+    var rightPaddleTurning: Boolean
 ) : Packet() {
 
     override fun read(buf: NetInput, target: ProtocolVersion) {
-        x = buf.readDouble()
-        y = buf.readDouble()
-        z = buf.readDouble()
-        yaw = buf.readFloat()
-        pitch = buf.readFloat()
-        onGround = buf.readBoolean()
+        leftPaddleTurning = buf.readBoolean()
+        rightPaddleTurning = buf.readBoolean()
     }
 
     override fun write(out: NetOutput, target: ProtocolVersion) {
-        out.writeDouble(x)
-        out.writeDouble(y)
-        out.writeDouble(z)
-        out.writeFloat(yaw)
-        out.writeFloat(pitch)
-        out.writeBoolean(onGround)
+        out.writeBoolean(leftPaddleTurning)
+        out.writeBoolean(rightPaddleTurning)
     }
+
 }

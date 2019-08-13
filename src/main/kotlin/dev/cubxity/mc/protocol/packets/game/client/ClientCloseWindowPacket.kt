@@ -16,19 +16,16 @@ import dev.cubxity.mc.protocol.net.io.NetInput
 import dev.cubxity.mc.protocol.net.io.NetOutput
 import dev.cubxity.mc.protocol.packets.Packet
 
-class ServerClickWindowButtonPacket(
-    var windowId: Int,
-    var buttonId: Int
+class ClientCloseWindowPacket(
+    var windowId: Int
 ) : Packet() {
 
     override fun read(buf: NetInput, target: ProtocolVersion) {
         windowId = buf.readUnsignedByte()
-        buttonId = buf.readUnsignedByte()
     }
 
     override fun write(out: NetOutput, target: ProtocolVersion) {
         out.writeByte(windowId)
-        out.writeByte(buttonId)
     }
 
 }

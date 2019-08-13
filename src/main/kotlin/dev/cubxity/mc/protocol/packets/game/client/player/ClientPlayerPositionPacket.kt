@@ -16,15 +16,26 @@ import dev.cubxity.mc.protocol.net.io.NetInput
 import dev.cubxity.mc.protocol.net.io.NetOutput
 import dev.cubxity.mc.protocol.packets.Packet
 
-class ClientPlayerPacket(
+class ClientPlayerPositionPacket(
+    var x: Double,
+    var y: Double,
+    var z: Double,
     var onGround: Boolean
 ) : Packet() {
 
     override fun read(buf: NetInput, target: ProtocolVersion) {
+        x = buf.readDouble()
+        y = buf.readDouble()
+        z = buf.readDouble()
+
         onGround = buf.readBoolean()
     }
 
     override fun write(out: NetOutput, target: ProtocolVersion) {
+        out.writeDouble(x)
+        out.writeDouble(y)
+        out.writeDouble(z)
+
         out.writeBoolean(onGround)
     }
 

@@ -26,9 +26,7 @@ import dev.cubxity.mc.protocol.net.PacketEncryption
 import dev.cubxity.mc.protocol.packets.Packet
 import dev.cubxity.mc.protocol.packets.RawPacket
 import dev.cubxity.mc.protocol.packets.game.client.*
-import dev.cubxity.mc.protocol.packets.game.client.player.ClientPlayerDiggingPacket
-import dev.cubxity.mc.protocol.packets.game.client.player.ClientPlayerPacket
-import dev.cubxity.mc.protocol.packets.game.client.player.ClientPlayerPositionLookPacket
+import dev.cubxity.mc.protocol.packets.game.client.player.*
 import dev.cubxity.mc.protocol.packets.game.server.*
 import dev.cubxity.mc.protocol.packets.game.server.entity.*
 import dev.cubxity.mc.protocol.packets.game.server.entity.player.ServerPlayerAbilitiesPacket
@@ -476,14 +474,26 @@ class ProtocolSession @JvmOverloads constructor(
                 client[0x05] = ClientClientSettingsPacket::class.java
                 client[0x06] = ClientTabCompletePacket::class.java
                 client[0x07] = ClientConfirmTransactionPacket::class.java
-                client[0x08] = ServerClickWindowButtonPacket::class.java
-                client[0x08] = ServerClickWindowButtonPacket::class.java
+                client[0x08] = ClientClickWindowButtonPacket::class.java
                 client[0x09] = ClientClickWindowPacket::class.java
-
+                client[0x0A] = ClientCloseWindowPacket::class.java
+                client[0x0B] = ClientPluginMessagePacket::class.java
+                client[0x0C] = ClientEditBookPacket::class.java
+                client[0x0D] = ClientQueryEntityNBTPacket::class.java
                 client[0x0E] = ClientUseEntityPacket::class.java
                 client[0x0F] = ClientKeepAlivePacket::class.java
-                client[0x12] = ClientPlayerPositionLookPacket::class.java
+                client[0x10] = ClientLockDifficultyPacket::class.java
+                client[0x11] = ClientPlayerPositionPacket::class.java
+                client[0x12] = ClientPlayerPositionAndLookPacket::class.java
+                client[0x13] = ClientPlayerLookPacket::class.java
+                client[0x14] = ClientPlayerPacket::class.java
+                client[0x15] = ClientVehicleMovePacket::class.java
+                client[0x16] = ClientSteerBoatPacket::class.java
+                client[0x17] = ClientPickItemPacket::class.java
+                client[0x18] = ClientCraftRecipeRequestPacket::class.java
+                client[0x19] = ClientPlayerAbilitiesPacket::class.java
                 client[0x1A] = ClientPlayerDiggingPacket::class.java
+
                 client[0x14] = ClientPlayerPacket::class.java
 
                 server.putAll(incomingVersion.version.serverPlay)

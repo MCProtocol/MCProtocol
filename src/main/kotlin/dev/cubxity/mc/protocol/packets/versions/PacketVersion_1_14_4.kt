@@ -18,7 +18,7 @@ import dev.cubxity.mc.protocol.packets.game.client.ClientStatusPacket
 import dev.cubxity.mc.protocol.packets.game.client.ClientTeleportConfirmPacket
 import dev.cubxity.mc.protocol.packets.game.client.player.ClientPlayerDiggingPacket
 import dev.cubxity.mc.protocol.packets.game.client.player.ClientPlayerPacket
-import dev.cubxity.mc.protocol.packets.game.client.player.ClientPlayerPositionLookPacket
+import dev.cubxity.mc.protocol.packets.game.client.player.ClientPlayerPositionAndLookPacket
 import dev.cubxity.mc.protocol.packets.game.server.*
 import dev.cubxity.mc.protocol.packets.game.server.entity.*
 import dev.cubxity.mc.protocol.packets.game.server.entity.player.ServerPlayerAbilitiesPacket
@@ -42,7 +42,7 @@ class PacketVersion_1_14_4 : PacketVersion {
         0x03 to ClientChatMessagePacket::class.java,
         0x04 to ClientStatusPacket::class.java,
         0x0F to ClientKeepAlivePacket::class.java,
-        0x12 to ClientPlayerPositionLookPacket::class.java,
+        0x12 to ClientPlayerPositionAndLookPacket::class.java,
         0x1A to ClientPlayerDiggingPacket::class.java,
         0x14 to ClientPlayerPacket::class.java
     )

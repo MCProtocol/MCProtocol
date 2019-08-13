@@ -8,24 +8,32 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package dev.cubxity.mc.protocol.packets.game.client.player
+package dev.cubxity.mc.protocol.packets.game.client
 
 
 import dev.cubxity.mc.protocol.ProtocolVersion
+import dev.cubxity.mc.protocol.data.magic.EnumHand
+import dev.cubxity.mc.protocol.data.obj.Slot
 import dev.cubxity.mc.protocol.net.io.NetInput
 import dev.cubxity.mc.protocol.net.io.NetOutput
 import dev.cubxity.mc.protocol.packets.Packet
 
-class ClientPlayerPacket(
-    var onGround: Boolean
+class ClientEditBookPacket(
+    var newBook: Slot,
+    var isSigning: Boolean,
+    var hand: EnumHand
 ) : Packet() {
 
     override fun read(buf: NetInput, target: ProtocolVersion) {
-        onGround = buf.readBoolean()
+        newBook = buf.readSlot()
+        isSigning = buf.readBoolean()
+        hand = EnumHand.values()[buf.readVarInt()]
     }
 
     override fun write(out: NetOutput, target: ProtocolVersion) {
-        out.writeBoolean(onGround)
+        out.writeSlot(newBook)
+        out.writeBoolean(isSigning)
+        out.writeVarInt(hand.ordinal)
     }
 
 }

@@ -16,16 +16,22 @@ import dev.cubxity.mc.protocol.net.io.NetInput
 import dev.cubxity.mc.protocol.net.io.NetOutput
 import dev.cubxity.mc.protocol.packets.Packet
 
-class ClientPlayerPacket(
-    var onGround: Boolean
+class ClientPlayerAbilitiesPacket(
+    var flags: Int,
+    var flyingSpeed: Float,
+    var walkingSpeed: Float
 ) : Packet() {
 
     override fun read(buf: NetInput, target: ProtocolVersion) {
-        onGround = buf.readBoolean()
+        flags = buf.readUnsignedByte()
+        flyingSpeed = buf.readFloat()
+        walkingSpeed = buf.readFloat()
     }
 
     override fun write(out: NetOutput, target: ProtocolVersion) {
-        out.writeBoolean(onGround)
+        out.writeByte(flags)
+        out.writeFloat(flyingSpeed)
+        out.writeFloat(walkingSpeed)
     }
 
 }

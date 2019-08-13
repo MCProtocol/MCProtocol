@@ -8,7 +8,7 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package dev.cubxity.mc.protocol.packets.game.client.player
+package dev.cubxity.mc.protocol.packets.game.client
 
 
 import dev.cubxity.mc.protocol.ProtocolVersion
@@ -16,16 +16,19 @@ import dev.cubxity.mc.protocol.net.io.NetInput
 import dev.cubxity.mc.protocol.net.io.NetOutput
 import dev.cubxity.mc.protocol.packets.Packet
 
-class ClientPlayerPacket(
-    var onGround: Boolean
+class ClientPluginMessagePacket(
+    var channel: String,
+    var data: ByteArray
 ) : Packet() {
 
     override fun read(buf: NetInput, target: ProtocolVersion) {
-        onGround = buf.readBoolean()
+        channel = buf.readString()
+        data = buf.readBytes(buf.available())
     }
 
     override fun write(out: NetOutput, target: ProtocolVersion) {
-        out.writeBoolean(onGround)
+        out.writeString(channel)
+        out.writeBytes(data)
     }
 
 }
