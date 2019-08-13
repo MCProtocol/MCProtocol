@@ -10,7 +10,11 @@
 
 package dev.cubxity.mc.bot
 
+import dev.cubxity.mc.protocol.data.obj.chunks.BlockState
+import dev.cubxity.mc.protocol.entities.BlockPosition
 import dev.cubxity.mc.protocol.entities.Message
 import dev.cubxity.mc.protocol.events.Event
 
 class ChatMessageReceivedEvent(val message: Message, val raw: String) : Event()
+class BlockAddedEvent(val position: BlockPosition, val state: BlockState) : Event()
+class BlockRemovedEvent(val position: BlockPosition, val state: BlockState) : Event()

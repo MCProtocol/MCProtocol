@@ -10,9 +10,8 @@
 
 package dev.cubxity.mc.protocol.example
 
-import com.google.gson.GsonBuilder
-import dev.cubxity.mc.bot.Bot
 import dev.cubxity.mc.bot.bot
+import dev.cubxity.mc.bot.entity.impl.WorldPlayerEntity
 import dev.cubxity.mc.protocol.ProtocolSession
 import dev.cubxity.mc.protocol.data.magic.ClientStatus
 import dev.cubxity.mc.protocol.data.magic.GameState
@@ -43,7 +42,7 @@ fun client() {
 //                wiretap()
 //                login(System.getProperty("username"), System.getProperty("password"))
                 offline("TestUser")
-                bot()
+                val bot = bot()
 
                 on<PacketReceivedEvent>()
                     .filter { it.packet is LoginSuccessPacket }

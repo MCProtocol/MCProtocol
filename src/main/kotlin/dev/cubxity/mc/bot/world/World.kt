@@ -10,6 +10,8 @@
 
 package dev.cubxity.mc.bot.world
 
+import dev.cubxity.mc.bot.BlockAddedEvent
+import dev.cubxity.mc.bot.BlockRemovedEvent
 import dev.cubxity.mc.bot.Bot
 import dev.cubxity.mc.bot.entity.WorldEntity
 import dev.cubxity.mc.bot.entity.impl.WorldPlayerEntity
@@ -54,21 +56,41 @@ class World(private val bot: Bot) {
                 .subscribe {
                     val pos = ChunkPosition(it.chunkX, it.chunkZ)
                     chunks[pos] = it.chunk
+
+                    it.chunk.sections.forEach { (y, c) ->
+                        c.states.forEach { (i, s) ->
+                            sink.next(BlockAddedEvent(BlockPosition(it.chunkX * 16 + i.x, y * 16 + i.y, it.chunkZ * 16 + i.z), s))
+                        }
+                    }
                 }
 
             on<PacketReceivedEvent>()
                 .filter { it.packet is ServerUnloadChunkPacket }
                 .map { it.packet as ServerUnloadChunkPacket }
-                .subscribe { chunks.remove(ChunkPosition(it.chunkX, it.chunkZ)) }
+                .subscribe {
+                    chunks[ChunkPosition(it.chunkX, it.chunkZ)]?.sections?.forEach { (y, c) ->
+                        c.states.forEach { (i, s) ->
+                            sink.next(BlockRemovedEvent(BlockPosition(it.chunkX * 16 + i.x, y * 16 + i.y, it.chunkZ * 16 + i.z), s))
+                        }
+                    }
+
+                    chunks.remove(ChunkPosition(it.chunkX, it.chunkZ))
+                }
 
             on<PacketReceivedEvent>()
                 .filter { it.packet is ServerBlockChangePacket }
                 .map { it.packet as ServerBlockChangePacket }
                 .subscribe {
-                    setBlockAt(
-                        it.location.toBlockPosition(),
-                        BlockUtil.getStateFromGlobalPaletteID(it.blockId, bot.session.outgoingVersion)
-                    )
+                    val state = BlockUtil.getStateFromGlobalPaletteID(it.blockId, bot.session.outgoingVersion)
+                    val pos = it.location.toBlockPosition()
+
+                    if (it.blockId == 0) {
+                        sink.next(BlockRemovedEvent(pos, state))
+                    } else {
+                        sink.next(BlockAddedEvent(pos, state))
+                    }
+
+                    setBlockAt(pos, state)
                 }
 
             on<PacketReceivedEvent>()
@@ -76,10 +98,16 @@ class World(private val bot: Bot) {
                 .map { it.packet as ServerMultiBlockChangePacket }
                 .subscribe {
                     it.records.forEach { v ->
-                        setBlockAt(
-                            v.position.toBlockPosition(),
-                            BlockUtil.getStateFromGlobalPaletteID(v.blockId, bot.session.outgoingVersion)
-                        )
+                        val state = BlockUtil.getStateFromGlobalPaletteID(v.blockId, bot.session.outgoingVersion)
+                        val pos = v.position.toBlockPosition()
+
+                        if (v.blockId == 0) {
+                            sink.next(BlockRemovedEvent(pos, state))
+                        } else {
+                            sink.next(BlockAddedEvent(pos, state))
+                        }
+
+                        setBlockAt(pos, state)
                     }
                 }
 

@@ -11,7 +11,6 @@
 package dev.cubxity.mc.bot.managers.physics
 
 import dev.cubxity.mc.bot.Bot
-import dev.cubxity.mc.bot.entity.impl.WorldPlayerEntity
 import dev.cubxity.mc.protocol.entities.BlockPosition
 import dev.cubxity.mc.protocol.entities.SimplePosition
 import dev.cubxity.mc.protocol.packets.game.client.player.ClientPlayerPositionLookPacket
@@ -24,6 +23,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.*
+
 
 class PhysicsManager(private val bot: Bot) {
 
@@ -224,7 +224,8 @@ class PhysicsManager(private val bot: Bot) {
     }
 
     fun lookAt(position: SimplePosition, cb: () -> Unit = {}) {
-        lookJob?.cancel()
+        if (lookJob?.isActive == true)
+            lookJob?.cancel()
 
         val dx = position.x - this.position.x
         val dy = position.y - this.position.y
@@ -245,6 +246,7 @@ class PhysicsManager(private val bot: Bot) {
                 val prev = this@PhysicsManager.prevYaw
                 if (abs((prev - this@PhysicsManager.targetYaw) % (PI * 2)) < 0.001 && yawChanged) {
                     cb()
+                    lookJob = null
                     return@launch
                 }
             }

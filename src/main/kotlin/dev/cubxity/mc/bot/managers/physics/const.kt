@@ -22,4 +22,4 @@ const val gravity = 27.0
 const val terminalVelocity = 20.0
 const val playerApothem = 0.32
 const val playerHeight = 1.74
-const val yawSpeed = 3.0
+const val yawSpeed = 14.0
