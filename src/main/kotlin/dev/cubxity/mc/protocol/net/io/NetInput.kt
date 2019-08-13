@@ -172,4 +172,6 @@ abstract class NetInput {
             else -> null
         }
     }
+
+    fun <T> readOptional(function: () -> T): T? = if (readBoolean()) function() else null
 }

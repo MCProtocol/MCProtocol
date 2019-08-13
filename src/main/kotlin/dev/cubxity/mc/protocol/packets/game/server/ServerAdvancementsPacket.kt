@@ -67,8 +67,8 @@ class ServerAdvancementsPacket(
     }
 
     private fun readAdvancement(buf: NetInput): Advancement {
-        val parent = if (buf.readBoolean()) buf.readString() else null
-        val display = if (buf.readBoolean()) readAdvancementDisplay(buf) else null
+        val parent = buf.readOptional { buf.readString() }
+        val display = buf.readOptional { readAdvancementDisplay(buf) }
 
         val criteria = buf.readVarArray { buf.readString() }
 

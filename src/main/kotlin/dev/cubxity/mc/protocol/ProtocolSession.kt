@@ -416,7 +416,7 @@ class ProtocolSession @JvmOverloads constructor(
                 server[0x23] = ServerParticlePacket::class.java
                 server[0x24] = ServerUpdateLightPacket::class.java
                 server[0x25] = ServerJoinGamePacket::class.java
-                // TODO Implement 0x26: Map Data
+                server[0x26] = ServerMapDataPacket::class.java
                 // TODO Implement 0x27: Trade List
                 server[0x28] = ServerEntityRelativeMovePacket::class.java
                 server[0x29] = ServerEntityLookAndRelativeMovePacket::class.java
@@ -469,7 +469,7 @@ class ProtocolSession @JvmOverloads constructor(
                 server[0x58] = ServerEntityPropertiesPacket::class.java
                 server[0x59] = ServerEntityEffectPacket::class.java
                 // TODO Implement 0x5A: Declare Recipes
-                // TODO Implement 0x5B: Tags
+                server[0x5B] = ServerTagsPacket::class.java
 
                 client[0x00] = ClientTeleportConfirmPacket::class.java
                 client[0x03] = ClientChatMessagePacket::class.java
