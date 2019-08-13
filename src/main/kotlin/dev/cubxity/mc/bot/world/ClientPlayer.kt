@@ -12,12 +12,16 @@ package dev.cubxity.mc.bot.world
 
 import dev.cubxity.mc.bot.Bot
 import dev.cubxity.mc.bot.managers.physics.PhysicsManager
+import dev.cubxity.mc.bot.managers.player.PlayerManager
+import dev.cubxity.mc.bot.managers.world.WorldManager
+import dev.cubxity.mc.protocol.data.magic.Hand
 import dev.cubxity.mc.protocol.data.magic.MobType
 import dev.cubxity.mc.protocol.data.magic.PositionElement
 import dev.cubxity.mc.protocol.entities.SimplePosition
 import dev.cubxity.mc.protocol.events.PacketReceivedEvent
 import dev.cubxity.mc.protocol.packets.game.client.ClientChatMessagePacket
 import dev.cubxity.mc.protocol.packets.game.client.ClientTeleportConfirmPacket
+import dev.cubxity.mc.protocol.packets.game.client.player.ClientAnimationPacket
 import dev.cubxity.mc.protocol.packets.game.client.player.ClientPlayerPositionLookPacket
 import dev.cubxity.mc.protocol.packets.game.server.entity.player.ServerPlayerPositionLookPacket
 import dev.cubxity.mc.protocol.utils.ConversionUtil
@@ -33,6 +37,10 @@ class ClientPlayer(private val bot: Bot) {
     val session = bot.session
 
     val physicsManager = PhysicsManager(bot)
+    val worldManager = WorldManager(bot)
+    val playerManager = PlayerManager(bot)
+
+    var spawnPosition = SimplePosition(0.0, 0.0, 0.0)
 
     init {
         with(bot.session) {
@@ -56,4 +64,5 @@ class ClientPlayer(private val bot: Bot) {
     }
 
     fun chat(text: String) = session.send(ClientChatMessagePacket(text))
+    fun swingArm(hand: Hand) = session.send(ClientAnimationPacket(hand))
 }

@@ -10,4 +10,8 @@
 
 package dev.cubxity.mc.protocol.entities
 
-data class SimplePosition(var x: Double, var y: Double, var z: Double)
+import dev.cubxity.mc.protocol.utils.Vec3d
+
+data class SimplePosition(var x: Double, var y: Double, var z: Double) {
+    fun toVec3() = Vec3d(x, y, z)
+}

@@ -8,23 +8,11 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package dev.cubxity.mc.bot.entity
+package dev.cubxity.mc.protocol.data.magic
 
-import dev.cubxity.mc.protocol.data.magic.MobType
-import dev.cubxity.mc.protocol.data.obj.EntityMetadata
-import dev.cubxity.mc.protocol.entities.SimplePosition
-import dev.cubxity.mc.protocol.packets.game.server.entity.ServerEntityPropertiesPacket
-import dev.cubxity.mc.protocol.utils.Vec3d
+enum class Hand {
 
-open class WorldEntity(
-    val type: MobType,
-    var id: Int,
-    var pos: SimplePosition,
-    var vel: Vec3d,
-    var onGround: Boolean,
-    var pitch: Float,
-    var yaw: Float,
-    var headYaw: Float,
-    var properties: Array<ServerEntityPropertiesPacket.Property> = arrayOf(),
-    var metadata: Array<EntityMetadata> = arrayOf()
-)
+    MAIN_HAND,
+    OFF_HAND
+
+}

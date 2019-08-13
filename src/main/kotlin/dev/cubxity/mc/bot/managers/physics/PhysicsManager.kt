@@ -11,6 +11,7 @@
 package dev.cubxity.mc.bot.managers.physics
 
 import dev.cubxity.mc.bot.Bot
+import dev.cubxity.mc.bot.entity.impl.WorldPlayerEntity
 import dev.cubxity.mc.protocol.entities.BlockPosition
 import dev.cubxity.mc.protocol.entities.SimplePosition
 import dev.cubxity.mc.protocol.packets.game.client.player.ClientPlayerPositionLookPacket
@@ -202,9 +203,9 @@ class PhysicsManager(private val bot: Bot) {
     }
 
     fun lookAt(position: SimplePosition) {
-        val dx = position.x - position.x
-        val dy = position.y - position.y
-        val dz = position.z - position.z
+        val dx = position.x - this.position.x
+        val dy = position.y - this.position.y
+        val dz = position.z - this.position.z
 
         val yaw = atan2(-dx, -dz).toFloat()
         val groundDistance = sqrt(dx * dx + dz * dz)

@@ -12,16 +12,16 @@ package dev.cubxity.mc.bot.entity.impl
 
 import dev.cubxity.mc.protocol.data.magic.MobType
 import dev.cubxity.mc.bot.entity.WorldEntity
+import dev.cubxity.mc.protocol.entities.SimplePosition
+import dev.cubxity.mc.protocol.utils.Vec3d
 import java.util.*
 
 open class WorldPlayerEntity(
     id: Int,
-    x: Double,
-    y: Double,
-    z: Double,
+    pos: SimplePosition,
     onGround: Boolean,
     headYaw: Float,
     pitch: Float,
     yaw: Float,
     var uuid: UUID
-) : WorldEntity(MobType.PLAYER, id, x, y, z, onGround, headYaw, pitch, yaw)
+) : WorldEntity(MobType.PLAYER, id, pos, Vec3d(0.0, 0.0, 0.0), onGround, headYaw, pitch, yaw)

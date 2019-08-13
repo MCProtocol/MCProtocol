@@ -19,6 +19,7 @@ import dev.cubxity.mc.protocol.data.obj.chunks.BlockState
 import dev.cubxity.mc.protocol.data.obj.chunks.Chunk
 import dev.cubxity.mc.protocol.data.obj.chunks.ChunkPosition
 import dev.cubxity.mc.protocol.entities.BlockPosition
+import dev.cubxity.mc.protocol.entities.SimplePosition
 import dev.cubxity.mc.protocol.events.PacketReceivedEvent
 import dev.cubxity.mc.protocol.packets.game.server.ServerDifficultyPacket
 import dev.cubxity.mc.protocol.packets.game.server.ServerUnloadChunkPacket
@@ -27,13 +28,15 @@ import dev.cubxity.mc.protocol.packets.game.server.entity.spawn.ServerSpawnMobPa
 import dev.cubxity.mc.protocol.packets.game.server.entity.spawn.ServerSpawnPlayerPacket
 import dev.cubxity.mc.protocol.packets.game.server.world.ServerChunkDataPacket
 import dev.cubxity.mc.protocol.packets.game.server.world.ServerTimeUpdatePacket
+import dev.cubxity.mc.protocol.utils.Vec3d
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.floor
 
-class World(bot: Bot) {
+class World(private val bot: Bot) {
 
     private val chunks = hashMapOf<ChunkPosition, Chunk>()
 
-    val entities = hashMapOf<Int, WorldEntity>()
+    val entities = ConcurrentHashMap<Int, WorldEntity>()
 
     var timeOfDay: Long = 0
     var worldAge: Long = 0
@@ -83,7 +86,7 @@ class World(bot: Bot) {
                 .map { it.packet as ServerSpawnPlayerPacket }
                 .subscribe {
                     entities[it.entityId] =
-                        WorldPlayerEntity(it.entityId, it.x, it.y, it.z, false, 0f, it.pitch, it.yaw, it.playerUuid)
+                        WorldPlayerEntity(it.entityId, SimplePosition(it.x, it.y, it.z), false, 0f, it.pitch, it.yaw, it.playerUuid)
                 }
 
             on<PacketReceivedEvent>()
@@ -91,7 +94,8 @@ class World(bot: Bot) {
                 .map { it.packet as ServerSpawnMobPacket }
                 .subscribe {
                     entities[it.entityId] =
-                        WorldEntity(it.type, it.entityId, it.x, it.y, it.z, false, 0f, it.pitch, it.yaw)
+                        WorldEntity(it.type, it.entityId, SimplePosition(it.x, it.y, it.z), Vec3d(0.0, 0.0, 0.0),
+                            false, 0f, it.pitch, it.yaw)
                 }
 
             on<PacketReceivedEvent>()
@@ -116,9 +120,9 @@ class World(bot: Bot) {
                 .map { it.packet as ServerEntityLookAndRelativeMovePacket }
                 .subscribe {
                     val entity = entities[it.entityId] ?: return@subscribe
-                    entity.x += it.deltaX / (128.0 * 32.0)
-                    entity.y += it.deltaY / (128.0 * 32.0)
-                    entity.z += it.deltaZ / (128.0 * 32.0)
+                    entity.pos.x += it.deltaX / (128.0 * 32.0)
+                    entity.pos.y += it.deltaY / (128.0 * 32.0)
+                    entity.pos.z += it.deltaZ / (128.0 * 32.0)
                     entity.onGround = it.onGround
                     entity.pitch = it.pitch
                     entity.yaw = it.yaw
@@ -129,9 +133,9 @@ class World(bot: Bot) {
                 .map { it.packet as ServerEntityRelativeMovePacket }
                 .subscribe {
                     val entity = entities[it.entityId] ?: return@subscribe
-                    entity.x += it.deltaX / (128.0 * 32.0)
-                    entity.y += it.deltaY / (128.0 * 32.0)
-                    entity.z += it.deltaZ / (128.0 * 32.0)
+                    entity.pos.x += it.deltaX / (128.0 * 32.0)
+                    entity.pos.y += it.deltaY / (128.0 * 32.0)
+                    entity.pos.z += it.deltaZ / (128.0 * 32.0)
                     entity.onGround = it.onGround
                 }
 
@@ -141,13 +145,13 @@ class World(bot: Bot) {
                 .subscribe {
                     val entity = entities[it.entityId] ?: return@subscribe
 
-                    entity.velX = it.velocityX.toDouble()
-                    entity.velY = it.velocityY.toDouble()
-                    entity.velZ = it.velocityZ.toDouble()
+                    entity.vel.x = it.velocityX.toDouble()
+                    entity.vel.y = it.velocityY.toDouble()
+                    entity.vel.z = it.velocityZ.toDouble()
 
-                    entity.x += entity.velX
-                    entity.y += entity.velY
-                    entity.z += entity.velZ
+                    entity.pos.x += entity.vel.x
+                    entity.pos.y += entity.vel.y
+                    entity.pos.z += entity.vel.z
                 }
 
             on<PacketReceivedEvent>()
@@ -183,6 +187,27 @@ class World(bot: Bot) {
         val chunkX = floor(position.x / 16.0).toInt()
         val chunkZ = floor(position.z / 16.0).toInt()
         return chunks[ChunkPosition(chunkX, chunkZ)]?.getState(position.x, position.y, position.z)
+    }
+
+    fun findClosestEntity(radius: Int = 1, filter: (WorldEntity) -> Boolean = { true }): WorldEntity? {
+        val player = bot.player.physicsManager.position.toVec3()
+
+        var closestDistance = Double.MAX_VALUE
+        var closestEntity: WorldEntity? = null
+
+        entities.values.forEach {
+            if (!filter(it)) return@forEach
+
+            val pos = it.pos.toVec3()
+            val distance = pos.distanceTo(player)
+
+            if (distance <= closestDistance) {
+                closestDistance = distance
+                closestEntity = it
+            }
+        }
+
+        return if (closestDistance <= radius) closestEntity else null
     }
 
 }

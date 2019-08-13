@@ -16,6 +16,7 @@ import dev.cubxity.mc.protocol.packets.game.client.ClientChatMessagePacket
 import dev.cubxity.mc.protocol.packets.game.client.ClientKeepAlivePacket
 import dev.cubxity.mc.protocol.packets.game.client.ClientStatusPacket
 import dev.cubxity.mc.protocol.packets.game.client.ClientTeleportConfirmPacket
+import dev.cubxity.mc.protocol.packets.game.client.player.ClientAnimationPacket
 import dev.cubxity.mc.protocol.packets.game.client.player.ClientPlayerDiggingPacket
 import dev.cubxity.mc.protocol.packets.game.client.player.ClientPlayerPacket
 import dev.cubxity.mc.protocol.packets.game.client.player.ClientPlayerPositionLookPacket
@@ -46,7 +47,8 @@ class PacketVersion_1_14_4 : PacketVersion {
         0x0F to ClientKeepAlivePacket::class.java,
         0x12 to ClientPlayerPositionLookPacket::class.java,
         0x1A to ClientPlayerDiggingPacket::class.java,
-        0x14 to ClientPlayerPacket::class.java
+        0x14 to ClientPlayerPacket::class.java,
+        0x2A to ClientAnimationPacket::class.java
     )
 
     override val serverPlay: Map<Int, Class<out Packet>> = mapOf(

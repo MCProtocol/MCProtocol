@@ -12,6 +12,8 @@ package dev.cubxity.mc.protocol.utils
 
 import kotlin.math.ceil
 import kotlin.math.floor
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 class Vec3d(var x: Double, var y: Double, var z: Double) {
 
@@ -46,6 +48,8 @@ class Vec3d(var x: Double, var y: Double, var z: Double) {
 
         return this
     }
+
+    fun distanceTo(other: Vec3d) = sqrt((other.x - x).pow(2.0) + (other.y - y).pow(2.0) + (other.z - z).pow(2.0))
 
     override fun toString(): String {
         return "Vec3d{" +
