@@ -22,14 +22,14 @@ class IndirectPalette(private var bpb: Byte, target: ProtocolVersion) : Palette(
     private var stateToId = hashMapOf<BlockState, Int>()
 
     override fun getIdForState(state: BlockState) = stateToId[state] ?: 0
-    override fun getStateForId(id: Int) = idToState[id] ?: BlockState(0, "")
+    override fun getStateForId(id: Int) = idToState[id] ?: BlockState(0)
     override fun getBitsPerBlock() = bpb
 
     override fun read(data: NetInput) {
         val length = data.readVarInt()
         for (id in 0 until length) {
             val stateId = data.readVarInt()
-            val state = BlockUtil.getStateFromGlobalPaletteID(stateId, target) ?: continue
+            val state = BlockUtil.getStateFromGlobalPaletteID(stateId, target)
             idToState[id] = state
             stateToId[state] = id
         }

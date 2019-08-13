@@ -11,7 +11,6 @@
 package dev.cubxity.mc.protocol.data.obj.chunks.util
 
 import dev.cubxity.mc.protocol.ProtocolVersion
-import dev.cubxity.mc.protocol.data.obj.chunks.BlockState
 import dev.cubxity.mc.protocol.data.obj.chunks.palette.DirectPalette
 import dev.cubxity.mc.protocol.data.obj.chunks.palette.IndirectPalette
 

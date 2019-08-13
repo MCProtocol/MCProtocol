@@ -10,4 +10,4 @@
 
 package dev.cubxity.mc.protocol.data.obj.chunks
 
-class BlockState(var id: Int, var name: String)
+class BlockState(var id: Int)

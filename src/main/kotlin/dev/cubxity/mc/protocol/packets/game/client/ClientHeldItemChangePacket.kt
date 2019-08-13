@@ -10,20 +10,22 @@
 
 package dev.cubxity.mc.protocol.packets.game.client
 
+
 import dev.cubxity.mc.protocol.ProtocolVersion
 import dev.cubxity.mc.protocol.net.io.NetInput
 import dev.cubxity.mc.protocol.net.io.NetOutput
 import dev.cubxity.mc.protocol.packets.Packet
 
 class ClientHeldItemChangePacket(
-    var slot: Int
+    var slot: Short
 ) : Packet() {
 
     override fun read(buf: NetInput, target: ProtocolVersion) {
-        slot = buf.readShort().toInt()
+        slot = buf.readShort()
     }
 
     override fun write(out: NetOutput, target: ProtocolVersion) {
-        out.writeShort(slot.toShort())
+        out.writeShort(slot)
     }
+
 }

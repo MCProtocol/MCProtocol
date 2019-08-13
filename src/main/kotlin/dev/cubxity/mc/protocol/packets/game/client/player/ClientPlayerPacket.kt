@@ -10,6 +10,7 @@
 
 package dev.cubxity.mc.protocol.packets.game.client.player
 
+
 import dev.cubxity.mc.protocol.ProtocolVersion
 import dev.cubxity.mc.protocol.net.io.NetInput
 import dev.cubxity.mc.protocol.net.io.NetOutput
@@ -26,4 +27,5 @@ class ClientPlayerPacket(
     override fun write(out: NetOutput, target: ProtocolVersion) {
         out.writeBoolean(onGround)
     }
+
 }

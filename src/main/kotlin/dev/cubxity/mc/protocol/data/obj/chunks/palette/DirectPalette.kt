@@ -20,8 +20,10 @@ class DirectPalette(target: ProtocolVersion) : Palette(target) {
 
     override fun getIdForState(state: BlockState) =
         BlockUtil.getGlobalPaletteIDFromState(state)
+
     override fun getStateForId(id: Int) =
-        BlockUtil.getStateFromGlobalPaletteID(id, target) ?: BlockState(0, "minecraft:air")
+        BlockUtil.getStateFromGlobalPaletteID(id, target)
+
     override fun getBitsPerBlock() = 14.toByte()
 
     //    override fun getBitsPerBlock() = ceil(log2(totalNumberOfStates)).toByte()

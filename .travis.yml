@@ -1,0 +1,7 @@
+language: java
+before_install:
+  - chmod +x gradlew
+  - chmod +x gradle/wrapper/gradle-wrapper.jar
+  - export GRADLE_OPTS="-Xmx4G"
+script:
+  - ./gradlew test build

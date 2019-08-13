@@ -11,14 +11,13 @@
 package dev.cubxity.mc.protocol.packets.game.server.world
 
 import dev.cubxity.mc.protocol.ProtocolVersion
-import dev.cubxity.mc.protocol.data.magic.MagicRegistry
 import dev.cubxity.mc.protocol.data.magic.SoundCategory
 import dev.cubxity.mc.protocol.net.io.NetInput
 import dev.cubxity.mc.protocol.net.io.NetOutput
 import dev.cubxity.mc.protocol.packets.Packet
 
 class ServerSoundEffectPacket(
-    var sound: String,
+    var soundId: Int,
     var soundCategory: SoundCategory,
     var x: Double,
     var y: Double,
@@ -28,8 +27,9 @@ class ServerSoundEffectPacket(
 ) : Packet() {
 
     override fun read(buf: NetInput, target: ProtocolVersion) {
-//        sound = target.registryManager.soundRegistry.getName(buf.readVarInt()) ?: return
-        soundCategory = MagicRegistry.lookupKey(target, buf.readVarInt())
+//        soundId = target.registryManager.soundRegistry.getName(buf.readVarInt()) ?: return
+        soundId = buf.readVarInt()
+        soundCategory = SoundCategory.values()[buf.readVarInt()]
         x = buf.readInt() / 8.0
         y = buf.readInt() / 8.0
         z = buf.readInt() / 8.0
@@ -38,8 +38,8 @@ class ServerSoundEffectPacket(
     }
 
     override fun write(out: NetOutput, target: ProtocolVersion) {
-//        out.writeVarInt(target.registryManager.soundRegistry.getId(sound) ?: return)
-        out.writeVarInt(MagicRegistry.lookupValue(target, soundCategory))
+        out.writeVarInt(soundId)
+        out.writeVarInt(soundCategory.ordinal)
         out.writeInt((x * 8).toInt())
         out.writeInt((y * 8).toInt())
         out.writeInt((z * 8).toInt())

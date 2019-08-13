@@ -11,29 +11,23 @@
 package dev.cubxity.mc.protocol.packets.game.server
 
 import dev.cubxity.mc.protocol.ProtocolVersion
-import dev.cubxity.mc.protocol.data.magic.Difficulity
 import dev.cubxity.mc.protocol.net.io.NetInput
 import dev.cubxity.mc.protocol.net.io.NetOutput
 import dev.cubxity.mc.protocol.packets.Packet
 
-class ServerServerDifficultyPacket : Packet {
-    private var difficulty: Difficulity? = null
-    private var difficultyLocked: Boolean = false
-
-    constructor(difficulty: Difficulity, difficultyLocked: Boolean) {
-        this.difficulty = difficulty
-        this.difficultyLocked = difficultyLocked
-    }
-
-    constructor()
+class ServerResourcePackSendPacket(
+    var url: String,
+    var hash: String
+) : Packet() {
 
     override fun read(buf: NetInput, target: ProtocolVersion) {
-        difficulty = Difficulity.values()[buf.readUnsignedByte()]
-        difficultyLocked = buf.readBoolean()
+        url = buf.readString(32767)
+        hash = buf.readString(40)
     }
 
     override fun write(out: NetOutput, target: ProtocolVersion) {
-        out.writeByte(difficulty!!.ordinal)
-        out.writeBoolean(difficultyLocked)
+        out.writeString(url)
+        out.writeString(hash)
     }
+
 }

@@ -10,15 +10,13 @@
 
 package dev.cubxity.mc.protocol.entities
 
-import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.google.gson.Gson
 import java.util.*
 
 /**
  * @author Cubxity
  * @since 7/21/2019
  */
-@JsonInclude(JsonInclude.Include.NON_NULL)
 data class ServerListData @JvmOverloads constructor(
     var version: Version,
     var description: Message,
@@ -26,10 +24,10 @@ data class ServerListData @JvmOverloads constructor(
     var favicon: String? = null
 ) {
     companion object {
-        private val mapper = jacksonObjectMapper()
+        private val gson = Gson()
 
         @JvmStatic
-        fun fromJson(json: String): ServerListData = mapper.readValue(json, ServerListData::class.java)
+        fun fromJson(json: String): ServerListData = gson.fromJson(json, ServerListData::class.java)
     }
 
     data class Version(var name: String, var protocol: Int)
@@ -42,5 +40,5 @@ data class ServerListData @JvmOverloads constructor(
 
     data class Player(var name: String, var uuid: UUID)
 
-    fun toJson(): String = mapper.writeValueAsString(this)
+    fun toJson(): String = gson.toJson(this)
 }

@@ -22,11 +22,12 @@ import dev.cubxity.mc.protocol.data.obj.EntityMetadata
 import dev.cubxity.mc.protocol.data.obj.Rotation
 import dev.cubxity.mc.protocol.data.obj.Slot
 import dev.cubxity.mc.protocol.data.obj.VillagerData
+import dev.cubxity.mc.protocol.data.obj.chunks.BlockState
+import dev.cubxity.mc.protocol.data.obj.particle.*
 import dev.cubxity.mc.protocol.entities.Message
 import dev.cubxity.mc.protocol.entities.SimplePosition
+import dev.cubxity.mc.protocol.exception.MalformedPacketException
 import dev.cubxity.mc.protocol.net.io.stream.NetInputStream
-import io.netty.buffer.ByteBuf
-import java.io.IOException
 import java.nio.charset.Charset
 import java.util.*
 
@@ -38,7 +39,6 @@ import java.util.*
  * @since 7/20/2019
  */
 abstract class NetInput {
-
     abstract fun readBoolean(): Boolean
     abstract fun readByte(): Byte
     abstract fun readUnsignedByte(): Int
@@ -64,8 +64,13 @@ abstract class NetInput {
     abstract fun readLongs(l: LongArray): Int
     abstract fun readLongs(l: LongArray, offset: Int, length: Int): Int
 
-    fun readString(): String {
+    fun readString(maxLength: Int = Int.MAX_VALUE): String {
         val length = this.readVarInt()
+
+        if (length > maxLength) {
+            throw MalformedPacketException("String length ($length) > maxLength ($maxLength)")
+        }
+
         val bytes = this.readBytes(length)
         return bytes.toString(Charset.forName("UTF-8"))
     }
@@ -74,7 +79,7 @@ abstract class NetInput {
     fun readAngle() = readByte() * 360 / 256f
     fun readVelocity() = (readShort() / 8000.0).toShort()
     fun readRotation() = Rotation(readFloat(), readFloat(), readFloat())
-    fun readMessage() = Message.fromJson(readString())
+    fun readMessage() = Message.fromJson(readString(32767))
 
     fun readPosition(): SimplePosition {
         val value = readLong()
@@ -93,7 +98,7 @@ abstract class NetInput {
                 if (id == 255) break
 
                 val typeId = readVarInt()
-                val type = MagicRegistry.lookupKey<MetadataType>(target, typeId)
+                val type = MetadataType.values()[typeId]
 
                 val value: Any? = when (type) {
                     MetadataType.BYTE -> readByte()
@@ -111,8 +116,11 @@ abstract class NetInput {
                     MetadataType.OPT_UUID -> if (readBoolean()) readUUID() else null
                     MetadataType.OPT_BLOCK_ID -> readVarInt()
                     MetadataType.NBT -> readNbt()
-                    // TODO: Add particle data
-                    MetadataType.PARTICLE -> null
+                    MetadataType.PARTICLE -> {
+                        val particleId = readVarInt()
+
+                        Particle(particleId, readParticleData(particleId))
+                    }
                     MetadataType.VILLAGER_DATA -> VillagerData(readVarInt(), readVarInt(), readVarInt())
                     MetadataType.OPT_VAR_INT -> if (readBoolean()) readVarInt() else null
                     MetadataType.POSE -> MagicRegistry.lookupKey<Pose>(target, readVarInt())
@@ -140,5 +148,30 @@ abstract class NetInput {
         }
     }
 
+    fun <T> readVarArray(lengthReader: () -> Int = { readVarInt() }, reader: () -> T): ArrayList<T> {
+        val recipeIdSize = lengthReader()
+        val shit: ArrayList<T> = ArrayList(recipeIdSize)
+
+        for (index in 0 until recipeIdSize) {
+            shit.add(reader())
+        }
+
+        return shit
+    }
+
+    fun readBlockState(): BlockState {
+        return BlockState(readVarInt())
+    }
+
     abstract fun available(): Int
+    fun readParticleData(particleId: Int): AbstractParticleData? {
+        return when (particleId) {
+            3, 20 -> BlockParticleData(readVarInt())
+            11 -> DustParticleData(readFloat(), readFloat(), readFloat(), readFloat())
+            27 -> ItemParticleData(readSlot())
+            else -> null
+        }
+    }
+
+    fun <T> readOptional(function: () -> T): T? = if (readBoolean()) function() else null
 }

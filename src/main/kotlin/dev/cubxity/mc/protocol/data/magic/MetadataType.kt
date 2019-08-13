@@ -11,7 +11,6 @@
 package dev.cubxity.mc.protocol.data.magic
 
 enum class MetadataType {
-
     BYTE,
     VAR_INT,
     FLOAT,

@@ -12,5 +12,9 @@ package dev.cubxity.mc.protocol.data.magic
 
 enum class EnumHand {
     MAIN_HAND,
-    OFF_HAND
+    OFF_HAND,
+    ARMOR_BOOTS,
+    ARMOR_LEGGINS,
+    ARMOR_CHESTPLATE,
+    ARMOR_HELMET
 }

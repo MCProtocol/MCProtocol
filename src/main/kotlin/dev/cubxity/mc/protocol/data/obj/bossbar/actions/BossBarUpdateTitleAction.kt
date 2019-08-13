@@ -10,6 +10,6 @@
 
 package dev.cubxity.mc.protocol.data.obj.bossbar.actions
 
-import dev.cubxity.mc.protocol.data.obj.ChatComponent
+import dev.cubxity.mc.protocol.entities.Message
 
-class BossBarUpdateTitleAction(val title: ChatComponent) : BossBarAction()
+class BossBarUpdateTitleAction(val title: Message) : BossBarAction()

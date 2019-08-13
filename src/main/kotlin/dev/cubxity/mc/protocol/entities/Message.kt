@@ -10,94 +10,90 @@
 
 package dev.cubxity.mc.protocol.entities
 
-import com.fasterxml.jackson.annotation.JsonAlias
-import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.google.gson.Gson
+
 
 /**
  * https://wiki.vg/Chat
  * @author Cubxity
  * @since 7/21/2019
  */
-@JsonInclude(JsonInclude.Include.NON_NULL)
 data class Message @JvmOverloads constructor(
     var text: String? = null,
-    var color: String? = null,
-    var bold: String? = null,
-    var italic: String? = null,
-    var underlined: String? = null,
-    var strikethrough: String? = null,
-    var obfuscated: String? = null,
+    var color: ChatColor? = null,
+    var bold: Boolean = false,
+    var italic: Boolean = false,
+    var underlined: Boolean = false,
+    var strikethrough: Boolean = false,
+    var obfuscated: Boolean = false,
     var insertion: String? = null,
     var clickEvent: ClickEvent? = null,
     var hoverEvent: HoverEvent? = null,
     var extra: MutableList<Message>? = null,
     var translate: String? = null,
     var score: String? = null,
-    var with: MutableList<Message>? = null
+    var with: MutableList<Any>? = null
 ) {
     companion object {
-        private val mapper = jacksonObjectMapper()
+        private val gson = Gson()
+
 
         @JvmStatic
-        fun fromJson(json: String): Message = mapper.readValue(json, Message::class.java)
+        fun fromJson(json: String): Message {
+            return try {
+                gson.fromJson(json, Message::class.java)
+            } catch (e: Exception) {
+                println(json)
+                e.printStackTrace()
+                Message("Failed to read")
+            }
+        }
     }
 
-    data class ClickEvent @JvmOverloads constructor(
-        @JsonAlias("open_url")
-        var openUrl: String? = null,
-        @JsonAlias("run_command")
-        var runCommand: String? = null,
-        @Deprecated("No longer supported from 1.9 and above")
-        @JsonAlias("twitch_user_info")
-        var twitchUserInfo: String? = null,
-        @JsonAlias("suggest_command")
-        var suggestCommand: String? = null,
-        @JsonAlias("change_page")
-        var changePage: Int? = null
+    data class ClickEvent(
+        var action: ClickAction,
+        var value: String
     )
 
-    data class HoverEvent @JvmOverloads constructor(
-        @JsonAlias("show_text")
-        var showText: String? = null,
-        @JsonAlias("show_item")
-        var showItem: String? = null,
-        @JsonAlias("show_entity")
-        var showEntity: String? = null,
-        @Deprecated("No longer supported from 1.12 and above")
-        @JsonAlias("show_achievement")
-        var showAchievement: String? = null
+    data class HoverEvent(
+        var action: HoverAction,
+        var value: Any
     )
 
     fun bold(): Message {
-        bold = "true"
+        bold = true
         return this
     }
 
     fun italic(): Message {
-        italic = "true"
+        italic = true
         return this
     }
 
     fun underline(): Message {
-        underlined = "true"
+        underlined = true
         return this
     }
 
     fun strikethrough(): Message {
-        strikethrough = "true"
+        strikethrough = true
         return this
     }
 
     fun obfuscated(): Message {
-        obfuscated = "true"
+        obfuscated = true
         return this
     }
 
-    fun toJson() = mapper.writeValueAsString(this)
+    fun toJson(): String = gson.toJson(this)
 
-    fun toText(): String = ((text ?: "") + (with?.joinToString(separator = "") { it.text ?: "" }
+    fun toText(): String = ((text
+        ?: "") + (with?.joinToString(separator = "") { if (it is Message) it.toText() else if (it is String) it else "" }
         ?: "") + (extra?.joinToString(separator = "") { it.text ?: "" } ?: "")).replace("§[0-9a-flnmokr]", "")
+
+    override fun toString(): String {
+        return toText()
+    }
 
     fun addExtra(extra: Message) {
         if (this.extra != null)

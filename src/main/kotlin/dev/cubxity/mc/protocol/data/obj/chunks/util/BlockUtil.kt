@@ -17,6 +17,6 @@ object BlockUtil {
 
     fun getGlobalPaletteIDFromState(state: BlockState) = state.id
     fun getStateFromGlobalPaletteID(value: Int, target: ProtocolVersion) =
-        BlockState(value, target.registryManager.blockRegistry.get(value)?.name ?: "air")
+        BlockState(value)
 
 }

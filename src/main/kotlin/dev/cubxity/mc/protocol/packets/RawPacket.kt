@@ -30,4 +30,8 @@ class RawPacket(val id: Int) : Packet() {
     override fun write(out: NetOutput, target: ProtocolVersion) {
         out.writeBytes(bytes)
     }
+
+    override fun toString(): String {
+        return "RawPacket id: ${String.format("0x%02X", id)}"
+    }
 }

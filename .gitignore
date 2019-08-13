@@ -2,7 +2,6 @@
 !**/.idea/copyright/
 !**/.idea/copyright/*
 .gradle/
-gradle/
 build/
 **/out/**
 *.iml

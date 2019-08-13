@@ -11,7 +11,8 @@
 package dev.cubxity.mc.protocol.data.obj.chunks.util
 
 import dev.cubxity.mc.protocol.ProtocolVersion
-import dev.cubxity.mc.protocol.data.obj.chunks.*
+import dev.cubxity.mc.protocol.data.obj.chunks.Chunk
+import dev.cubxity.mc.protocol.data.obj.chunks.ChunkSection
 import dev.cubxity.mc.protocol.net.io.impl.stream.StreamNetInput
 
 

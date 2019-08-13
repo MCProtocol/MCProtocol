@@ -10,55 +10,51 @@
 
 package dev.cubxity.mc.protocol.packets.game.client
 
+
 import dev.cubxity.mc.protocol.ProtocolVersion
-import dev.cubxity.mc.protocol.data.magic.Hand
+import dev.cubxity.mc.protocol.data.magic.EnumHand
+import dev.cubxity.mc.protocol.data.magic.InteractionType
 import dev.cubxity.mc.protocol.net.io.NetInput
 import dev.cubxity.mc.protocol.net.io.NetOutput
 import dev.cubxity.mc.protocol.packets.Packet
 
 class ClientUseEntityPacket(
-    var targetId: Int,
-    var type: Type,
-    var targetX: Float = 0.0f,
-    var targetY: Float = 0.0f,
-    var targetZ: Float = 0.0f,
-    var hand: Hand = Hand.MAIN_HAND
+    var targetEntity: Int,
+    var mode: InteractionType,
+    var targetX: Float? = null,
+    var targetY: Float? = null,
+    var targetZ: Float? = null,
+    var hand: EnumHand? = null
 ) : Packet() {
 
     override fun read(buf: NetInput, target: ProtocolVersion) {
-        targetId = buf.readVarInt()
-        type = Type.values()[buf.readVarInt()]
+        targetEntity = buf.readVarInt()
 
-        if (type == Type.INTERACT_AT) {
+        mode = InteractionType.values()[buf.readVarInt()]
+
+        if (mode == InteractionType.INTERACT_AT) {
             targetX = buf.readFloat()
             targetY = buf.readFloat()
             targetZ = buf.readFloat()
         }
-
-        if (type == Type.INTERACT || type == Type.INTERACT_AT) {
-            hand = Hand.values()[buf.readVarInt()]
+        if (mode == InteractionType.INTERACT || mode == InteractionType.INTERACT_AT) {
+            hand = EnumHand.values()[buf.readVarInt()]
         }
+
     }
 
     override fun write(out: NetOutput, target: ProtocolVersion) {
-        out.writeVarInt(targetId)
-        out.writeVarInt(type.ordinal)
+        out.writeVarInt(targetEntity)
+        out.writeVarInt(mode.ordinal)
 
-        if (type == Type.INTERACT_AT) {
-            out.writeFloat(targetX)
-            out.writeFloat(targetY)
-            out.writeFloat(targetZ)
+        if (mode == InteractionType.INTERACT_AT) {
+            out.writeFloat(targetX!!)
+            out.writeFloat(targetY!!)
+            out.writeFloat(targetZ!!)
         }
-
-        if (type == Type.INTERACT || type == Type.INTERACT_AT) {
-            out.writeVarInt(hand.ordinal)
+        if (mode == InteractionType.INTERACT || mode == InteractionType.INTERACT_AT) {
+            out.writeVarInt(hand!!.ordinal)
         }
-    }
-
-    enum class Type {
-        INTERACT,
-        ATTACK,
-        INTERACT_AT
     }
 
 }

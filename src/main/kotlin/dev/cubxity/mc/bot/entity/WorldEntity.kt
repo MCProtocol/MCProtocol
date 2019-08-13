@@ -10,14 +10,13 @@
 
 package dev.cubxity.mc.bot.entity
 
-import dev.cubxity.mc.protocol.data.magic.MobType
 import dev.cubxity.mc.protocol.data.obj.EntityMetadata
 import dev.cubxity.mc.protocol.entities.SimplePosition
 import dev.cubxity.mc.protocol.packets.game.server.entity.ServerEntityPropertiesPacket
 import dev.cubxity.mc.protocol.utils.Vec3d
 
 open class WorldEntity(
-    val type: MobType,
+    val type: Int,
     var id: Int,
     var pos: SimplePosition,
     var vel: Vec3d,

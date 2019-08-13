@@ -16,7 +16,7 @@ import dev.cubxity.mc.protocol.packets.game.client.*
 import dev.cubxity.mc.protocol.packets.game.client.player.ClientAnimationPacket
 import dev.cubxity.mc.protocol.packets.game.client.player.ClientPlayerDiggingPacket
 import dev.cubxity.mc.protocol.packets.game.client.player.ClientPlayerPacket
-import dev.cubxity.mc.protocol.packets.game.client.player.ClientPlayerPositionLookPacket
+import dev.cubxity.mc.protocol.packets.game.client.player.ClientPlayerPositionAndLookPacket
 import dev.cubxity.mc.protocol.packets.game.server.*
 import dev.cubxity.mc.protocol.packets.game.server.entity.*
 import dev.cubxity.mc.protocol.packets.game.server.entity.player.ServerPlayerAbilitiesPacket
@@ -24,12 +24,10 @@ import dev.cubxity.mc.protocol.packets.game.server.entity.player.ServerPlayerPos
 import dev.cubxity.mc.protocol.packets.game.server.entity.player.ServerSetExperiencePacket
 import dev.cubxity.mc.protocol.packets.game.server.entity.player.ServerUpdateHealthPacket
 import dev.cubxity.mc.protocol.packets.game.server.entity.spawn.*
+import dev.cubxity.mc.protocol.packets.game.server.world.ServerBlockChangePacket
 import dev.cubxity.mc.protocol.packets.game.server.world.ServerChunkDataPacket
-import dev.cubxity.mc.protocol.packets.game.server.world.ServerSoundEffectPacket
 import dev.cubxity.mc.protocol.packets.game.server.world.ServerSpawnPositionPacket
 import dev.cubxity.mc.protocol.packets.game.server.world.ServerTimeUpdatePacket
-import dev.cubxity.mc.protocol.packets.game.server.world.block.ServerBlockChangePacket
-import dev.cubxity.mc.protocol.packets.game.server.world.block.ServerMultiBlockChangePacket
 import dev.cubxity.mc.protocol.packets.login.client.EncryptionResponsePacket
 import dev.cubxity.mc.protocol.packets.login.client.LoginPluginResponsePacket
 import dev.cubxity.mc.protocol.packets.login.client.LoginStartPacket
@@ -43,7 +41,7 @@ class PacketVersion_1_14_4 : PacketVersion {
         0x04 to ClientStatusPacket::class.java,
         0x0E to ClientUseEntityPacket::class.java,
         0x0F to ClientKeepAlivePacket::class.java,
-        0x12 to ClientPlayerPositionLookPacket::class.java,
+        0x12 to ClientPlayerPositionAndLookPacket::class.java,
         0x1A to ClientPlayerDiggingPacket::class.java,
         0x14 to ClientPlayerPacket::class.java,
         0x23 to ClientHeldItemChangePacket::class.java,
@@ -57,6 +55,7 @@ class PacketVersion_1_14_4 : PacketVersion {
         0x03 to ServerSpawnMobPacket::class.java,
         0x04 to ServerSpawnPaintingPacket::class.java,
         0x05 to ServerSpawnPlayerPacket::class.java,
+        0x06 to ServerAnimationPacket::class.java,
         0x0B to ServerBlockChangePacket::class.java,
         0x0D to ServerDifficultyPacket::class.java,
         0x0E to ServerChatPacket::class.java,
