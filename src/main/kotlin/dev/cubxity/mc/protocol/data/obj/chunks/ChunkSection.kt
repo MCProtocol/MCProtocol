@@ -8,32 +8,18 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package dev.cubxity.mc.protocol.state
+package dev.cubxity.mc.protocol.data.obj.chunks
 
-import dev.cubxity.mc.protocol.ProtocolSession
-import dev.cubxity.mc.protocol.data.magic.MessageType
-import dev.cubxity.mc.protocol.events.PacketReceivedEvent
-import dev.cubxity.mc.protocol.packets.game.server.ServerChatPacket
-import dev.cubxity.mc.protocol.state.world.ClientPlayer
-import dev.cubxity.mc.protocol.state.world.World
+import dev.cubxity.mc.protocol.entities.BlockPosition
 
-class Tracker(val session: ProtocolSession) {
+class ChunkSection {
 
-    var world = World(session)
-    var player = ClientPlayer(this)
+    private val states = hashMapOf<BlockPosition, BlockState>()
 
-    init {
-        registerHooks()
+    fun setState(x: Int, y: Int, z: Int, state: BlockState) {
+        states[BlockPosition(x, y, z)] = state
     }
 
-    private fun registerHooks() {
-        with (session) {
-            on<PacketReceivedEvent>()
-                .filter { it.packet is ServerChatPacket }
-                .map { it.packet as ServerChatPacket }
-                .filter { it.type != MessageType.NOTIFICATION }
-                .subscribe { sink.next(ChatMessageReceivedEvent(it.message, it.message.toText())) }
-        }
-    }
+    fun getState(x: Int, y: Int, z: Int): BlockState? = states[BlockPosition(x, y, z)]
 
 }

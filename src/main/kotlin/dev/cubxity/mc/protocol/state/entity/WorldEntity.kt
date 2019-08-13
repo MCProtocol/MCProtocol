@@ -12,7 +12,6 @@ package dev.cubxity.mc.protocol.state.entity
 
 import dev.cubxity.mc.protocol.data.obj.EntityMetadata
 import dev.cubxity.mc.protocol.packets.game.server.entity.ServerEntityPropertiesPacket
-import java.util.*
 
 open class WorldEntity(
     val type: Int,
@@ -26,10 +25,4 @@ open class WorldEntity(
     var headYaw: Float,
     var properties: Array<ServerEntityPropertiesPacket.Property> = arrayOf(),
     var metadata: Array<EntityMetadata> = arrayOf()
-) {
-    override fun toString(): String {
-        return "WorldEntity(type=$type, id=$id, x=$x, y=$y, z=$z, onGround=$onGround, pitch=$pitch, yaw=$yaw, headYaw=$headYaw, properties=${Arrays.toString(
-            properties
-        )}, metadata=${Arrays.toString(metadata)})"
-    }
-}
+)

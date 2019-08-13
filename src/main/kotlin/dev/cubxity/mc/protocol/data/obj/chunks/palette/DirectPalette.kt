@@ -8,9 +8,29 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package dev.cubxity.mc.protocol.data.obj.chunks
+package dev.cubxity.mc.protocol.data.obj.chunks.palette
 
-class Block(
-    val world: World, val chunk: ChunkSection, val location: BlockLocation, val id: Int,
-    val metadata: Int
-)
+import dev.cubxity.mc.protocol.ProtocolVersion
+import dev.cubxity.mc.protocol.data.obj.chunks.BlockState
+import dev.cubxity.mc.protocol.data.obj.chunks.util.BlockUtil
+import dev.cubxity.mc.protocol.net.io.NetInput
+import dev.cubxity.mc.protocol.net.io.NetOutput
+
+class DirectPalette(target: ProtocolVersion) : Palette(target) {
+
+    override fun getIdForState(state: BlockState) =
+        BlockUtil.getGlobalPaletteIDFromState(state)
+
+    override fun getStateForId(id: Int) =
+        BlockUtil.getStateFromGlobalPaletteID(id, target)
+
+    override fun getBitsPerBlock() = 14.toByte()
+
+    //    override fun getBitsPerBlock() = ceil(log2(totalNumberOfStates)).toByte()
+
+    override fun read(data: NetInput) {
+    }
+
+    override fun write(data: NetOutput) {
+    }
+}

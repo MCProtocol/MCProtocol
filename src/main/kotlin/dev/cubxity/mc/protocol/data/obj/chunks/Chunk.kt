@@ -8,32 +8,19 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package dev.cubxity.mc.protocol.data.obj.chunks;
+package dev.cubxity.mc.protocol.data.obj.chunks
 
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import kotlin.math.abs
+import kotlin.math.floor
 
-public class BlockState {
-    private int id;
+class Chunk {
 
-    public BlockState(int id) {
-        this.id = id;
+    var position = ChunkPosition(0, 0)
+    val sections = hashMapOf<Int, ChunkSection>()
+
+    fun getState(x: Int, y: Int, z: Int): BlockState? {
+        val chunkY = floor(y / 16.0).toInt()
+        return sections[chunkY]?.getState(abs(x) % 16, abs(y) % 16, abs(z) % 16)
     }
 
-    public int getId() {
-        return this.id;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof BlockState)) return false;
-
-        BlockState that = (BlockState) o;
-        return this.id == that.id;
-    }
-
-    @Override
-    public String toString() {
-        return ReflectionToStringBuilder.toString(this);
-    }
 }

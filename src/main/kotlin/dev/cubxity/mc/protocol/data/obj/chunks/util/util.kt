@@ -8,42 +8,20 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package dev.cubxity.mc.protocol.data.obj.chunks;
+package dev.cubxity.mc.protocol.data.obj.chunks.util
 
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import dev.cubxity.mc.protocol.ProtocolVersion
+import dev.cubxity.mc.protocol.data.obj.chunks.palette.DirectPalette
+import dev.cubxity.mc.protocol.data.obj.chunks.palette.IndirectPalette
 
-import java.util.Objects;
 
-public class Chunk {
-    private BlockStorage blocks;
+const val totalNumberOfStates = 14
+const val chunkHeight = 256
+const val sectionHeight = 16
+const val sectionWidth = 16
 
-    public Chunk(boolean skylight) {
-        this(new BlockStorage());
-    }
-
-    public Chunk(BlockStorage blocks) {
-        this.blocks = blocks;
-    }
-
-    public BlockStorage getBlocks() {
-        return this.blocks;
-    }
-
-    public boolean isEmpty() {
-        return this.blocks.isEmpty();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Chunk)) return false;
-
-        Chunk that = (Chunk) o;
-        return Objects.equals(this.blocks, that.blocks);
-    }
-
-    @Override
-    public String toString() {
-        return ReflectionToStringBuilder.toString(this);
-    }
+fun choosePalette(bitsPerBlock: Byte, target: ProtocolVersion) = when {
+    bitsPerBlock <= 4 -> IndirectPalette(4, target)
+    bitsPerBlock <= 8 -> IndirectPalette(bitsPerBlock, target)
+    else -> DirectPalette(target)
 }

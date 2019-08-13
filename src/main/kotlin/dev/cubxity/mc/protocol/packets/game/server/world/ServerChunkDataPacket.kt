@@ -12,12 +12,13 @@ package dev.cubxity.mc.protocol.packets.game.server.world
 
 import com.github.steveice10.opennbt.tag.builtin.CompoundTag
 import dev.cubxity.mc.protocol.ProtocolVersion
-import dev.cubxity.mc.protocol.data.obj.chunks.ChunkUtil
-import dev.cubxity.mc.protocol.data.obj.chunks.Column
+import dev.cubxity.mc.protocol.data.obj.chunks.Chunk
+import dev.cubxity.mc.protocol.data.obj.chunks.ChunkPosition
+import dev.cubxity.mc.protocol.data.obj.chunks.util.ChunkUtil
 import dev.cubxity.mc.protocol.net.io.NetInput
 import dev.cubxity.mc.protocol.net.io.NetOutput
+import dev.cubxity.mc.protocol.net.io.impl.stream.StreamNetInput
 import dev.cubxity.mc.protocol.packets.Packet
-import java.util.*
 
 class ServerChunkDataPacket(
     var chunkX: Int,
@@ -25,16 +26,14 @@ class ServerChunkDataPacket(
     var full: Boolean,
     var bitMask: Int,
     var heightMaps: CompoundTag,
-    var column: Column,
+    var chunk: Chunk,
     var blockEntities: Array<CompoundTag>
 ) : Packet() {
 
     override fun read(buf: NetInput, target: ProtocolVersion) {
         chunkX = buf.readInt()
         chunkZ = buf.readInt()
-
         full = buf.readBoolean()
-
         bitMask = buf.readVarInt()
         heightMaps = buf.readNbt() as CompoundTag
 
@@ -44,22 +43,14 @@ class ServerChunkDataPacket(
         blockEntities = arrayOf()
 
         val blockEntityCount = buf.readVarInt()
-
         for (i in 0 until blockEntityCount) {
             blockEntities += buf.readNbt() as CompoundTag
         }
 
-        this.column = ChunkUtil.readColumn(data, chunkX, chunkZ, full, false, bitMask, blockEntities, heightMaps)
+        chunk = ChunkUtil.readChunkColumn(full, bitMask, StreamNetInput(data.inputStream()), target)
+        chunk.position = ChunkPosition(chunkX, chunkZ)
     }
 
     override fun write(out: NetOutput, target: ProtocolVersion) {
     }
-
-    override fun toString(): String {
-        return "ServerChunkDataPacket(chunkX=$chunkX, chunkZ=$chunkZ, full=$full, bitMask=$bitMask, heightMaps=$heightMaps, blockEntities=${Arrays.toString(
-            blockEntities
-        )})"
-    }
-
-
 }

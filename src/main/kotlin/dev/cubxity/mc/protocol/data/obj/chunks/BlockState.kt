@@ -10,35 +10,4 @@
 
 package dev.cubxity.mc.protocol.data.obj.chunks
 
-import java.util.*
-
-class ChunkLocation(val x: Int, val y: Int, val z: Int) {
-
-    constructor(blockLocation: BlockLocation) : this(
-        blockLocation.x shr 4,
-        blockLocation.y shr 4,
-        blockLocation.z shr 4
-    )
-
-    override fun equals(o: Any?): Boolean {
-        if (this === o) return true
-        if (o == null || javaClass != o.javaClass) return false
-        val that = o as ChunkLocation?
-
-        return x == that!!.x &&
-                y == that.y &&
-                z == that.z
-    }
-
-    override fun hashCode(): Int {
-        return Objects.hash(x, y, z)
-    }
-
-    override fun toString(): String {
-        return "ChunkLocation{" +
-                "x=" + x +
-                ", y=" + y +
-                ", z=" + z +
-                '}'.toString()
-    }
-}
+class BlockState(var id: Int)

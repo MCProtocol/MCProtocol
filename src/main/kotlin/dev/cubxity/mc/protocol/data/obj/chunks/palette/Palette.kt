@@ -8,36 +8,18 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package dev.cubxity.mc.protocol.data.obj.chunks
+package dev.cubxity.mc.protocol.data.obj.chunks.palette
 
-import dev.cubxity.mc.protocol.entities.SimplePosition
-import java.util.*
+import dev.cubxity.mc.protocol.ProtocolVersion
+import dev.cubxity.mc.protocol.data.obj.chunks.BlockState
+import dev.cubxity.mc.protocol.net.io.NetInput
+import dev.cubxity.mc.protocol.net.io.NetOutput
 
-class BlockLocation(val x: Int, val y: Int, val z: Int) {
 
-    constructor(location: ChunkLocation) : this(location.x shl 4, location.y shl 4, location.z shl 4)
-
-    constructor(position: SimplePosition) : this(position.x.toInt(), position.y.toInt(), position.z.toInt())
-
-    override fun equals(o: Any?): Boolean {
-        if (this === o) return true
-        if (o == null || javaClass != o.javaClass) return false
-        val that = o as BlockLocation?
-
-        return x == that!!.x &&
-                y == that.y &&
-                z == that.z
-    }
-
-    override fun hashCode(): Int {
-        return Objects.hash(x, y, z)
-    }
-
-    override fun toString(): String {
-        return "BlockLocation{" +
-                "x=" + x +
-                ", y=" + y +
-                ", z=" + z +
-                '}'.toString()
-    }
+abstract class Palette(val target: ProtocolVersion) {
+    abstract fun getIdForState(state: BlockState): Int
+    abstract fun getStateForId(id: Int): BlockState
+    abstract fun getBitsPerBlock(): Byte
+    abstract fun read(data: NetInput)
+    abstract fun write(data: NetOutput)
 }
