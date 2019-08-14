@@ -63,11 +63,6 @@ object ChunkUtil {
 
                             val state = palette.getStateForId(blockData.toInt())
 
-                            if (state.data == 3884) {
-                                println("lol")
-                            }
-                            println(state)
-
                             section.setState(x, y, z, state)
                         }
                     }

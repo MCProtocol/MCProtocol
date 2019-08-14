@@ -166,10 +166,11 @@ class World(val session: ProtocolSession) {
                     val id = c?.blockId ?: 0
 
                     if (id != 0) {
+                        val shit = session.incomingVersion.registryManager.blockRegistry.get(
+                            id
+                        )
                         var f = File(
-                            "F:\\Projects\\IntelliJ\\proxy\\assets\\" + session.incomingVersion.registryManager.blockRegistry.get(
-                                id
-                            )!!.name + "_top.png"
+                            "F:\\Projects\\IntelliJ\\proxy\\assets\\" + shit!!.name + "_top.png"
                         )
 
                         if (!f.exists()) {

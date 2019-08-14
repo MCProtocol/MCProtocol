@@ -35,7 +35,7 @@ class BlockRegistry(target: ProtocolVersion) {
 
     fun get(id: Int) = elements[id]
 
-    class BlockEntry(
+    data class BlockEntry(
         val id: Int,
         val displayName: String,
         val name: String,
