@@ -27,6 +27,7 @@ object ChunkUtil {
                 val blockCount = data.readShort()
                 val bitsPerBlock = data.readUnsignedByte()
                 val palette = choosePalette(bitsPerBlock.toByte(), target)
+
                 palette.read(data)
 
                 val individualValueMask = ((1 shl bitsPerBlock) - 1).toLong()
@@ -39,16 +40,19 @@ object ChunkUtil {
                 for (y in 0 until sectionHeight) {
                     for (z in 0 until sectionWidth) {
                         for (x in 0 until sectionWidth) {
-                            val blockNumber = (y * sectionHeight + z) * sectionWidth + x
-                            val startLong = blockNumber * bitsPerBlock / 64
-                            val startOffset = blockNumber * bitsPerBlock % 64
-                            val endLong = ((blockNumber + 1) * bitsPerBlock - 1) / 64
+                            val blockIndex = (y shl 8 or (z shl 4)) or x
+
+                            val bitIndex = blockIndex * bitsPerBlock
+
+                            val startLong = bitIndex / 64
+                            val startOffset = bitIndex % 64
+                            val endLong = ((blockIndex + 1) * bitsPerBlock - 1) / 64
 
                             var blockData = if (startLong == endLong) {
-                                dataArray[startLong] shr startOffset
+                                dataArray[startLong] ushr startOffset
                             } else {
                                 val endOffset = 64 - startOffset
-                                dataArray[startLong] shr startOffset or (dataArray[endLong] shl endOffset)
+                                dataArray[startLong] ushr startOffset or (dataArray[endLong] shl endOffset)
                             }
 
                             blockData = blockData and individualValueMask
@@ -58,6 +62,12 @@ object ChunkUtil {
                             // you're probably reading light data instead
 
                             val state = palette.getStateForId(blockData.toInt())
+
+                            if (state.data == 3884) {
+                                println("lol")
+                            }
+                            println(state)
+
                             section.setState(x, y, z, state)
                         }
                     }

@@ -13,13 +13,12 @@ package dev.cubxity.mc.protocol.example
 import com.google.gson.GsonBuilder
 import dev.cubxity.mc.protocol.ProtocolSession
 import dev.cubxity.mc.protocol.data.magic.ClientStatus
-import dev.cubxity.mc.protocol.data.magic.EntityAction
 import dev.cubxity.mc.protocol.data.magic.GameState
 import dev.cubxity.mc.protocol.dsl.buildProtocol
 import dev.cubxity.mc.protocol.dsl.client
 import dev.cubxity.mc.protocol.dsl.server
+import dev.cubxity.mc.protocol.entities.BlockPosition
 import dev.cubxity.mc.protocol.events.PacketReceivedEvent
-import dev.cubxity.mc.protocol.packets.game.client.ClientEntityActionPacket
 import dev.cubxity.mc.protocol.packets.game.client.ClientStatusPacket
 import dev.cubxity.mc.protocol.packets.game.server.ServerChangeGameStatePacket
 import dev.cubxity.mc.protocol.packets.game.server.ServerChatPacket
@@ -85,18 +84,20 @@ fun client() {
                     .subscribe {
                         println("Chat: ${it.message.toText()}")
 
-                        ch.writeAndFlush(
-                            ClientEntityActionPacket(
-                                entityId,
-                                if (sneaking) EntityAction.START_SNEAKING else EntityAction.STOP_SNEAKING,
-                                0
-                            )
-                        )
-                        sneaking = !sneaking
+//                        ch.writeAndFlush(
+//                            ClientEntityActionPacket(
+//                                entityId,
+//                                if (sneaking) EntityAction.START_SNEAKING else EntityAction.STOP_SNEAKING,
+//                                0
+//                            )
+//                        )
+//                        sneaking = !sneaking
+
 
 //                        ch.writeAndFlush(ClientUseEntityPacket(3856, InteractionType.INTERACT, hand = EnumHand.MAIN_HAND))
-//                        println(tracker.world.getBlockIdAt(-32, 80, 3))
+//                        println()
 //                        tracker.world.dumpChunk(-2, 1)
+                        println(tracker.world.getBlockAt(BlockPosition(-23, 2, 23)).toString())
                     }
 
                 on<PacketReceivedEvent>()

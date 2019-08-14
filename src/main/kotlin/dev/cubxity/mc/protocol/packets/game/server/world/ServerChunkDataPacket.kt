@@ -27,7 +27,7 @@ class ServerChunkDataPacket(
     var bitMask: Int,
     var heightMaps: CompoundTag,
     var chunk: Chunk,
-    var blockEntities: Array<CompoundTag>
+    var blockEntities: ArrayList<CompoundTag>
 ) : Packet() {
 
     override fun read(buf: NetInput, target: ProtocolVersion) {
@@ -40,12 +40,7 @@ class ServerChunkDataPacket(
         val dataSize = buf.readVarInt()
         val data = buf.readBytes(dataSize)
 
-        blockEntities = arrayOf()
-
-        val blockEntityCount = buf.readVarInt()
-        for (i in 0 until blockEntityCount) {
-            blockEntities += buf.readNbt() as CompoundTag
-        }
+        blockEntities = buf.readVarArray { buf.readNbt() as CompoundTag }
 
         chunk = ChunkUtil.readChunkColumn(full, bitMask, StreamNetInput(data.inputStream()), target)
         chunk.position = ChunkPosition(chunkX, chunkZ)

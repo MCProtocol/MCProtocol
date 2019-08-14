@@ -21,7 +21,7 @@ class BlockState(var data: Int) {
         }
 
     override fun toString(): String {
-        return "BlockState(blockId=$blockId, blockMetadata=$blockMetadata)"
+        return "BlockState(data=$data, blockId=$blockId, blockMetadata=$blockMetadata)"
     }
 
 
