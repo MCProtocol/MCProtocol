@@ -10,6 +10,7 @@
 
 package dev.cubxity.mc.protocol.utils
 
+import dev.cubxity.mc.protocol.data.magic.BlockFace
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.pow
@@ -57,6 +58,16 @@ class Vec3d(var x: Double, var y: Double, var z: Double) {
                 ", y=" + y +
                 ", z=" + z +
                 '}'.toString()
+    }
+
+    fun toBlockFace() = when {
+        y < 0 -> BlockFace.BOTTOM
+        y > 0 -> BlockFace.TOP
+        z < 0 -> BlockFace.NORTH
+        z > 0 -> BlockFace.SOUTH
+        x < 0 -> BlockFace.WEST
+        x > 0 -> BlockFace.EAST
+        else -> BlockFace.TOP
     }
 
 }

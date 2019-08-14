@@ -20,34 +20,33 @@ import dev.cubxity.mc.protocol.net.io.NetOutput
 import dev.cubxity.mc.protocol.packets.Packet
 
 class ClientPlayerBlockPlacementPacket(
+    var hand: EnumHand,
     var location: SimplePosition,
     var face: BlockFace,
-    var hand: EnumHand,
     var cursorPositionX: Float,
     var cursorPositionY: Float,
-    var cursorPositionZ: Float
+    var cursorPositionZ: Float,
+    var insideBlock: Boolean
 ) : Packet() {
 
     override fun read(buf: NetInput, target: ProtocolVersion) {
-        location = buf.readPosition()
-
-        face = BlockFace.values()[buf.readVarInt()]
         hand = EnumHand.values()[buf.readVarInt()]
-
+        location = buf.readPosition()
+        face = BlockFace.values()[buf.readVarInt()]
         cursorPositionX = buf.readFloat()
         cursorPositionY = buf.readFloat()
         cursorPositionZ = buf.readFloat()
+        insideBlock = buf.readBoolean()
     }
 
     override fun write(out: NetOutput, target: ProtocolVersion) {
-        out.writePosition(location)
-
-        out.writeVarInt(face.ordinal)
         out.writeVarInt(hand.ordinal)
-
+        out.writePosition(location)
+        out.writeVarInt(face.ordinal)
         out.writeFloat(cursorPositionX)
         out.writeFloat(cursorPositionY)
         out.writeFloat(cursorPositionZ)
+        out.writeBoolean(insideBlock)
     }
 
 }

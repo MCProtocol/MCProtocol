@@ -10,19 +10,16 @@
 
 package dev.cubxity.mc.bot.managers.world
 
-import com.google.gson.GsonBuilder
 import dev.cubxity.mc.bot.Bot
 import dev.cubxity.mc.protocol.data.magic.*
 import dev.cubxity.mc.protocol.data.obj.chunks.util.BlockUtil
 import dev.cubxity.mc.protocol.entities.BlockPosition
 import dev.cubxity.mc.protocol.entities.SimplePosition
 import dev.cubxity.mc.protocol.events.PacketReceivedEvent
+import dev.cubxity.mc.protocol.packets.game.client.ClientPlayerBlockPlacementPacket
 import dev.cubxity.mc.protocol.packets.game.client.player.ClientPlayerDiggingPacket
-import dev.cubxity.mc.protocol.packets.game.server.ServerBlockBreakAnimationPacket
 import dev.cubxity.mc.protocol.packets.game.server.ServerChatPacket
 import dev.cubxity.mc.protocol.packets.game.server.ServerJoinGamePacket
-import dev.cubxity.mc.protocol.packets.game.server.ServerRespawnPacket
-import dev.cubxity.mc.protocol.packets.game.server.world.ServerBlockChangePacket
 import dev.cubxity.mc.protocol.packets.game.server.world.ServerSpawnPositionPacket
 import kotlinx.coroutines.*
 
@@ -61,27 +58,20 @@ class WorldManager(private val bot: Bot) {
                 .map { it.packet as ServerChatPacket }
                 .subscribe {
                     val pos = bot.player.physicsManager.position.toBlockPosition()
-                    breakBlock(BlockPosition(pos.x, pos.y - 1, pos.z)) {
-                        println("Broken!")
+                    placeBlock(BlockPosition(pos.x + 1, pos.y, pos.z)) {
+                        println("Placed!")
                     }
                 }
-
-//            on<PacketReceivedEvent>()
-//                .subscribe {
-//                    println(GsonBuilder().setPrettyPrinting().create().toJson(it.packet))
-//                }
         }
     }
 
     fun breakBlock(position: BlockPosition, cb: () -> Unit = {}) {
         stopDigging()
 
-        bot.player.physicsManager.lookAt(SimplePosition(position.x + 0.5, position.y.toDouble(), position.z + 0.5)) {
+        bot.player.physicsManager.lookAt(SimplePosition(position.x + 0.5, position.y - 0.5, position.z + 0.5)) {
             val state = bot.world.getBlockAt(position) ?: return@lookAt
             val data = state.lookup(bot.session.outgoingVersion) ?: return@lookAt
             val breakTime = BlockUtil.getDigTime(bot, data)
-
-            println("BT: $breakTime")
 
             startedDigging = System.currentTimeMillis()
             currentDiggingBlock = position
@@ -94,10 +84,6 @@ class WorldManager(private val bot: Bot) {
             )
 
             swingJob = GlobalScope.launch {
-                println(isActive)
-                println(System.currentTimeMillis())
-                println(startedDigging + breakTime)
-
                 while (System.currentTimeMillis() < startedDigging + breakTime && isActive) {
                     delay(350)
                     bot.player.swingArm(Hand.MAIN_HAND)
@@ -113,11 +99,32 @@ class WorldManager(private val bot: Bot) {
                         position.toSimple(), BlockFace.TOP
                     )
                 )
-
-                println(bot.world.getBlockAt(position)?.id)
-
                 cb()
             }
+        }
+    }
+
+    fun placeBlock(position: BlockPosition, cb: () -> Unit = {}) {
+        bot.player.physicsManager.lookAt(SimplePosition(position.x + 0.5, position.y - 0.5, position.z + 0.5)) {
+            val state = bot.world.getBlockAt(position)?.id ?: 0
+
+            if (state == 0) {
+                bot.player.swingArm(Hand.MAIN_HAND)
+
+                bot.session.send(
+                    ClientPlayerBlockPlacementPacket(
+                        EnumHand.MAIN_HAND,
+                        SimplePosition(position.x + 0.5, position.y - 0.5, position.z + 0.5),
+                        position.toSimple().toVec3().toBlockFace(),
+                        0.5f,
+                        0.5f,
+                        0.5f,
+                        false
+                    )
+                )
+            }
+
+            cb()
         }
     }
 
