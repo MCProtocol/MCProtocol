@@ -10,11 +10,12 @@
 
 package dev.cubxity.mc.bot.managers.inventory
 
-import com.google.gson.annotations.Expose
 import dev.cubxity.mc.bot.Bot
+import dev.cubxity.mc.protocol.data.magic.EnumHand
 import dev.cubxity.mc.protocol.data.obj.Slot
 import dev.cubxity.mc.protocol.events.PacketReceivedEvent
 import dev.cubxity.mc.protocol.packets.game.client.ClientHeldItemChangePacket
+import dev.cubxity.mc.protocol.packets.game.client.ClientUseItemPacket
 import dev.cubxity.mc.protocol.packets.game.server.ServerHeldItemChangePacket
 import dev.cubxity.mc.protocol.packets.game.server.ServerSetSlotPacket
 import dev.cubxity.mc.protocol.packets.game.server.ServerWindowItemsPacket
@@ -59,6 +60,10 @@ class InventoryManager(private val bot: Bot) {
 
     fun swapItem(hotbar: Int) {
         bot.session.send(ClientHeldItemChangePacket(hotbar.toShort()))
+    }
+
+    fun useItem() {
+        bot.session.send(ClientUseItemPacket(EnumHand.MAIN_HAND))
     }
 
 }

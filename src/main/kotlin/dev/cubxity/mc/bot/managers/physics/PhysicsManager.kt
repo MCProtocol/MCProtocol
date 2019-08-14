@@ -49,7 +49,7 @@ class PhysicsManager(private val bot: Bot) {
     var yaw = 0.0f
 
     private var prevYaw = 0.0f
-    private var targetYaw = 0.0f
+    var targetYaw = 0.0f
     private var yawChanged = true
 
     private var lookJob: Job? = null
@@ -73,7 +73,7 @@ class PhysicsManager(private val bot: Bot) {
             .map { it.packet as ServerChatPacket }
             .subscribe {
 //                val pos = bot.world.findClosestEntity(50)?.pos ?: return@subscribe
-                walkTo(SimplePosition(-40.0, 4.0, 75.0))
+//                walkTo(SimplePosition(-40.0, 4.0, 75.0))
             }
     }
 

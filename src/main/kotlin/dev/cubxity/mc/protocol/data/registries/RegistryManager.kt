@@ -12,8 +12,9 @@ package dev.cubxity.mc.protocol.data.registries
 
 import dev.cubxity.mc.protocol.ProtocolVersion
 import dev.cubxity.mc.protocol.data.registries.impl.BlockRegistry
+import dev.cubxity.mc.protocol.data.registries.impl.ItemRegistry
 
 class RegistryManager(target: ProtocolVersion) {
     var blockRegistry = BlockRegistry(target)
-
+    var itemRegistry = ItemRegistry(target)
 }

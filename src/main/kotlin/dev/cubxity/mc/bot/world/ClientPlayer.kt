@@ -55,8 +55,8 @@ class ClientPlayer(private val bot: Bot) {
                     val packetYaw = ConversionUtil.fromNotchianYaw(it.yaw)
                     val packetPitch = ConversionUtil.fromNotchianPitch(it.pitch)
 
-                    physicsManager.yaw =
-                        if (PositionElement.X_ROT in it.relative) physicsManager.yaw + packetYaw else packetYaw
+                    physicsManager.targetYaw =
+                        if (PositionElement.X_ROT in it.relative) physicsManager.targetYaw + packetYaw else packetYaw
                     physicsManager.pitch =
                         if (PositionElement.Y_ROT in it.relative) physicsManager.pitch + packetPitch else packetPitch
 
