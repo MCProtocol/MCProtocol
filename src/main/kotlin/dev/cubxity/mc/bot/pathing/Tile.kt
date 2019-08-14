@@ -11,6 +11,7 @@
 package dev.cubxity.mc.bot.pathing
 
 import dev.cubxity.mc.protocol.entities.BlockPosition
+import dev.cubxity.mc.protocol.entities.SimplePosition
 import dev.cubxity.mc.protocol.utils.Vec3d
 import kotlin.math.abs
 
@@ -67,5 +68,11 @@ data class Tile(val position: BlockPosition, var parent: Tile?) {
 
     fun isInRange(range: Int) =
         ((range - abs(position.x) >= 0) && (range - abs(position.y) >= 0) && (range - abs(position.z) >= 0))
+
+    fun getRealPosition(start: BlockPosition) = SimplePosition(
+        position.x + start.x.toDouble(),
+        position.y + start.y.toDouble(),
+        position.z + start.z.toDouble()
+    )
 
 }

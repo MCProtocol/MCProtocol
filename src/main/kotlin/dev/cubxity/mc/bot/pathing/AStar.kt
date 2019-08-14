@@ -24,7 +24,7 @@ class AStar(val bot: Bot, private val start: BlockPosition, val end: BlockPositi
     private var checkOnce = false
     private var endId: BlockPosition
 
-    var result = PathingResult.WAITING
+    var result = PathingResult.SUCCESS
         private set
 
     init {
@@ -48,11 +48,11 @@ class AStar(val bot: Bot, private val start: BlockPosition, val end: BlockPositi
         var current: Tile? = null
 
         while (canContinue()) {
-            current = this.getLowestFTile()
+            current = getLowestFTile()
             processAdjacentTiles(current)
         }
 
-        if (this.result !== PathingResult.SUCCESS) {
+        if (result != PathingResult.SUCCESS) {
             return null
         } else {
             val routeTrace = LinkedList<Tile>()
@@ -110,7 +110,7 @@ class AStar(val bot: Bot, private val start: BlockPosition, val end: BlockPositi
     }
 
     private fun processAdjacentTiles(current: Tile) {
-        val possible = HashSet<Tile>(26)
+        val possible = arrayListOf<Tile>()
 
         for (x in -1..1) {
             for (y in -1..1) {
@@ -165,7 +165,7 @@ class AStar(val bot: Bot, private val start: BlockPosition, val end: BlockPositi
         }
     }
 
-    private fun isTileWalkable(t: Tile) = bot.world.getBlockAt(t.position)?.id == 0
+    private fun isTileWalkable(t: Tile) = bot.world.getBlockAt(t.getRealPosition(start).toBlockPosition())?.id ?: 0 == 0
 
 
 }

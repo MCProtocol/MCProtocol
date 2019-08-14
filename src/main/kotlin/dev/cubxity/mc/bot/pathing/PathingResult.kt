@@ -13,7 +13,6 @@ package dev.cubxity.mc.bot.pathing
 enum class PathingResult {
 
     SUCCESS,
-    NO_PATH,
-    WAITING
+    NO_PATH
 
 }

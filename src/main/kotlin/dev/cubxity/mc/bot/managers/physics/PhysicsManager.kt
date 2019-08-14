@@ -11,14 +11,19 @@
 package dev.cubxity.mc.bot.managers.physics
 
 import dev.cubxity.mc.bot.Bot
+import dev.cubxity.mc.bot.entity.impl.WorldPlayerEntity
+import dev.cubxity.mc.bot.pathing.AStar
 import dev.cubxity.mc.protocol.entities.BlockPosition
 import dev.cubxity.mc.protocol.entities.SimplePosition
+import dev.cubxity.mc.protocol.events.PacketReceivedEvent
 import dev.cubxity.mc.protocol.packets.game.client.player.ClientPlayerPositionAndLookPacket
+import dev.cubxity.mc.protocol.packets.game.server.ServerChatPacket
 import dev.cubxity.mc.protocol.utils.BoundingBox
 import dev.cubxity.mc.protocol.utils.ConversionUtil
 import dev.cubxity.mc.protocol.utils.MathUtil
 import dev.cubxity.mc.protocol.utils.Vec3d
 import kotlinx.coroutines.*
+import java.util.*
 import kotlin.math.*
 
 
@@ -48,6 +53,7 @@ class PhysicsManager(private val bot: Bot) {
     private var yawChanged = true
 
     private var lookJob: Job? = null
+    private var walkJob: Job? = null
 
     init {
         GlobalScope.launch {
@@ -61,6 +67,14 @@ class PhysicsManager(private val bot: Bot) {
                 tick(deltaToUse)
             }
         }
+
+        bot.session.on<PacketReceivedEvent>()
+            .filter { it.packet is ServerChatPacket }
+            .map { it.packet as ServerChatPacket }
+            .subscribe {
+//                val pos = bot.world.findClosestEntity(50)?.pos ?: return@subscribe
+                walkTo(SimplePosition(-40.0, 4.0, 75.0))
+            }
     }
 
     private fun tick(deltaSeconds: Double) {
@@ -246,6 +260,39 @@ class PhysicsManager(private val bot: Bot) {
                     lookJob = null
                     break
                 }
+            }
+        }
+    }
+
+    fun walkTo(pos: SimplePosition) {
+        if (walkJob?.isActive == true)
+            walkJob?.cancel()
+
+        val start = position.toBlockPosition()
+
+        val aStar = AStar(bot, start, pos.toBlockPosition(), Int.MAX_VALUE)
+        val items = ArrayDeque(aStar.iterate() ?: return)
+
+        walkJob = GlobalScope.launch {
+            var current = items.poll()
+
+            while (isActive) {
+                val tile = current.getRealPosition(start)
+
+                controlState.forward = true
+
+                if (position.toVec3().distanceTo(tile.toVec3()) <= 1.5) {
+                    current = items.poll()
+
+                    if (current == null) {
+                        controlState.forward = false
+                        break
+                    }
+                }
+
+                lookAt(SimplePosition(tile.x + 0.5, tile.y + 0.5, tile.z + 0.5))
+
+                delay(50)
             }
         }
     }

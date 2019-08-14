@@ -52,16 +52,6 @@ class WorldManager(private val bot: Bot) {
                     dimension = it.dimension
                     levelType = it.levelType
                 }
-
-            on<PacketReceivedEvent>()
-                .filter { it.packet is ServerChatPacket }
-                .map { it.packet as ServerChatPacket }
-                .subscribe {
-                    val pos = bot.player.physicsManager.position.toBlockPosition()
-                    placeBlock(BlockPosition(pos.x + 1, pos.y, pos.z)) {
-                        println("Placed!")
-                    }
-                }
         }
     }
 
