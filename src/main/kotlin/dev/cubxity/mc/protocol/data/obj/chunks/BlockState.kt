@@ -10,4 +10,8 @@
 
 package dev.cubxity.mc.protocol.data.obj.chunks
 
-class BlockState(var id: Int)
+import dev.cubxity.mc.protocol.ProtocolVersion
+
+class BlockState(var id: Int) {
+    fun lookup(target: ProtocolVersion) = target.registryManager.blockRegistry.get(id)
+}

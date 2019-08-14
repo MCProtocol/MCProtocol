@@ -12,6 +12,7 @@ package dev.cubxity.mc.bot.managers.entity
 
 import dev.cubxity.mc.bot.Bot
 import dev.cubxity.mc.protocol.data.magic.Hand
+import dev.cubxity.mc.protocol.data.magic.InteractionType
 import dev.cubxity.mc.protocol.packets.game.client.ClientUseEntityPacket
 import dev.cubxity.mc.protocol.packets.game.client.player.ClientAnimationPacket
 
@@ -21,7 +22,7 @@ class EntityManager(private val bot: Bot) {
         bot.world.entities[id]?.let {
             bot.player.physicsManager.lookAt(it.pos) {
                 bot.session.send(ClientAnimationPacket(Hand.MAIN_HAND))
-                bot.session.send(ClientUseEntityPacket(id, ClientUseEntityPacket.Type.ATTACK))
+                bot.session.send(ClientUseEntityPacket(id, InteractionType.ATTACK))
                 cb()
             }
         }

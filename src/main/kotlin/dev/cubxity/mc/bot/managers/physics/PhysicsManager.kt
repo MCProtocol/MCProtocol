@@ -13,15 +13,12 @@ package dev.cubxity.mc.bot.managers.physics
 import dev.cubxity.mc.bot.Bot
 import dev.cubxity.mc.protocol.entities.BlockPosition
 import dev.cubxity.mc.protocol.entities.SimplePosition
-import dev.cubxity.mc.protocol.packets.game.client.player.ClientPlayerPositionLookPacket
+import dev.cubxity.mc.protocol.packets.game.client.player.ClientPlayerPositionAndLookPacket
 import dev.cubxity.mc.protocol.utils.BoundingBox
 import dev.cubxity.mc.protocol.utils.ConversionUtil
 import dev.cubxity.mc.protocol.utils.MathUtil
 import dev.cubxity.mc.protocol.utils.Vec3d
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import kotlin.math.*
 
 
@@ -212,7 +209,7 @@ class PhysicsManager(private val bot: Bot) {
         yawChanged = true
 
         bot.session.send(
-            ClientPlayerPositionLookPacket(
+            ClientPlayerPositionAndLookPacket(
                 position.x,
                 position.y,
                 position.z,
@@ -241,13 +238,13 @@ class PhysicsManager(private val bot: Bot) {
         yawChanged = false
 
         lookJob = GlobalScope.launch {
-            while (true) {
+            while (isActive) {
                 delay(50)
                 val prev = this@PhysicsManager.prevYaw
                 if (abs((prev - this@PhysicsManager.targetYaw) % (PI * 2)) < 0.001 && yawChanged) {
                     cb()
                     lookJob = null
-                    return@launch
+                    break
                 }
             }
         }

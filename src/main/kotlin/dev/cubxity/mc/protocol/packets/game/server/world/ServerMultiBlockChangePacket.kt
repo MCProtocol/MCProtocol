@@ -8,7 +8,7 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package dev.cubxity.mc.protocol.packets.game.server
+package dev.cubxity.mc.protocol.packets.game.server.world
 
 import dev.cubxity.mc.protocol.ProtocolVersion
 import dev.cubxity.mc.protocol.entities.SimplePosition
@@ -16,21 +16,50 @@ import dev.cubxity.mc.protocol.net.io.NetInput
 import dev.cubxity.mc.protocol.net.io.NetOutput
 import dev.cubxity.mc.protocol.packets.Packet
 
-class ServerBlockBreakAnimationPacket(
-    var entityId: Int,
-    var location: SimplePosition,
-    var destroyStage: Byte
+class ServerMultiBlockChangePacket(
+    var chunkX: Int,
+    var chunkZ: Int,
+    var records: Array<Record>
 ) : Packet() {
 
     override fun read(buf: NetInput, target: ProtocolVersion) {
-        entityId = buf.readVarInt()
-        location = buf.readPosition()
-        destroyStage = buf.readByte()
+        chunkX = buf.readInt()
+        chunkZ = buf.readInt()
+
+        var readRecords = arrayOf<Record>()
+
+        for (i in 0 until buf.readVarInt()) {
+            val horizontalPosition = buf.readUnsignedByte()
+
+            val worldX = (horizontalPosition shr 4 and 15) + chunkX * 16
+            val worldZ = (horizontalPosition and 15) + chunkZ * 16
+            val worldY = buf.readUnsignedByte()
+
+            readRecords += Record(
+                horizontalPosition,
+                SimplePosition(worldX.toDouble(), worldY.toDouble(), worldZ.toDouble()),
+                buf.readVarInt()
+            )
+        }
+
+        records = readRecords
     }
 
     override fun write(out: NetOutput, target: ProtocolVersion) {
-        out.writeVarInt(entityId)
-        out.writePosition(location)
-        out.writeByte(destroyStage.toInt())
+        out.writeInt(chunkX)
+        out.writeInt(chunkZ)
+        out.writeVarInt(records.size)
+
+        for (record in records) {
+            out.writeByte(record.horizontalPosition)
+            out.writeByte(record.position.y.toInt())
+            out.writeVarInt(record.blockId)
+        }
     }
+
+    data class Record(
+        val horizontalPosition: Int,
+        val position: SimplePosition,
+        val blockId: Int
+    )
 }

@@ -8,20 +8,26 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package dev.cubxity.mc.bot.entity.impl
+package dev.cubxity.mc.protocol.packets.game.server.world
 
-import dev.cubxity.mc.protocol.data.magic.MobType
-import dev.cubxity.mc.bot.entity.WorldEntity
+import dev.cubxity.mc.protocol.ProtocolVersion
 import dev.cubxity.mc.protocol.entities.SimplePosition
-import dev.cubxity.mc.protocol.utils.Vec3d
-import java.util.*
+import dev.cubxity.mc.protocol.net.io.NetInput
+import dev.cubxity.mc.protocol.net.io.NetOutput
+import dev.cubxity.mc.protocol.packets.Packet
 
-open class WorldPlayerEntity(
-    id: Int,
-    pos: SimplePosition,
-    onGround: Boolean,
-    headYaw: Float,
-    pitch: Float,
-    yaw: Float,
-    var uuid: UUID
-) : WorldEntity(92, id, pos, Vec3d(0.0, 0.0, 0.0), onGround, headYaw, pitch, yaw)
+class ServerBlockChangePacket(
+    var location: SimplePosition,
+    var blockId: Int
+) : Packet() {
+
+    override fun read(buf: NetInput, target: ProtocolVersion) {
+        location = buf.readPosition()
+        blockId = buf.readVarInt()
+    }
+
+    override fun write(out: NetOutput, target: ProtocolVersion) {
+        out.writePosition(location)
+        out.writeVarInt(blockId)
+    }
+}

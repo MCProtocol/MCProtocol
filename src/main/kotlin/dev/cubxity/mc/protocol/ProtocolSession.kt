@@ -372,147 +372,6 @@ class ProtocolSession @JvmOverloads constructor(
             }
 
             SubProtocol.GAME -> {
-                server[0x00] = ServerSpawnObjectPacket::class.java
-                server[0x01] = ServerSpawnExperienceOrbPacket::class.java
-                server[0x02] = ServerSpawnGlobalEntityPacket::class.java
-                server[0x03] = ServerSpawnMobPacket::class.java
-                server[0x04] = ServerSpawnPaintingPacket::class.java
-                server[0x05] = ServerSpawnPlayerPacket::class.java
-                server[0x06] = ServerAnimationPacket::class.java
-                server[0x07] = ServerStatisticsPacket::class.java
-                server[0x08] = ServerBlockBreakAnimationPacket::class.java
-                server[0x09] = ServerUpdateBlockEntity::class.java
-                server[0x0A] = ServerBlockActionPacket::class.java
-                server[0x0B] = ServerBlockChangePacket::class.java
-                server[0x0C] = ServerBossBarPacket::class.java
-                server[0x0D] = ServerDifficultyPacket::class.java
-                server[0x0E] = ServerChatPacket::class.java
-                server[0x10] = ServerTabCompletePacket::class.java
-                server[0x11] = ServerDeclareCommandsPacket::class.java
-                server[0x12] = ServerConfirmTransactionPacket::class.java
-                server[0x13] = ServerCloseWindowPacket::class.java
-                server[0x14] = ServerWindowItemsPacket::class.java
-                server[0x15] = ServerWindowPropertyPacket::class.java
-                server[0x16] = ServerSetSlotPacket::class.java
-                server[0x17] = ServerSetCooldownPacket::class.java
-                server[0x18] = ServerPluginMessagePacket::class.java
-                server[0x19] = ServerNamedSoundEffectPacket::class.java
-                server[0x1A] = ServerDisconnectPacket::class.java
-                server[0x1B] = ServerEntityStatusPacket::class.java
-                server[0x1C] = ServerExplosionPacket::class.java
-                server[0x1D] = ServerUnloadChunkPacket::class.java
-                server[0x1E] = ServerChangeGameStatePacket::class.java
-                server[0x1F] = ServerOpenHorseWindowPacket::class.java
-                server[0x20] = ServerKeepAlivePacket::class.java
-                server[0x21] = ServerChunkDataPacket::class.java
-                server[0x22] = ServerEffectPacket::class.java
-                server[0x23] = ServerParticlePacket::class.java
-                server[0x24] = ServerUpdateLightPacket::class.java
-                server[0x25] = ServerJoinGamePacket::class.java
-                server[0x26] = ServerMapDataPacket::class.java
-                server[0x27] = ServerTradeListPacket::class.java
-                server[0x28] = ServerEntityRelativeMovePacket::class.java
-                server[0x29] = ServerEntityLookAndRelativeMovePacket::class.java
-                server[0x2A] = ServerEntityLookPacket::class.java
-                server[0x2B] = ServerEntityPacket::class.java
-                server[0x2C] = ServerVehicleMovePacket::class.java
-                server[0x2D] = ServerOpenBookPacket::class.java
-                server[0x2E] = ServerOpenWindowPacket::class.java
-                server[0x2F] = ServerOpenSignEditorPacket::class.java
-                server[0x30] = ServerCraftRecipeResponsePacket::class.java
-                server[0x31] = ServerPlayerAbilitiesPacket::class.java
-                server[0x32] = ServerCombatEventPacket::class.java
-                server[0x33] = ServerPlayerInfoPacket::class.java
-                server[0x34] = ServerFacePlayerPacket::class.java
-                server[0x35] = ServerPlayerPositionLookPacket::class.java
-                server[0x36] = ServerUnlockRecipesPacket::class.java
-                server[0x37] = ServerDestroyEntitiesPacket::class.java
-                server[0x38] = ServerRemoveEntityEffectPacket::class.java
-                server[0x39] = ServerResourcePackSendPacket::class.java
-                server[0x3A] = ServerRespawnPacket::class.java
-                server[0x3B] = ServerEntityHeadLookPacket::class.java
-                server[0x3C] = ServerSelectAdvancementTabPacket::class.java
-                server[0x3D] = ServerWorldBorderPacket::class.java
-                server[0x3E] = ServerCameraPacket::class.java
-                server[0x3F] = ServerHeldItemChangePacket::class.java
-                server[0x40] = ServerUpdateViewPositionPacket::class.java
-                server[0x41] = ServerUpdateViewDistancePacket::class.java
-                server[0x42] = ServerDisplayScoreboardPacket::class.java
-                server[0x43] = ServerEntityMetadataPacket::class.java
-                server[0x44] = ServerAttachEntityPacket::class.java
-                server[0x45] = ServerEntityVelocityPacket::class.java
-                server[0x46] = ServerEntityEquipmentPacket::class.java
-                server[0x47] = ServerSetExperiencePacket::class.java
-                server[0x48] = ServerUpdateHealthPacket::class.java
-                server[0x49] = ServerScoreboardObjectivePacket::class.java
-                server[0x4A] = ServerSetPassengersPacket::class.java
-                server[0x4B] = ServerTeamsPacket::class.java
-                server[0x4C] = ServerUpdateScorePacket::class.java
-                server[0x4D] = ServerSpawnPositionPacket::class.java
-                server[0x4E] = ServerTimeUpdatePacket::class.java
-                server[0x4F] = ServerTitlePacket::class.java
-                server[0x50] = ServerEntitySoundEffectPacket::class.java
-                server[0x51] = ServerSoundEffectPacket::class.java
-                server[0x52] = ServerStopSoundPacket::class.java
-                server[0x53] = ServerPlayerListHeaderAndFooterPacket::class.java
-                server[0x54] = ServerNBTQueryResponsePacket::class.java
-                server[0x55] = ServerCollectItemPacket::class.java
-                server[0x56] = ServerEntityTeleportPacket::class.java
-                server[0x57] = ServerAdvancementsPacket::class.java
-                server[0x58] = ServerEntityPropertiesPacket::class.java
-                server[0x59] = ServerEntityEffectPacket::class.java
-                server[0x5A] = ServerDeclareRecipesPacket::class.java
-                server[0x5B] = ServerTagsPacket::class.java
-
-                client[0x00] = ClientTeleportConfirmPacket::class.java
-                client[0x01] = ClientQueryBlockNBTPacket::class.java
-                client[0x02] = ClientSetDifficultyPacket::class.java
-                client[0x03] = ClientChatMessagePacket::class.java
-                client[0x04] = ClientStatusPacket::class.java
-                client[0x05] = ClientClientSettingsPacket::class.java
-                client[0x06] = ClientTabCompletePacket::class.java
-                client[0x07] = ClientConfirmTransactionPacket::class.java
-                client[0x08] = ClientClickWindowButtonPacket::class.java
-                client[0x09] = ClientClickWindowPacket::class.java
-                client[0x0A] = ClientCloseWindowPacket::class.java
-                client[0x0B] = ClientPluginMessagePacket::class.java
-                client[0x0C] = ClientEditBookPacket::class.java
-                client[0x0D] = ClientQueryEntityNBTPacket::class.java
-                client[0x0E] = ClientUseEntityPacket::class.java
-                client[0x0F] = ClientKeepAlivePacket::class.java
-                client[0x10] = ClientLockDifficultyPacket::class.java
-                client[0x11] = ClientPlayerPositionPacket::class.java
-                client[0x12] = ClientPlayerPositionAndLookPacket::class.java
-                client[0x13] = ClientPlayerLookPacket::class.java
-                client[0x14] = ClientPlayerPacket::class.java
-                client[0x15] = ClientVehicleMovePacket::class.java
-                client[0x16] = ClientSteerBoatPacket::class.java
-                client[0x17] = ClientPickItemPacket::class.java
-                client[0x18] = ClientCraftRecipeRequestPacket::class.java
-                client[0x19] = ClientPlayerAbilitiesPacket::class.java
-                client[0x1A] = ClientPlayerDiggingPacket::class.java
-                client[0x1B] = ClientEntityActionPacket::class.java
-                client[0x1C] = ClientSteerVehiclePacket::class.java
-                client[0x1D] = ClientRecipeBookDataPacket::class.java
-                client[0x1E] = ClientNameItemPacket::class.java
-                client[0x1F] = ClientResourcePackStatusPacket::class.java
-                client[0x20] = ClientAdvancementTabPacket::class.java
-                client[0x21] = ClientSelectTradePacket::class.java
-                client[0x22] = ClientSetBeaconEffectPacket::class.java
-                client[0x23] = ClientHeldItemChangePacket::class.java
-                client[0x24] = ClientUpdateCommandBlockPacket::class.java
-                client[0x25] = ClientUpdateCommandMinecartPacket::class.java
-                client[0x26] = ClientCreativeInventoryActionPacket::class.java
-                client[0x27] = ClientUpdateJigsawBlockPacket::class.java
-                client[0x28] = ClientUpdateStructureBlockPacket::class.java
-                client[0x29] = ClientUpdateSignPacket::class.java
-                client[0x2A] = ClientAnimationPacket::class.java
-                client[0x2B] = ClientSpectatePacket::class.java
-                client[0x2C] = ClientPlayerBlockPlacementPacket::class.java
-                client[0x2D] = ClientUseItemPacket::class.java
-
-
-
                 server.putAll(incomingVersion.version.serverPlay)
                 client.putAll(outgoingVersion.version.clientPlay)
             }
@@ -565,6 +424,11 @@ class ProtocolSession @JvmOverloads constructor(
     inline fun <reified T : Event> on() =
         processor.publishOn(scheduler)
             .ofType(T::class.java)
+
+    inline fun <reified T : Event> once() =
+        processor.publishOn(scheduler)
+            .ofType(T::class.java)
+            .next()
 
     fun createOutgoingPacketById(id: Int): Packet {
         val p = outgoingPackets[id] ?: return RawPacket(id)

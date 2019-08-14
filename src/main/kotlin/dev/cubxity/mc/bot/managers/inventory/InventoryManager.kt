@@ -12,12 +12,19 @@ package dev.cubxity.mc.bot.managers.inventory
 
 import com.google.gson.annotations.Expose
 import dev.cubxity.mc.bot.Bot
+import dev.cubxity.mc.protocol.data.obj.Slot
 import dev.cubxity.mc.protocol.events.PacketReceivedEvent
 import dev.cubxity.mc.protocol.packets.game.client.ClientHeldItemChangePacket
+import dev.cubxity.mc.protocol.packets.game.server.ServerHeldItemChangePacket
 import dev.cubxity.mc.protocol.packets.game.server.ServerSetSlotPacket
 import dev.cubxity.mc.protocol.packets.game.server.ServerWindowItemsPacket
 
 class InventoryManager(private val bot: Bot) {
+
+    val heldItem: Slot?
+        get() = inventory.getHotbar(currentSlot)
+
+    var currentSlot = 0
 
     var inventory = PlayerInventory()
 
@@ -40,11 +47,18 @@ class InventoryManager(private val bot: Bot) {
 
                     inventory.set(it.slot, it.data)
                 }
+
+            on<PacketReceivedEvent>()
+                .filter { it.packet is ServerHeldItemChangePacket }
+                .map { it.packet as ServerHeldItemChangePacket }
+                .subscribe {
+                    currentSlot = it.slot
+                }
         }
     }
 
     fun swapItem(hotbar: Int) {
-        bot.session.send(ClientHeldItemChangePacket(hotbar))
+        bot.session.send(ClientHeldItemChangePacket(hotbar.toShort()))
     }
 
 }

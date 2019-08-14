@@ -11,6 +11,7 @@
 package dev.cubxity.mc.protocol.example
 
 import com.google.gson.GsonBuilder
+import dev.cubxity.mc.bot.bot
 import dev.cubxity.mc.protocol.ProtocolSession
 import dev.cubxity.mc.protocol.data.magic.ClientStatus
 import dev.cubxity.mc.protocol.data.magic.EntityAction
@@ -51,11 +52,12 @@ fun client() {
         .sessionFactory { con, ch ->
             buildProtocol(ProtocolSession.Side.CLIENT, con, ch) {
                 applyDefaults()
-                wiretap { it is ServerDeclareRecipesPacket }
+//                wiretap { it is ServerDeclareRecipesPacket }
+//                wiretap()
 //                login(System.getProperty("username"), System.getProperty("password"))
                 offline("TestUser")
 
-                val tracker = tracker()
+                val bot = bot()
 
                 val gson = GsonBuilder().setPrettyPrinting().create()
 

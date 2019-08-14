@@ -11,8 +11,9 @@
 package dev.cubxity.mc.protocol.entities
 
 import dev.cubxity.mc.protocol.utils.Vec3d
+import kotlin.math.floor
 
 data class SimplePosition(var x: Double, var y: Double, var z: Double) {
     fun toVec3() = Vec3d(x, y, z)
-    fun toBlockPosition() = BlockPosition(x.toInt(), y.toInt(), z.toInt())
+    fun toBlockPosition() = BlockPosition(floor(x).toInt(), floor(y).toInt(), floor(z).toInt())
 }

@@ -28,10 +28,10 @@ import dev.cubxity.mc.protocol.packets.game.server.ServerUnloadChunkPacket
 import dev.cubxity.mc.protocol.packets.game.server.entity.*
 import dev.cubxity.mc.protocol.packets.game.server.entity.spawn.ServerSpawnMobPacket
 import dev.cubxity.mc.protocol.packets.game.server.entity.spawn.ServerSpawnPlayerPacket
+import dev.cubxity.mc.protocol.packets.game.server.world.ServerBlockChangePacket
 import dev.cubxity.mc.protocol.packets.game.server.world.ServerChunkDataPacket
+import dev.cubxity.mc.protocol.packets.game.server.world.ServerMultiBlockChangePacket
 import dev.cubxity.mc.protocol.packets.game.server.world.ServerTimeUpdatePacket
-import dev.cubxity.mc.protocol.packets.game.server.world.block.ServerBlockChangePacket
-import dev.cubxity.mc.protocol.packets.game.server.world.block.ServerMultiBlockChangePacket
 import dev.cubxity.mc.protocol.utils.Vec3d
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.floor
@@ -124,7 +124,7 @@ class World(private val bot: Bot) {
                 .map { it.packet as ServerDifficultyPacket }
                 .subscribe {
                     difficulty = it.difficulty
-                    difficultyLocked = it.locked
+                    difficultyLocked = it.difficultyLocked
                 }
 
             on<PacketReceivedEvent>()

@@ -14,4 +14,6 @@ data class BlockPosition(
     var x: Int,
     var y: Int,
     var z: Int
-)
+) {
+    fun toSimple() = SimplePosition(x.toDouble(), y.toDouble(), z.toDouble())
+}

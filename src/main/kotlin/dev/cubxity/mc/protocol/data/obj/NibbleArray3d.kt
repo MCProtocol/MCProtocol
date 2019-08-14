@@ -8,80 +8,77 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package dev.cubxity.mc.protocol.data.obj;
+package dev.cubxity.mc.protocol.data.obj
 
-import dev.cubxity.mc.protocol.net.io.NetInput;
-import dev.cubxity.mc.protocol.net.io.NetOutput;
+import dev.cubxity.mc.protocol.net.io.NetInput
+import dev.cubxity.mc.protocol.net.io.NetOutput
 
-import java.io.IOException;
-import java.util.Arrays;
+import java.io.IOException
+import java.util.Arrays
 
 //
-public class NibbleArray3d {
-    private byte[] data;
+class NibbleArray3d {
+    var data: ByteArray? = null
+        private set
 
-    public NibbleArray3d(int size) {
-        this.data = new byte[size >> 1];
+    constructor(size: Int) {
+        this.data = ByteArray(size shr 1)
     }
 
-    public NibbleArray3d(byte[] array) {
-        this.data = array;
+    constructor(array: ByteArray) {
+        this.data = array
     }
 
-    public NibbleArray3d(NetInput in, int size) throws IOException {
-        this.data = in.readBytes(size);
+    @Throws(IOException::class)
+    constructor(`in`: NetInput, size: Int) {
+        this.data = `in`.readBytes(size)
     }
 
-    public void write(NetOutput out) throws IOException {
-        out.writeBytes(this.data);
+    @Throws(IOException::class)
+    fun write(out: NetOutput) {
+        out.writeBytes(this.data!!)
     }
 
-    public byte[] getData() {
-        return this.data;
+    operator fun get(x: Int, y: Int, z: Int): Int {
+        val key = y shl 8 or (z shl 4) or x
+        val index = key shr 1
+        val part = key and 1
+        return if (part == 0) this.data!![index].toInt() and 15 else this.data!![index].toInt() shr 4 and 15
     }
 
-    public int get(int x, int y, int z) {
-        int key = y << 8 | z << 4 | x;
-        int index = key >> 1;
-        int part = key & 1;
-        return part == 0 ? this.data[index] & 15 : this.data[index] >> 4 & 15;
-    }
-
-    public void set(int x, int y, int z, int val) {
-        int key = y << 8 | z << 4 | x;
-        int index = key >> 1;
-        int part = key & 1;
+    operator fun set(x: Int, y: Int, z: Int, `val`: Int) {
+        val key = y shl 8 or (z shl 4) or x
+        val index = key shr 1
+        val part = key and 1
         if (part == 0) {
-            this.data[index] = (byte) (this.data[index] & 240 | val & 15);
+            this.data?.set(index, (this.data!![index].toInt() and 240 or (`val` and 15)).toByte())
         } else {
-            this.data[index] = (byte) (this.data[index] & 15 | (val & 15) << 4);
+            this.data?.set(index, (this.data!![index].toInt() and 15 or (`val` and 15 shl 4)).toByte())
         }
     }
 
-    public void fill(int val) {
-        for (int index = 0; index < this.data.length << 1; index++) {
-            int ind = index >> 1;
-            int part = index & 1;
+    fun fill(`val`: Int) {
+        for (index in 0 until (this.data!!.size shl 1)) {
+            val ind = index shr 1
+            val part = index and 1
             if (part == 0) {
-                this.data[ind] = (byte) (this.data[ind] & 240 | val & 15);
+                this.data!![ind] = (this.data!![ind].toInt() and 240 or (`val` and 15)).toByte()
             } else {
-                this.data[ind] = (byte) (this.data[ind] & 15 | (val & 15) << 4);
+                this.data!![ind] = (this.data!![ind].toInt() and 15 or (`val` and 15 shl 4)).toByte()
             }
         }
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof NibbleArray3d)) return false;
+    override fun equals(o: Any?): Boolean {
+        if (this === o) return true
+        if (o !is NibbleArray3d) return false
 
-        NibbleArray3d that = (NibbleArray3d) o;
-        return Arrays.equals(this.data, that.data);
+        val that = o as NibbleArray3d?
+        return Arrays.equals(this.data, that!!.data)
     }
 
-    @Override
-    public int hashCode() {
-        return Arrays.hashCode(this.data);
+    override fun hashCode(): Int {
+        return Arrays.hashCode(this.data)
     }
 
 
