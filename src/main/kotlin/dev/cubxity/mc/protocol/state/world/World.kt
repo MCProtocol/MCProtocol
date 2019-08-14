@@ -26,9 +26,12 @@ import dev.cubxity.mc.protocol.packets.game.server.world.ServerChunkDataPacket
 import dev.cubxity.mc.protocol.packets.game.server.world.ServerTimeUpdatePacket
 import dev.cubxity.mc.protocol.state.entity.WorldEntity
 import dev.cubxity.mc.protocol.state.entity.impl.WorldPlayerEntity
-import kotlin.math.floor
+import java.awt.image.BufferedImage
+import java.io.File
+import java.io.IOException
+import javax.imageio.ImageIO
 
-class World(session: ProtocolSession) {
+class World(val session: ProtocolSession) {
     private val chunks = hashMapOf<ChunkPosition, Chunk>()
 
     val entities = hashMapOf<Int, WorldEntity>()
@@ -47,6 +50,8 @@ class World(session: ProtocolSession) {
                 .subscribe {
                     val pos = ChunkPosition(it.chunkX, it.chunkZ)
                     chunks[pos] = it.chunk
+
+                    logger.debug("Chunk column ${it.chunkX} ${it.chunkZ} loaded")
                 }
 
             on<PacketReceivedEvent>()
@@ -140,9 +145,67 @@ class World(session: ProtocolSession) {
     }
 
     fun getBlockAt(position: BlockPosition): BlockState? {
-        val chunkX = floor(position.x / 16.0).toInt()
-        val chunkZ = floor(position.z / 16.0).toInt()
+        val chunkX = position.x shr 4
+        val chunkZ = position.z shr 4
         return chunks[ChunkPosition(chunkX, chunkZ)]?.getState(position.x, position.y, position.z)
+    }
+
+    fun dumpChunk(chunkX: Int, chunkZ: Int) {
+        for (y in 0..255) {
+            println(y)
+            val image = BufferedImage(16 * 16, 16 * 16, BufferedImage.TYPE_INT_RGB)
+
+            val graphics = image.graphics
+
+            //            int y = 84;
+
+            for (x in 0..15) {
+                for (z in 0..15) {
+                    val c = getBlockAt(BlockPosition((chunkX shl 4) + x, y, (chunkZ shl 4) + z))
+
+                    val id = c?.blockId ?: 0
+
+                    if (id != 0) {
+                        var f = File(
+                            "F:\\Projects\\IntelliJ\\proxy\\assets\\" + session.incomingVersion.registryManager.blockRegistry.get(
+                                id
+                            )!!.name + "_top.png"
+                        )
+
+                        if (!f.exists()) {
+                            f = File(
+                                "F:\\Projects\\IntelliJ\\proxy\\assets\\" + session.incomingVersion.registryManager.blockRegistry.get(
+                                    id
+                                )!!.name + ".png"
+                            )
+                        }
+
+                        try {
+                            val img = ImageIO.read(f)
+
+                            graphics.drawImage(img, x * 16, z * 16, null)
+
+                        } catch (e: IOException) {
+                            println("couldn't find " + f.name)
+                        }
+
+                    }
+                    //                    System.out.printf("%03d ", id);
+                }
+
+
+                //                System.out.println();
+            }
+
+            try {
+                ImageIO.write(image, "PNG", File("A:/aids/$chunkX-$y-$chunkZ.png"))
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+
+            //            System.out.println();
+        }
+        //        System.out.println();
     }
 
 }

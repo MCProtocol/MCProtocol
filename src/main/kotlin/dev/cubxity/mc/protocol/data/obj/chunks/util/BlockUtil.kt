@@ -15,7 +15,7 @@ import dev.cubxity.mc.protocol.data.obj.chunks.BlockState
 
 object BlockUtil {
 
-    fun getGlobalPaletteIDFromState(state: BlockState) = state.id
+    fun getGlobalPaletteIDFromState(state: BlockState) = state.data
     fun getStateFromGlobalPaletteID(value: Int, target: ProtocolVersion) =
         BlockState(value)
 

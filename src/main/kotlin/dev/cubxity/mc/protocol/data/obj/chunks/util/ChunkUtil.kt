@@ -29,10 +29,10 @@ object ChunkUtil {
                 val palette = choosePalette(bitsPerBlock.toByte(), target)
                 palette.read(data)
 
-                val individualValueMask = (1 shl bitsPerBlock) - 1
+                val individualValueMask = ((1 shl bitsPerBlock) - 1).toLong()
 
                 val dataArrayLength = data.readVarInt()
-                val dataArray = data.readInts(dataArrayLength)
+                val dataArray = data.readLongs(dataArrayLength)
 
                 val section = ChunkSection()
 
@@ -57,7 +57,7 @@ object ChunkUtil {
                             // If you're reading a power of 2 minus one (15, 31, 63, 127, etc...) that's out of bounds,
                             // you're probably reading light data instead
 
-                            val state = palette.getStateForId(blockData)
+                            val state = palette.getStateForId(blockData.toInt())
                             section.setState(x, y, z, state)
                         }
                     }

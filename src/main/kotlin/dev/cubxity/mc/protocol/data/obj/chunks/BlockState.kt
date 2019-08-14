@@ -10,4 +10,19 @@
 
 package dev.cubxity.mc.protocol.data.obj.chunks
 
-class BlockState(var id: Int)
+class BlockState(var data: Int) {
+    val blockId: Int
+        get() {
+            return data and 0xFFF
+        }
+    val blockMetadata: Int
+        get() {
+            return (data shr 12) and 0xF
+        }
+
+    override fun toString(): String {
+        return "BlockState(blockId=$blockId, blockMetadata=$blockMetadata)"
+    }
+
+
+}

@@ -155,7 +155,7 @@ abstract class NetOutput {
     }
 
     fun writeBlockState(state: BlockState) {
-        writeVarInt(state.id)
+        writeVarInt(state.data)
     }
 
     fun writeParticleData(particleId: Int, data: AbstractParticleData?) {
