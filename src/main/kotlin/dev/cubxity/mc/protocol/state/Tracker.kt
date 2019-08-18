@@ -10,6 +10,7 @@
 
 package dev.cubxity.mc.protocol.state
 
+import dev.cubxity.mc.api.on
 import dev.cubxity.mc.protocol.ProtocolSession
 import dev.cubxity.mc.protocol.data.magic.MessageType
 import dev.cubxity.mc.protocol.events.PacketReceivedEvent

@@ -16,11 +16,12 @@ import com.github.steveice10.mc.auth.exception.request.RequestException
 import com.github.steveice10.mc.auth.exception.request.ServiceUnavailableException
 import com.github.steveice10.mc.auth.service.AuthenticationService
 import com.github.steveice10.mc.auth.service.SessionService
+import dev.cubxity.mc.api.IProtocol
+import dev.cubxity.mc.api.on
 import dev.cubxity.mc.protocol.data.magic.Dimension
 import dev.cubxity.mc.protocol.data.magic.Gamemode
 import dev.cubxity.mc.protocol.data.magic.LevelType
 import dev.cubxity.mc.protocol.dsl.msg
-import dev.cubxity.mc.protocol.entities.ServerListData
 import dev.cubxity.mc.protocol.events.*
 import dev.cubxity.mc.protocol.net.PacketEncryption
 import dev.cubxity.mc.protocol.packets.Packet
@@ -57,6 +58,7 @@ import org.objenesis.ObjenesisStd
 import org.slf4j.LoggerFactory
 import reactor.core.publisher.EmitterProcessor
 import reactor.core.publisher.FluxSink
+import reactor.core.scheduler.Scheduler
 import reactor.core.scheduler.Schedulers
 import reactor.netty.Connection
 import java.math.BigInteger
@@ -74,7 +76,7 @@ class ProtocolSession @JvmOverloads constructor(
     val channel: NioSocketChannel,
     var incomingVersion: ProtocolVersion = ProtocolVersion.V1_14_4,
     var outgoingVersion: ProtocolVersion = ProtocolVersion.V1_14_4
-) : SimpleChannelInboundHandler<Packet>(), CoroutineScope {
+) : SimpleChannelInboundHandler<Packet>(), CoroutineScope, IProtocol {
 
     override val coroutineContext = Dispatchers.Default + Job()
 
@@ -128,7 +130,7 @@ class ProtocolSession @JvmOverloads constructor(
     /**
      * Session client token
      */
-    var clientToken: String = UUID.randomUUID().toString()
+    override var clientToken: String = UUID.randomUUID().toString()
 
     var keyPair = CryptUtil.generateKeyPair()
 
@@ -151,8 +153,8 @@ class ProtocolSession @JvmOverloads constructor(
      */
     var subProtocol = SubProtocol.HANDSHAKE
 
-    val processor = EmitterProcessor.create<Event>()
-    val scheduler = Schedulers.newSingle("Protocol-PacketManager", true)
+    override val processor: EmitterProcessor<Event> = EmitterProcessor.create()
+    override val scheduler: Scheduler = Schedulers.newSingle("Protocol-PacketManager", true)
     val sink = processor.sink(FluxSink.OverflowStrategy.BUFFER)
 
     /**
@@ -165,7 +167,7 @@ class ProtocolSession @JvmOverloads constructor(
     /**
      * Applies all default settings
      */
-    fun applyDefaults() {
+    override fun applyDefaults() {
         registerDefaults()
         when (side) {
             Side.CLIENT -> defaultClientHandler()
@@ -247,20 +249,6 @@ class ProtocolSession @JvmOverloads constructor(
                 }
             }
         }
-        on<PacketReceivedEvent>()
-            .filter { it.packet is StatusQueryPacket }
-            .next()
-            .subscribe {
-                send(
-                    StatusResponsePacket(
-                        ServerListData(
-                            ServerListData.Version("MCProtocol", outgoingVersion.id),
-                            msg("MCProtocol Server"),
-                            ServerListData.Players(1, 0)
-                        )
-                    )
-                )
-            }
         on<PacketReceivedEvent>()
             .filter { it.packet is StatusPingPacket }
             .map { it.packet as StatusPingPacket }
@@ -527,7 +515,7 @@ class ProtocolSession @JvmOverloads constructor(
      * @param uuid optional UUID
      */
     @JvmOverloads
-    fun offline(username: String, uuid: UUID = UUID.randomUUID()) {
+    override fun offline(username: String, uuid: UUID) {
         profile = GameProfile(uuid, username)
     }
 
@@ -538,7 +526,7 @@ class ProtocolSession @JvmOverloads constructor(
      * @param clientToken optional client token
      */
     @JvmOverloads
-    fun login(username: String, using: String, clientToken: String = this.clientToken, token: Boolean = false) {
+    override fun login(username: String, using: String, clientToken: String, token: Boolean) {
         val auth = AuthenticationService(clientToken)
         auth.username = username
         if (token)
@@ -556,7 +544,7 @@ class ProtocolSession @JvmOverloads constructor(
      * This is used for debugging
      * NOTE: [logger]'s level is required to be at DEBUG
      */
-    fun wiretap(filter: (Packet) -> Boolean = { true }): ProtocolSession {
+    override fun wiretap(filter: (Packet) -> Boolean): ProtocolSession {
         on<PacketReceivedEvent>()
             .subscribe { (packet) -> if (filter(packet)) logger.debug("[$side - RECEIVED]: ${if (packet is RawPacket) "RawPacket id: ${packet.id}" else "$packet"}") }
         on<PacketSentEvent>()
@@ -564,11 +552,7 @@ class ProtocolSession @JvmOverloads constructor(
         return this
     }
 
-    fun tracker() = Tracker(this)
-
-    inline fun <reified T : Event> on() =
-        processor.publishOn(scheduler)
-            .ofType(T::class.java)
+    override fun createTracker(): Tracker = Tracker(this)
 
     fun createOutgoingPacketById(id: Int): Packet {
         val p = outgoingPackets[id] ?: return RawPacket(id)
@@ -590,7 +574,7 @@ class ProtocolSession @JvmOverloads constructor(
     fun getIncomingId(packet: Packet) =
         incomingPackets.keys.elementAtOrElse(incomingPackets.values.indexOf(packet::class.java)) { (packet as? RawPacket)?.id }
 
-    fun send(packet: Packet): ChannelFuture? {
+    override fun send(packet: Packet): ChannelFuture? {
         val e = PacketSendingEvent(packet)
         sink.next(e)
         //TODO: Fix the issue with this being non-blocking
@@ -600,7 +584,7 @@ class ProtocolSession @JvmOverloads constructor(
         return null
     }
 
-    fun disconnect(reason: String) {
+    override fun disconnect(reason: String) {
         logger.debug("Disconnected: $reason")
         if (channel.isOpen) {
             val m = msg(reason)

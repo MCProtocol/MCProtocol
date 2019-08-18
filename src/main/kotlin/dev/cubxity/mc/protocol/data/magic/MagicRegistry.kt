@@ -67,10 +67,10 @@ object MagicRegistry {
         data[Dimension.OVERWORLD] = 0
         data[Dimension.END] = 1
 
-        data[Difficulity.PEACEFUL] = 0
-        data[Difficulity.EASY] = 1
-        data[Difficulity.NORMAL] = 2
-        data[Difficulity.HARD] = 3
+        data[Difficulty.PEACEFUL] = 0
+        data[Difficulty.EASY] = 1
+        data[Difficulty.NORMAL] = 2
+        data[Difficulty.HARD] = 3
 
         data[LevelType.DEFAULT] = "default"
         data[LevelType.FLAT] = "flat"

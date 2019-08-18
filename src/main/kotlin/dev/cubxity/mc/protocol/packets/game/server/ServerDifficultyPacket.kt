@@ -11,18 +11,18 @@
 package dev.cubxity.mc.protocol.packets.game.server
 
 import dev.cubxity.mc.protocol.ProtocolVersion
-import dev.cubxity.mc.protocol.data.magic.Difficulity
+import dev.cubxity.mc.protocol.data.magic.Difficulty
 import dev.cubxity.mc.protocol.net.io.NetInput
 import dev.cubxity.mc.protocol.net.io.NetOutput
 import dev.cubxity.mc.protocol.packets.Packet
 
 class ServerDifficultyPacket(
-    var difficulty: Difficulity,
+    var difficulty: Difficulty,
     var difficultyLocked: Boolean
 ) : Packet() {
 
     override fun read(buf: NetInput, target: ProtocolVersion) {
-        difficulty = Difficulity.values()[buf.readUnsignedByte()]
+        difficulty = Difficulty.values()[buf.readUnsignedByte()]
         difficultyLocked = buf.readBoolean()
     }
 

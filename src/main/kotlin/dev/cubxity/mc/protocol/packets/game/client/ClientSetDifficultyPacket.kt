@@ -12,17 +12,17 @@ package dev.cubxity.mc.protocol.packets.game.client
 
 
 import dev.cubxity.mc.protocol.ProtocolVersion
-import dev.cubxity.mc.protocol.data.magic.Difficulity
+import dev.cubxity.mc.protocol.data.magic.Difficulty
 import dev.cubxity.mc.protocol.net.io.NetInput
 import dev.cubxity.mc.protocol.net.io.NetOutput
 import dev.cubxity.mc.protocol.packets.Packet
 
 class ClientSetDifficultyPacket(
-    var newDifficulty: Difficulity
+    var newDifficulty: Difficulty
 ) : Packet() {
 
     override fun read(buf: NetInput, target: ProtocolVersion) {
-        newDifficulty = Difficulity.values()[buf.readUnsignedByte()]
+        newDifficulty = Difficulty.values()[buf.readUnsignedByte()]
     }
 
     override fun write(out: NetOutput, target: ProtocolVersion) {

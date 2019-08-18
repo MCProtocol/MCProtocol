@@ -8,10 +8,17 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package dev.cubxity.mc.protocol.data.magic
+package dev.cubxity.mc.api.data
 
-enum class ClientStatus {
-    PERFORM_RESPAWN,
-    REQUEST_STATS
+import dev.cubxity.mc.api.data.enums.ChatMode
+import dev.cubxity.mc.api.data.enums.EnumHand
+import dev.cubxity.mc.api.data.enums.Locale
 
-}
+data class ClientSettings(
+    val locale: Locale,
+    val viewDistance: Int,
+    val chateMode: ChatMode,
+    val chatColors: Boolean,
+    val displayedSkinParts: Int,
+    val mainHand: EnumHand = EnumHand.MAIN_HAND
+)

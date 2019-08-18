@@ -10,8 +10,9 @@
 
 package dev.cubxity.mc.protocol.state.world
 
+import dev.cubxity.mc.api.on
 import dev.cubxity.mc.protocol.ProtocolSession
-import dev.cubxity.mc.protocol.data.magic.Difficulity
+import dev.cubxity.mc.protocol.data.magic.Difficulty
 import dev.cubxity.mc.protocol.data.obj.chunks.BlockState
 import dev.cubxity.mc.protocol.data.obj.chunks.Chunk
 import dev.cubxity.mc.protocol.data.obj.chunks.ChunkPosition
@@ -39,7 +40,7 @@ class World(val session: ProtocolSession) {
     var timeOfDay: Long = 0
     var worldAge: Long = 0
 
-    var difficulty = Difficulity.NORMAL
+    var difficulty = Difficulty.NORMAL
     var difficultyLocked = false
 
     init {

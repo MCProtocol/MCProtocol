@@ -148,7 +148,7 @@ abstract class NetInput {
         }
     }
 
-    fun <T> readVarArray(lengthReader: () -> Int = { readVarInt() }, reader: () -> T): ArrayList<T> {
+    inline fun <reified T> readVarArray(lengthReader: () -> Int = { readVarInt() }, reader: () -> T): ArrayList<T> {
         val recipeIdSize = lengthReader()
         val shit: ArrayList<T> = ArrayList(recipeIdSize)
 
@@ -173,5 +173,8 @@ abstract class NetInput {
         }
     }
 
-    fun <T> readOptional(function: () -> T): T? = if (readBoolean()) function() else null
+    inline fun <reified T> readOptional(function: () -> T): T? = if (readBoolean()) function() else null
+    inline fun <reified T : Enum<T>> readEnum(function: () -> Int = { readVarInt() }): T {
+        return enumValues<T>()[function()]
+    }
 }

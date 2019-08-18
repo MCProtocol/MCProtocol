@@ -8,10 +8,12 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package dev.cubxity.mc.protocol.data.magic
+package dev.cubxity.mc.api.data
 
-enum class ClientStatus {
-    PERFORM_RESPAWN,
-    REQUEST_STATS
+data class Location(var x: Double?, var y: Double?, var z: Double?, var yaw: Float?, var pitch: Float?) {
+    constructor(yaw: Float, pitch: Float) : this(null, null, null, yaw, pitch)
+    constructor(x: Double, y: Double, z: Double) : this(x, y, z, null, null)
 
+    fun getPositionVector(): Vector3d = Vector3d(x!!, y!!, z!!)
+    fun getRotationVector(): Vector2f = Vector2f(yaw!!, pitch!!)
 }
