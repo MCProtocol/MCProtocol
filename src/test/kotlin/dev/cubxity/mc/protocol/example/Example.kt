@@ -11,13 +11,15 @@
 package dev.cubxity.mc.protocol.example
 
 import com.google.gson.GsonBuilder
+import dev.cubxity.mc.api.on
 import dev.cubxity.mc.protocol.ProtocolSession
 import dev.cubxity.mc.protocol.data.magic.ClientStatus
 import dev.cubxity.mc.protocol.data.magic.GameState
 import dev.cubxity.mc.protocol.dsl.buildProtocol
 import dev.cubxity.mc.protocol.dsl.client
+import dev.cubxity.mc.protocol.dsl.msg
 import dev.cubxity.mc.protocol.dsl.server
-import dev.cubxity.mc.protocol.entities.BlockPosition
+import dev.cubxity.mc.protocol.entities.ServerListData
 import dev.cubxity.mc.protocol.events.PacketReceivedEvent
 import dev.cubxity.mc.protocol.packets.game.client.ClientStatusPacket
 import dev.cubxity.mc.protocol.packets.game.server.ServerChangeGameStatePacket
@@ -27,6 +29,8 @@ import dev.cubxity.mc.protocol.packets.game.server.ServerJoinGamePacket
 import dev.cubxity.mc.protocol.packets.game.server.entity.player.ServerUpdateHealthPacket
 import dev.cubxity.mc.protocol.packets.game.server.entity.spawn.ServerSpawnPlayerPacket
 import dev.cubxity.mc.protocol.packets.login.server.LoginSuccessPacket
+import dev.cubxity.mc.protocol.packets.status.client.StatusQueryPacket
+import dev.cubxity.mc.protocol.packets.status.server.StatusResponsePacket
 
 /**
  * @author Cubxity
@@ -54,7 +58,7 @@ fun client() {
 //                login(System.getProperty("username"), System.getProperty("password"))
                 offline("TestUser")
 
-                val tracker = tracker()
+                val tracker = createTracker()
 
                 val gson = GsonBuilder().setPrettyPrinting().create()
 
@@ -97,7 +101,7 @@ fun client() {
 //                        ch.writeAndFlush(ClientUseEntityPacket(3856, InteractionType.INTERACT, hand = EnumHand.MAIN_HAND))
 //                        println()
 //                        tracker.world.dumpChunk(-2, 1)
-                        println(tracker.world.getBlockAt(BlockPosition(-23, 2, 23)).toString())
+//                        println(tracker.session.incomingVersion.registryManager.blockRegistry.get(tracker.world.getBlockAt(BlockPosition(-32, 11, 25))!!.blockId))
                     }
 
                 on<PacketReceivedEvent>()
@@ -139,6 +143,20 @@ fun server() {
                     .map { it.packet as ServerSpawnPlayerPacket }
                     .subscribe {
                         ch.writeAndFlush(ServerChangeGameStatePacket(GameState.DEMO_MESSAGE, 0.0f))
+                    }
+                on<PacketReceivedEvent>()
+                    .filter { it.packet is StatusQueryPacket }
+                    .next()
+                    .subscribe {
+                        send(
+                            StatusResponsePacket(
+                                ServerListData(
+                                    ServerListData.Version("MCProtocol", outgoingVersion.id),
+                                    msg("MCProtocol Server"),
+                                    ServerListData.Players(1, 0)
+                                )
+                            )
+                        )
                     }
             }
         }
